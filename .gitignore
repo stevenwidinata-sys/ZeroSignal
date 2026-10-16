@@ -1,0 +1,23 @@
+# Rust
+/backend/target
+**/*.rs.bk
+
+# Node
+node_modules
+/frontend/dist
+.vite
+
+# Env
+.env
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# OS
+.DS_Store
+
+# Postgres volume (if mounted locally)
+/pgdata

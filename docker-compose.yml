@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: angrybird_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: angrybird
+      POSTGRES_PASSWORD: angrybird
+      POSTGRES_DB: angrybird
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U angrybird -d angrybird"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
