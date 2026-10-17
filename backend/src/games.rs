@@ -38,7 +38,7 @@ pub const GAMES: &[GameInfo] = &[
     GameInfo {
         id: "connect-four",
         title: "Connect Four",
-        status: GameStatus::ComingSoon,
+        status: GameStatus::Live,
     },
     GameInfo {
         id: "tic-tac-toe",
