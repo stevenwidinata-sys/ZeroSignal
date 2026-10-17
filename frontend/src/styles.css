@@ -1268,6 +1268,71 @@ input:focus {
   position: relative;
 }
 
+.c4-play {
+  display: grid;
+  gap: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.c4-bar {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.c4-bar .status-bar {
+  flex: 1;
+}
+.c4-score {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.c4-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.c4-player.active {
+  background: color-mix(in srgb, var(--yellow) 22%, var(--surface));
+}
+.c4-player > div {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.c4-player strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c4-pips {
+  display: flex;
+  gap: 4px;
+}
+.c4-pips span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  background: var(--surface-2);
+}
+.c4-pips span.on {
+  background: var(--green);
+}
+.c4-meta {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
