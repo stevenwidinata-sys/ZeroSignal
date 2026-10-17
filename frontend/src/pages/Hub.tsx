@@ -55,7 +55,7 @@ export default function Hub() {
       <section className="hero">
         <p className="eyebrow">▶ INSERT COIN</p>
         <h1 className="hero-title">
-          PIXEL<span>PLAY</span>
+          ZERO<span>SIGNAL</span>
         </h1>
         <p className="hero-sub">
           Retro games. Real leaderboards. Zero cheats. Every score is verified by

@@ -57,12 +57,12 @@ export default function App() {
         Skip to content
       </a>
       <header className="nav">
-        <Link to="/" className="brand" aria-label="PixelPlay home">
+        <Link to="/" className="brand" aria-label="Zero Signal home">
           <span className="brand-logo" aria-hidden="true">
             ▶
           </span>
           <span className="brand-text">
-            PIXEL<span>PLAY</span>
+            ZERO<span>SIGNAL</span>
           </span>
         </Link>
         <nav className="nav-links" aria-label="Main">
@@ -111,7 +111,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        PIXELPLAY · Scores are verified server-side. No cheats, just skill.
+        ZERO SIGNAL · Scores are verified server-side. No cheats, just skill.
       </footer>
     </div>
   );
