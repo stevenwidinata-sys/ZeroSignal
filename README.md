@@ -1,18 +1,24 @@
-# Angry Bird
+# Zero Signal
 
-A full-physics Angry Birds style game with **authoritative server-side scoring** (clients cannot cheat).
+A hub of fun browser games with a retro arcade UI and real, **server-verified leaderboards** (clients cannot cheat).
 
-- **Frontend:** React + TypeScript + Vite + matter-js (visual physics)
-- **Backend:** Rust + Axum + sqlx + rapier2d (authoritative physics & scoring)
+- **Frontend:** React + TypeScript + Vite
+- **Backend:** Rust + Axum + sqlx
 - **Database:** PostgreSQL 16
+
+## Games
+
+| Game         | Status      | Notes |
+|--------------|-------------|-------|
+| Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
+| Connect Four | Coming soon | |
 
 ## Features
 
-- User register / login (Argon2 password hashing + JWT auth)
-- Authoritative server-side physics: the client sends only shot *inputs*; the Rust server re-simulates with `rapier2d` and computes the real score. Clients cannot submit fake scores.
-- Global leaderboard + personal score history
-- 6 bird variants with distinct colors and abilities, **unlocked via score thresholds**
-- Destructible structures and pigs, slingshot aiming
+- Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
+- Per-game leaderboards and personal history.
+- Anti-cheat by design: clients send only player *inputs*; the server computes every score.
+- Dark / light theme.
 
 ## Prerequisites
 
@@ -42,18 +48,25 @@ A full-physics Angry Birds style game with **authoritative server-side scoring**
    ```
    App served on `http://localhost:5173`.
 
+## Tests
+
+```bash
+cd backend;  cargo test
+cd frontend; npm test
+```
+
 ## Project layout
 
 ```
-angry_bird/
+zero_signal/
 ├── docker-compose.yml          # local Postgres
 ├── backend/                    # Rust + Axum API
-│   ├── migrations/             # sqlx SQL migrations (0003 = per-game scores)
+│   ├── migrations/             # sqlx SQL migrations
 │   └── src/
 │       ├── games.rs            # game catalog (allowed game ids)
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
 │       └── physics/            # rapier2d authoritative simulation
-└── frontend/                   # PIXELPLAY (React + TS)
+└── frontend/                   # React + TS
     └── src/
         ├── platform/           # GameModule contract + registry
         ├── games/<id>/         # one self-contained folder per game
@@ -64,6 +77,8 @@ angry_bird/
 
 | Method | Path | Notes |
 |--------|------|-------|
+| POST | `/api/auth/register` | create account |
+| POST | `/api/auth/login` | returns JWT |
 | GET  | `/api/games` | catalog |
 | GET  | `/api/games/:id/leaderboard` | top 20 for that game |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
@@ -74,11 +89,11 @@ angry_bird/
 
 1. Backend: add a `GameInfo` to `backend/src/games.rs` (`ComingSoon` first).
 2. Frontend: create `frontend/src/games/<id>/index.ts` exporting a `GameModule`, and add it to `GAMES` in `src/platform/registry.ts`. It appears on the hub as "coming soon"; its leaderboard already works.
-3. To go live: add a lazy `Play` component, set status `live`, and add a server handler at `POST /api/games/<id>/scores` that **computes the score from player inputs** (never accept a client-sent score).
+3. To go live: add a lazy `Play` component, set status `live`, and add a server handler that **computes the score from player inputs** (never accept a client-sent score).
 
 `npm test` fails if the frontend and backend game lists drift apart.
 
-## Bird unlock thresholds
+## Angry Bird: bird unlock thresholds
 
 | Bird      | Color      | Ability             | Unlock (best score) |
 |-----------|------------|---------------------|---------------------|
