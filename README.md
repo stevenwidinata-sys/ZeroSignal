@@ -11,14 +11,40 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Game         | Status      | Notes |
 |--------------|-------------|-------|
 | Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
-| Connect Four | Coming soon | |
+| Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
+| Tic-Tac-Toe  | Coming soon | |
 
 ## Features
 
 - Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
 - Per-game leaderboards and personal history.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
-- Dark / light theme.
+- Dark / light theme and a settings panel (sound, volume, light graphics, turn timer), saved in the browser.
+
+## Connect Four
+
+- **Modes:** vs AI (Easy, Medium, Hard, Impossible) or local 2-player on one device. Player 1 always moves first.
+- **Series:** best of 3 or best of 5. Draws don't count toward the series.
+- **Turn timer** (Settings: off / 10s / 20s / 30s): when it runs out, a random move is played.
+- **Undo** (AI only): max 3 per game, disabled on Impossible. Using undo in a series forfeits its reward spin.
+- **Anti-cheat:** AI matches run entirely on the server. The client sends a column number; the server validates it, plays the AI reply, and decides wins, points and spins. Local 2-player games give no points or spins.
+- **Points:** winning a series earns Easy 1 / Medium 3 / Hard 6 / Impossible 15 points (doubled for best of 5). The leaderboard shows each player's total.
+- **Skins & spin wheel:** winning a series without undo grants one spin. Landing on a skin you already own re-spins for free.
+
+| Skin | Rarity |
+|------|--------|
+| Classic Red, Classic Blue | Common (starter, free) |
+| Lime Green | Common |
+| Royal Purple, Red Bird, Piggy | Rare |
+| Bomb Bird, Golden Egg, TNT Crate | Epic |
+| Golden | Legendary |
+
+| Spin odds  | Common | Rare | Epic | Legendary |
+|------------|--------|------|------|-----------|
+| Easy       | 50%    | 35%  | 12%  | 3%        |
+| Medium     | 30%    | 45%  | 20%  | 5%        |
+| Hard       | 10%    | 45%  | 35%  | 10%       |
+| Impossible | 0%     | 0%   | 75%  | 25%       |
 
 ## Prerequisites
 
@@ -65,6 +91,7 @@ zero_signal/
 │   └── src/
 │       ├── games.rs            # game catalog (allowed game ids)
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
+│       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
     └── src/
@@ -84,6 +111,14 @@ zero_signal/
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
+| POST | `/api/games/connect-four/matches` | start an AI series `{difficulty, best_of, skin}` (auth) |
+| GET  | `/api/games/connect-four/matches/active` | resume your unfinished series (auth) |
+| POST | `/api/games/connect-four/matches/:id/move` | `{column}`; server replies with the AI move (auth) |
+| POST | `/api/games/connect-four/matches/:id/undo` | undo your last move + AI reply (auth) |
+| POST | `/api/games/connect-four/matches/:id/next` | start the next game of the series (auth) |
+| POST | `/api/games/connect-four/matches/:id/forfeit` | give up the series (auth) |
+| GET  | `/api/games/connect-four/skins` | skin collection + unspent spins (auth) |
+| POST | `/api/games/connect-four/spins` | spend a spin; server rolls the result (auth) |
 
 ## Adding a game
 
