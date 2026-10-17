@@ -17,6 +17,7 @@ use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
 use crate::config::Config;
+use crate::connect_four::api as cf;
 use crate::state::AppState;
 
 #[tokio::main]
@@ -57,6 +58,15 @@ async fn main() -> anyhow::Result<()> {
         // Per-game authoritative score submission.
         .route("/api/games/angry-bird/scores", post(scores::submit_angry_bird))
         .route("/api/games/angry-bird/birds", get(birds_api::list))
+        // Connect Four: server-authoritative AI matches + skins.
+        .route("/api/games/connect-four/matches", post(cf::create_match))
+        .route("/api/games/connect-four/matches/active", get(cf::active_match))
+        .route("/api/games/connect-four/matches/:id/move", post(cf::play_move))
+        .route("/api/games/connect-four/matches/:id/undo", post(cf::undo_move))
+        .route("/api/games/connect-four/matches/:id/next", post(cf::next_game))
+        .route("/api/games/connect-four/matches/:id/forfeit", post(cf::forfeit_match))
+        .route("/api/games/connect-four/skins", get(cf::list_skins))
+        .route("/api/games/connect-four/spins", post(cf::spin))
         // Legacy aliases (Angry Bird) for older clients.
         .route("/api/scores", post(scores::submit_angry_bird))
         .route("/api/scores/leaderboard", get(scores::legacy_leaderboard))
