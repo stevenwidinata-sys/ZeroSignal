@@ -2,6 +2,7 @@ mod auth;
 mod birds;
 mod birds_api;
 mod config;
+mod connect_four;
 mod db;
 mod error;
 mod games;
