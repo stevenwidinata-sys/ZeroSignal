@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: angrybird_db
+    container_name: zerosignal_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: angrybird
