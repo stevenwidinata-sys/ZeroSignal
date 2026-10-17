@@ -38,7 +38,14 @@ export default function AiGame({ initial, onExit, onSpin, onRematch }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const mounted = useRef(true);
-  useEffect(() => () => void (mounted.current = false), []);
+  useEffect(() => {
+    // Set in the effect (not just the ref init) so StrictMode's dev-only
+    // mount → unmount → mount cycle leaves it true.
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const skins: [string, string] = [match.skin, opponentSkin(match.skin, "pig")];
   const names: [string, string] = [username, `AI · ${DIFFICULTY_LABEL[match.difficulty]}`];
