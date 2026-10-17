@@ -1,6 +1,10 @@
 import type {
   AuthResponse,
   Bird,
+  CfCollection,
+  CfMatch,
+  CfSpin,
+  Difficulty,
   LeaderboardEntry,
   MyScoresResponse,
   ShotInput,
@@ -93,5 +97,43 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ level, shots }),
     });
+  },
+};
+
+const CF = "/api/games/connect-four";
+const post = <T>(path: string, body?: unknown) =>
+  request<T>(path, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
+
+/** Connect Four: the server owns the board; we only ever send a column. */
+export const connectFour = {
+  createMatch(difficulty: Difficulty, bestOf: 3 | 5, skin: string) {
+    return post<CfMatch>(`${CF}/matches`, { difficulty, best_of: bestOf, skin });
+  },
+  /** Resolves to null when there is no unfinished series. */
+  async activeMatch(): Promise<CfMatch | null> {
+    try {
+      return await request<CfMatch>(`${CF}/matches/active`);
+    } catch (e) {
+      if (e instanceof Error && e.message === "not found") return null;
+      throw e;
+    }
+  },
+  move(id: string, column: number) {
+    return post<CfMatch>(`${CF}/matches/${encodeURIComponent(id)}/move`, { column });
+  },
+  undo(id: string) {
+    return post<CfMatch>(`${CF}/matches/${encodeURIComponent(id)}/undo`);
+  },
+  nextGame(id: string) {
+    return post<CfMatch>(`${CF}/matches/${encodeURIComponent(id)}/next`);
+  },
+  forfeit(id: string) {
+    return post<CfMatch>(`${CF}/matches/${encodeURIComponent(id)}/forfeit`);
+  },
+  skins() {
+    return request<CfCollection>(`${CF}/skins`);
+  },
+  spin() {
+    return post<CfSpin>(`${CF}/spins`);
   },
 };
