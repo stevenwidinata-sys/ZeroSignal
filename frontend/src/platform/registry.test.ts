@@ -33,6 +33,7 @@ describe("game registry", () => {
   it("finds games by id and rejects unknown ones", () => {
     expect(findGame("angry-bird")?.meta.title).toBe("Angry Bird");
     expect(findGame("connect-four")?.meta.status).toBe("soon");
+    expect(findGame("tic-tac-toe")?.meta.status).toBe("soon");
     expect(findGame("nope")).toBeUndefined();
     expect(findGame(undefined)).toBeUndefined();
   });

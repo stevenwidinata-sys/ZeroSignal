@@ -40,6 +40,11 @@ pub const GAMES: &[GameInfo] = &[
         title: "Connect Four",
         status: GameStatus::ComingSoon,
     },
+    GameInfo {
+        id: "tic-tac-toe",
+        title: "Tic-Tac-Toe",
+        status: GameStatus::ComingSoon,
+    },
 ];
 
 pub fn find(id: &str) -> Option<&'static GameInfo> {
@@ -75,6 +80,7 @@ mod tests {
     fn unknown_games_are_rejected() {
         assert!(require(ANGRY_BIRD).is_ok());
         assert!(require("connect-four").is_ok());
+        assert!(require("tic-tac-toe").is_ok());
         assert!(require("../etc").is_err());
         assert!(require("").is_err());
     }
