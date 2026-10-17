@@ -1137,6 +1137,137 @@ input:focus {
   transition-duration: 0.001ms !important;
 }
 
+/* ---------- Connect Four ---------- */
+.c4-board {
+  --slot: clamp(38px, 10vw, 72px);
+  display: grid;
+  justify-content: center;
+  padding: 12px;
+  background: var(--blue);
+  border: var(--bw) solid var(--line);
+  border-radius: 12px;
+  box-shadow: 6px 6px 0 var(--line);
+}
+.c4-columns {
+  display: grid;
+  grid-template-columns: repeat(7, var(--slot));
+  gap: 4px;
+}
+.c4-col {
+  --btn-bg: transparent;
+  display: grid;
+  grid-template-rows: var(--slot) repeat(6, var(--slot));
+  gap: 4px;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 8px;
+  background: transparent;
+}
+.c4-col:hover:not(:disabled),
+.c4-col:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  filter: none;
+  background: rgba(255, 255, 255, 0.12);
+}
+.c4-col:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.c4-col:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+.c4-preview {
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+  animation: c4-bob 0.9s ease-in-out infinite alternate;
+}
+.c4-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  border: var(--bw) solid var(--line);
+  border-radius: 50%;
+  box-shadow: inset 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+.c4-piece {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+.c4-chip {
+  width: 92%;
+  height: 92%;
+}
+.c4-piece.drop {
+  animation: c4-drop calc(0.12s + var(--fall) * 0.05s) cubic-bezier(0.5, 0, 0.75, 0) both,
+    c4-bounce 0.2s calc(0.12s + var(--fall) * 0.05s) ease-out;
+}
+.c4-piece.win {
+  animation: c4-glow 0.8s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+.has-win .c4-piece:not(.win) {
+  opacity: 0.55;
+}
+@keyframes c4-drop {
+  from {
+    transform: translateY(calc(var(--fall) * -1 * (var(--slot) + 4px)));
+  }
+}
+@keyframes c4-bounce {
+  50% {
+    transform: translateY(-8%);
+  }
+}
+@keyframes c4-glow {
+  from {
+    filter: drop-shadow(0 0 0 var(--yellow));
+    transform: scale(1);
+  }
+  to {
+    filter: drop-shadow(0 0 10px var(--yellow));
+    transform: scale(1.08);
+  }
+}
+@keyframes c4-bob {
+  to {
+    transform: translateY(6px);
+  }
+}
+
+.c4-timer {
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+  padding: 8px 12px;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  background: var(--surface-2);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+}
+.c4-timer-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--green) 45%, transparent);
+  transition: width 0.2s linear;
+}
+.c4-timer.urgent .c4-timer-bar {
+  background: color-mix(in srgb, var(--red) 55%, transparent);
+}
+.c4-timer.urgent {
+  animation: blink 0.5s steps(2, start) infinite;
+}
+.c4-timer-text {
+  position: relative;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
