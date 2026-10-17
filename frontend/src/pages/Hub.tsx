@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SettingsButton, ThemeToggle } from "../components/QuickControls";
 import { GAMES } from "../platform/registry";
 import type { GameModule } from "../platform/types";
 import { useAuth } from "../store/auth";
@@ -58,8 +59,8 @@ export default function Hub() {
           ZERO<span>SIGNAL</span>
         </h1>
         <p className="hero-sub">
-          Retro games. Real leaderboards. Zero cheats. Every score is verified by
-          the server, so the top spot actually means something.
+          A hub of fun games. Real leaderboards. Zero cheats. Every score is
+          verified by the server, so the top spot actually means something.
         </p>
         <div className="hero-actions">
           <Link to="/play/angry-bird" className="btn btn-green">
@@ -70,6 +71,12 @@ export default function Hub() {
               Create account
             </Link>
           )}
+        </div>
+        <div className="hero-quick" aria-label="Quick settings">
+          <ThemeToggle />
+          <span>Theme</span>
+          <SettingsButton />
+          <span>Settings</span>
         </div>
         <dl className="hero-stats">
           <div>

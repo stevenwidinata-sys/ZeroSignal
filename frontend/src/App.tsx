@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { SettingsButton, ThemeToggle } from "./components/QuickControls";
+import SettingsDialog from "./components/SettingsDialog";
 import Hub from "./pages/Hub";
 import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
 import Register from "./pages/Register";
 import { useAuth } from "./store/auth";
-import { useTheme } from "./store/theme";
+import { useSettingsDialog } from "./store/settingsDialog";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuth((s) => s.user);
@@ -17,22 +19,6 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   return children;
 }
 
-function ThemeToggle() {
-  const theme = useTheme((s) => s.theme);
-  const toggle = useTheme((s) => s.toggle);
-  const next = theme === "dark" ? "light" : "dark";
-  return (
-    <button
-      className="icon-btn"
-      onClick={toggle}
-      aria-label={`Switch to ${next} mode`}
-      title={`Switch to ${next} mode`}
-    >
-      <span aria-hidden="true">{theme === "dark" ? "☀️" : "🌙"}</span>
-    </button>
-  );
-}
-
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `nav-link${isActive ? " active" : ""}`;
 
@@ -40,6 +26,8 @@ export default function App() {
   const user = useAuth((s) => s.user);
   const init = useAuth((s) => s.init);
   const logout = useAuth((s) => s.logout);
+  const settingsOpen = useSettingsDialog((s) => s.open);
+  const setSettingsOpen = useSettingsDialog((s) => s.setOpen);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -88,6 +76,7 @@ export default function App() {
             </NavLink>
           )}
           <ThemeToggle />
+          <SettingsButton />
         </nav>
       </header>
 
@@ -113,6 +102,7 @@ export default function App() {
       <footer className="footer">
         ZERO SIGNAL · Scores are verified server-side. No cheats, just skill.
       </footer>
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

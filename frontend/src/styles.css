@@ -1002,6 +1002,141 @@ input:focus {
   }
 }
 
+/* ---------- Settings ---------- */
+.hero-quick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.hero-quick span + .icon-btn {
+  margin-left: 10px;
+}
+
+.settings-dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 0;
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: 10px;
+  box-shadow: 6px 6px 0 var(--line);
+}
+.settings-dialog[open] {
+  animation: pop-in 0.2s var(--ease);
+}
+.settings-dialog::backdrop {
+  background: rgba(3, 4, 12, 0.6);
+}
+.settings-body {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+.settings-head,
+.settings-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.settings-head h2 {
+  margin: 0;
+}
+.settings-dialog fieldset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.settings-dialog legend {
+  padding: 0 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--green);
+}
+.row-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+.row-label small {
+  display: block;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.row-label input[type="range"] {
+  flex: 1;
+  min-width: 140px;
+  padding: 0;
+  accent-color: var(--blue);
+  border: none;
+  background: transparent;
+}
+.segmented {
+  display: flex;
+  gap: 6px;
+}
+
+/* Pixel toggle switch built from a checkbox (keeps native a11y). */
+.switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 28px;
+  padding: 0;
+  cursor: pointer;
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: 4px;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--muted);
+  border: 2px solid var(--line);
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease);
+}
+.switch:checked {
+  background: var(--green);
+}
+.switch:checked::after {
+  transform: translateX(24px);
+  background: var(--yellow);
+}
+.switch:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+/* Light graphics: drop decorative effects and motion. */
+[data-graphics="light"] body::after {
+  display: none;
+}
+[data-graphics="light"] *,
+[data-graphics="light"] *::before,
+[data-graphics="light"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
