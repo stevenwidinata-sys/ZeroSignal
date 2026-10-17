@@ -1156,7 +1156,13 @@ input:focus {
 .c4-col {
   --btn-bg: transparent;
   display: grid;
+  grid-template-columns: var(--slot);
   grid-template-rows: var(--slot) repeat(6, var(--slot));
+  /* Override the global button centering, which collapses empty slots. */
+  justify-content: start;
+  align-content: start;
+  align-items: stretch;
+  justify-items: stretch;
   gap: 4px;
   padding: 0;
   border: none;
@@ -1189,6 +1195,8 @@ input:focus {
   position: relative;
   display: grid;
   place-items: center;
+  width: var(--slot);
+  height: var(--slot);
   background: var(--bg);
   border: var(--bw) solid var(--line);
   border-radius: 50%;
@@ -1390,6 +1398,11 @@ input:focus {
 .wheel-hub:active:not(:disabled) {
   transform: translate(-50%, -50%) scale(0.96);
   box-shadow: 0 0 0 var(--line);
+}
+.wheel-hub:disabled {
+  opacity: 1;
+  --btn-bg: var(--surface-2);
+  --btn-fg: var(--muted);
 }
 .wheel-prize {
   display: flex;
