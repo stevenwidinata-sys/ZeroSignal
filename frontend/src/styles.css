@@ -1423,6 +1423,112 @@ input:focus {
   filter: grayscale(1) brightness(0.5);
 }
 
+/* Menu */
+.c4-menu {
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.c4-panel {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+.c4-resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--green) 18%, var(--surface));
+}
+.c4-modes button {
+  flex: 1;
+}
+.c4-diffs,
+.c4-skins {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.c4-diffs legend,
+.c4-skins legend {
+  padding: 0 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--green);
+}
+.c4-diffs {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.c4-diff {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--ink);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  text-transform: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  box-shadow: 3px 3px 0 var(--line);
+}
+.c4-diff strong {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.c4-diff small {
+  color: var(--muted);
+}
+.c4-diff.selected {
+  --btn-bg: var(--yellow);
+  --btn-fg: var(--on-yellow);
+}
+.c4-diff.selected small {
+  color: var(--on-yellow);
+}
+.c4-diff.diff-impossible.selected {
+  --btn-bg: var(--red);
+  --btn-fg: #fff;
+}
+.c4-diff.diff-impossible.selected small {
+  color: #fff;
+}
+.c4-skins {
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+}
+.c4-skin {
+  --btn-bg: var(--surface);
+  position: relative;
+  padding: 6px;
+  border-width: var(--bw);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.c4-skin.selected {
+  --btn-bg: var(--yellow);
+  outline: 3px solid var(--line);
+}
+.c4-skin:disabled {
+  opacity: 1;
+}
+.c4-skin:disabled svg {
+  filter: grayscale(1) brightness(0.55);
+}
+.c4-lock {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  font-size: 0.9rem;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
