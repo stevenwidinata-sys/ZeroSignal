@@ -5,6 +5,7 @@ use uuid::Uuid;
 
 use crate::auth::jwt::AuthUser;
 use crate::birds;
+use crate::economy::{self, Granted, Reward};
 use crate::error::{AppError, AppResult};
 use crate::games::{self, ANGRY_BIRD};
 use crate::physics::engine::{score_shots, ShotInput};
@@ -30,6 +31,8 @@ pub struct SubmitResponse {
     pub blocks_destroyed: usize,
     pub best_score: i32,
     pub newly_unlocked: Vec<String>,
+    /// Coins, tokens and XP actually paid for this round.
+    pub rewards: Granted,
 }
 
 /// Must match the client's birds-per-round (frontend engine.ts MAX_SHOTS).
@@ -75,6 +78,7 @@ pub async fn submit_angry_bird(
     let result = score_shots(lvl, &req.shots);
     let primary_bird = req.shots[0].bird.clone();
 
+    let mut tx = state.pool.begin().await?;
     sqlx::query(
         r#"INSERT INTO scores (user_id, game_id, score, level, bird_variant)
            VALUES ($1, $2, $3, $4, $5)"#,
@@ -84,8 +88,11 @@ pub async fn submit_angry_bird(
     .bind(result.score)
     .bind(req.level)
     .bind(&primary_bird)
-    .execute(&state.pool)
+    .execute(&mut *tx)
     .await?;
+    let reward = angry_bird_reward(result.score, &mut rand::thread_rng());
+    let rewards = economy::grant(&mut tx, user.user_id, reward, "angry_bird_round", true).await?;
+    tx.commit().await?;
 
     let new_best = prev_best.max(result.score);
     let newly_unlocked: Vec<String> = birds::BIRDS
@@ -102,7 +109,20 @@ pub async fn submit_angry_bird(
         blocks_destroyed: result.blocks_destroyed,
         best_score: new_best,
         newly_unlocked,
+        rewards,
     }))
+}
+
+/// Coins: 1 per 1,000 points. XP: 10 + up to 90 more for a big score.
+/// Token: 3% chance, rising to 15% for a 20,000+ point round.
+pub fn angry_bird_reward(score: i32, rng: &mut impl rand::Rng) -> Reward {
+    let score = score.max(0) as i64;
+    let chance = 0.03 + 0.12 * (score.min(20_000) as f64 / 20_000.0);
+    Reward {
+        coins: score / 1000,
+        tokens: economy::roll_token(chance, rng),
+        xp: 10 + (score / 250).min(90),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -202,4 +222,38 @@ pub async fn fetch_best_score(state: &AppState, game_id: &str, user_id: Uuid) ->
     .fetch_one(&state.pool)
     .await?;
     Ok(best)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::SeedableRng;
+    use rand_chacha::ChaCha8Rng;
+
+    #[test]
+    fn angry_bird_pays_one_coin_per_thousand_points() {
+        let mut r = ChaCha8Rng::seed_from_u64(1);
+        assert_eq!(angry_bird_reward(0, &mut r).coins, 0);
+        assert_eq!(angry_bird_reward(999, &mut r).coins, 0);
+        assert_eq!(angry_bird_reward(4_500, &mut r).coins, 4);
+        assert_eq!(angry_bird_reward(-10, &mut r).coins, 0);
+    }
+
+    #[test]
+    fn angry_bird_xp_is_bounded() {
+        let mut r = ChaCha8Rng::seed_from_u64(1);
+        assert_eq!(angry_bird_reward(0, &mut r).xp, 10);
+        assert_eq!(angry_bird_reward(1_000_000, &mut r).xp, 100);
+    }
+
+    #[test]
+    fn bigger_rounds_drop_tokens_more_often() {
+        let mut r = ChaCha8Rng::seed_from_u64(2);
+        let drops = |score, r: &mut ChaCha8Rng| -> i32 {
+            (0..5_000).map(|_| angry_bird_reward(score, r).tokens).sum()
+        };
+        let low = drops(0, &mut r);
+        let high = drops(20_000, &mut r);
+        assert!(high > low * 3, "low={low} high={high}");
+    }
 }
