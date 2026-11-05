@@ -12,7 +12,10 @@ export type Unlock =
   | { kind: "starter" }
   | { kind: "level"; level: number }
   | { kind: "coins"; price: number }
-  | { kind: "wheel" };
+  | { kind: "wheel" }
+  | { kind: "achievement" };
+
+export type TitleTier = "bronze" | "silver" | "gold" | "mythic";
 
 export interface ItemArt {
   shape?: string;
@@ -20,6 +23,12 @@ export interface ItemArt {
   accent?: string;
   text?: string;
   special?: string;
+  /** Titles: how strong the look is (harder to get = stronger). */
+  tier?: TitleTier;
+  /** Titles: element shown before the text. */
+  icon?: string;
+  /** Titles: glow or animation name (see `.title-fx-*` in styles.css). */
+  effect?: string;
 }
 
 export interface Item {
@@ -104,6 +113,8 @@ export function unlockLabel(u: Unlock): string {
       return `${u.price.toLocaleString()} 🪙 in the shop`;
     case "wheel":
       return "Token wheel only";
+    case "achievement":
+      return "Achievement reward";
   }
 }
 

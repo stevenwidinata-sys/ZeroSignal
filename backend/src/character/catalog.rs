@@ -30,6 +30,8 @@ pub enum Unlock {
     Coins { price: i64 },
     /// Only from the token wheel.
     Wheel,
+    /// Only by claiming an achievement (titles).
+    Achievement,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -124,7 +126,9 @@ impl Catalog {
         match item.unlock {
             Unlock::Starter => true,
             Unlock::Level { level: need } => level >= need,
-            Unlock::Coins { .. } | Unlock::Wheel => inventory.iter().any(|i| i == &item.id),
+            Unlock::Coins { .. } | Unlock::Wheel | Unlock::Achievement => {
+                inventory.iter().any(|i| i == &item.id)
+            }
         }
     }
 
