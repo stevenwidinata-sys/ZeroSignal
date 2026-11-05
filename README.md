@@ -36,6 +36,30 @@ Only the server pays rewards, and only for results it verified itself, inside th
 - **Levels:** level 1 → 2 needs 100 XP, and each level needs 50 more than the one before.
 - Every change is recorded in `wallet_ledger` for auditing.
 
+## Character, shop and profiles
+
+Every player has a pixel-art character with **23 slots** and **158 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+
+| Group | Slots |
+|-------|-------|
+| Body (all free at start) | skin, eyes, eyebrows, mouth, hair, hair color, facial hair |
+| Head | hat, glasses, mask, earrings |
+| Clothes | shirt, jacket, pants, shoes, gloves |
+| Extras | necklace, back (cape/wings/backpack), held item, pet |
+| Profile | background, frame, title |
+
+There are four ways to get an item:
+- **Starter:** owned by everyone.
+- **Level:** owned automatically when you reach that level. The level-up pop-up shows what you just unlocked.
+- **Coins:** buy it in the shop.
+- **Token wheel:** wheel-only exclusives at 1 token per spin (Rare 50%, Epic 38%, Legendary 12%). Landing on an item you own re-spins for free, so you never get a duplicate.
+
+The shop also sells a **mystery box** for 250 coins. It gives a random shop item, and a duplicate refunds half its price.
+
+You can save up to **3 outfit presets**. Your public profile at `/u/<name>` shows your character, level, items and game stats, and leaderboards show each player's face. Profiles never show email or coin balances.
+
+The server checks every outfit: you can only wear items you own, in the slot they belong to, and required slots can't be left empty.
+
 ## Connect Four
 
 - **Modes:** vs AI (Easy, Medium, Hard, Impossible) or local 2-player on one device. Player 1 always moves first.
@@ -101,12 +125,15 @@ cd frontend; npm test
 ```
 zero_signal/
 ├── docker-compose.yml          # local Postgres
+├── shared/
+│   └── character_items.json    # character slots + items (read by backend AND frontend)
 ├── backend/                    # Rust + Axum API
 │   ├── migrations/             # sqlx SQL migrations
 │   └── src/
 │       ├── games.rs            # game catalog (allowed game ids)
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
 │       ├── economy.rs          # coins, tokens, XP/levels, daily cap, ledger
+│       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -123,6 +150,13 @@ zero_signal/
 | POST | `/api/auth/register` | create account |
 | POST | `/api/auth/login` | returns JWT |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
+| GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
+| PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
+| PUT  | `/api/me/character/presets/:n` | save outfit preset 1–3 (auth) |
+| POST | `/api/shop/buy` | `{item_id}` buy a coin item (auth) |
+| POST | `/api/shop/mystery-box` | 250 coins for a random shop item (auth) |
+| POST | `/api/shop/wheel` | 1 token for a wheel exclusive (auth) |
+| GET  | `/api/users/:username/profile` | public profile |
 | GET  | `/api/games` | catalog |
 | GET  | `/api/games/:id/leaderboard` | top 20 for that game |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
