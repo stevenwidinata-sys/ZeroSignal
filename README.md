@@ -20,7 +20,9 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
 - Per-game leaderboards and personal history.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
-- Dark / light theme and a settings panel (sound, volume, music, light graphics, turn timer), saved in the browser.
+- Dark / light theme and a settings panel (sound, volume, music, light graphics, colorblind-friendly, turn timer), saved in the browser.
+- **Colorblind-friendly** switch (Settings → Display): pieces switch to the Okabe-Ito palette, which people with common color vision deficiencies can tell apart, and get shapes so no game relies on color alone. In Connect Four, player 1's chips carry a circle and player 2's a cross. In Tic-Tac-Toe, X and O get safe colors and other faces get an X or O badge. Winning lines also get a dashed outline.
+- **Tutorials:** each live game shows a short 4-step "how to play" the first time you open it. The **?** button (bottom-left) shows it again. Seen tutorials are remembered in the browser.
 - Background music: 3 chiptune tracks made in code with Web Audio (no music files). "Insert Coin" plays on the hub and menus, "Quiet Board" in Connect Four and Tic-Tac-Toe, and "Slingshot Rush" in Angry Bird. Music has its own on/off switch and volume (default on at 40%). It starts after your first click or key press, because browsers block autoplay, and it pauses while the tab is hidden.
 - Shared economy: every server-verified game pays **coins**, **XP** (levels) and sometimes a lucky **token**.
 

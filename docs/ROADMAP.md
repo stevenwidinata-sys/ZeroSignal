@@ -15,7 +15,7 @@ into `main` (owner approved this).
   faces, private photo face (`shared/tic_tac_toe_items.json`).
 - Whack-a-Mole: coming-soon card only.
 
-## Phase 2 (in progress)
+## Phase 2 (done, merged into main)
 
 Branches, each merged into `main` after tests pass:
 `feat/daily-rewards`, `feat/achievements`, `feat/music`, `feat/accessibility`.
@@ -58,11 +58,11 @@ Branches, each merged into `main` after tests pass:
 - Separate music on/off + volume in Settings. Default **on at 40%**, starting
   after the first click (browsers block autoplay).
 
-### Colorblind mode (`feat/accessibility`)
+### Colorblind mode (`feat/accessibility`, done)
 - One "colorblind-friendly" switch (option a): color-safe palette everyone can
   tell apart, plus shapes on top of colors (e.g. marks on Connect Four chips).
 
-### Tutorials (`feat/accessibility`)
+### Tutorials (`feat/accessibility`, done)
 - Short 3–4 step "how to play" the first time each game is opened, plus a "?"
   button to see it again. Seen tutorials are remembered in the browser.
 
