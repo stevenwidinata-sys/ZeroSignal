@@ -2157,3 +2157,46 @@ input:focus {
     padding: 6px;
   }
 }
+
+/* Daily login reward pop-up */
+.daily-dialog {
+  width: min(560px, calc(100vw - 32px));
+}
+.daily-dialog .muted {
+  margin: 0;
+  color: var(--muted);
+}
+.daily-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.daily-day {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 2px;
+  font-size: 0.8rem;
+  text-align: center;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.daily-day small {
+  color: var(--muted);
+}
+.daily-day.done {
+  opacity: 0.55;
+}
+.daily-day.today {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 2px var(--yellow);
+}
+@media (max-width: 480px) {
+  .daily-days {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

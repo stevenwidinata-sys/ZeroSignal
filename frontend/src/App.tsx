@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SettingsButton, ThemeToggle } from "./components/QuickControls";
 import AvatarChip from "./components/AvatarChip";
+import DailyLoginDialog from "./components/DailyLoginDialog";
 import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
@@ -15,6 +16,7 @@ import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
 import { useCharacter } from "./store/character";
+import { useDailyLogin } from "./store/dailyLogin";
 import { usePhoto } from "./store/photo";
 import { useSettingsDialog } from "./store/settingsDialog";
 import { useWallet } from "./store/wallet";
@@ -41,6 +43,8 @@ export default function App() {
   const clearWallet = useWallet((s) => s.clear);
   const clearCharacter = useCharacter((s) => s.clear);
   const clearPhoto = usePhoto((s) => s.clear);
+  const loadDaily = useDailyLogin((s) => s.load);
+  const clearDaily = useDailyLogin((s) => s.clear);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -49,13 +53,16 @@ export default function App() {
 
   // Load balances whenever someone signs in; forget them on sign-out.
   useEffect(() => {
-    if (user) void refreshWallet();
-    else {
+    if (user) {
+      void refreshWallet();
+      void loadDaily();
+    } else {
       clearWallet();
       clearCharacter();
       clearPhoto();
+      clearDaily();
     }
-  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto]);
+  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto, loadDaily, clearDaily]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -146,6 +153,7 @@ export default function App() {
         ZERO SIGNAL · Scores are verified server-side. No cheats, just skill.
       </footer>
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <DailyLoginDialog />
       <RewardToast />
     </div>
   );

@@ -10,6 +10,8 @@ import type {
   ItemWheelResponse,
   LeaderboardEntry,
   LoadoutDto,
+  LoginClaim,
+  LoginStatus,
   MyScoresResponse,
   PublicProfile,
   ShotInput,
@@ -108,6 +110,12 @@ export const api = {
   },
   wallet() {
     return request<Wallet>("/api/me/wallet");
+  },
+  dailyLogin() {
+    return request<LoginStatus>("/api/me/daily-login");
+  },
+  claimDailyLogin() {
+    return request<LoginClaim>("/api/me/daily-login/claim", { method: "POST" });
   },
   character() {
     return request<CharacterView>("/api/me/character");

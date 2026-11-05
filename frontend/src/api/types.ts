@@ -251,3 +251,24 @@ export interface TttSpin {
   won: string | null;
   collection: TttCollection;
 }
+
+/** One day of the 7-day login streak. */
+export interface LoginDayReward {
+  day: number;
+  coins: number;
+  tokens: number;
+}
+
+export interface LoginStatus {
+  claimed_today: boolean;
+  /** Day claimed today, or the day the next claim pays (1..7). */
+  streak_day: number;
+  rewards: LoginDayReward[];
+  /** ISO time when the next WIB day starts. */
+  next_reset: string;
+}
+
+export interface LoginClaim {
+  status: LoginStatus;
+  granted: Granted;
+}
