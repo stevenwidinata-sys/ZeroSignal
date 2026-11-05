@@ -49,7 +49,8 @@ export const RECIPES: Record<Sfx, Note[]> = {
 
 let ctx: AudioContext | null = null;
 
-function audio(): AudioContext | null {
+/** The shared audio context (music uses it too). Null when unsupported. */
+export function audio(): AudioContext | null {
   if (typeof window === "undefined") return null;
   const Ctor =
     window.AudioContext ??
