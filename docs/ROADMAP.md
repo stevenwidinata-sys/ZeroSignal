@@ -24,19 +24,23 @@ Branches, each merged into `main` after tests pass:
 - Everything daily resets at **00:00 WIB (UTC+7)**: login reward, quests and
   the daily coin cap. The cap currently resets at 00:00 UTC and must move.
 
-### Daily login reward (`feat/daily-rewards`)
+### Daily login reward (`feat/daily-rewards`, done)
 - 7-day streak: day 1 = 10 coins, 2 = 15, 3 = 20, 4 = 25, 5 = 30, 6 = 40,
   7 = 100 coins + 1 token. After day 7 the streak restarts at day 1.
 - Missing a day resets the streak to day 1.
 - A pop-up with a "Claim" button appears when you open the site.
 - Login rewards do **not** count toward the daily coin cap.
 
-### Daily quests (`feat/daily-rewards`)
-- 3 random quests per day from a pool, e.g. "Win 2 Connect Four games vs
-  Medium or harder", "Play 3 Tic-Tac-Toe games vs the AI", "Score 5,000 in
-  Angry Bird", "Win a series without undo", "Open a mystery box".
-- Each pays 20 to 60 coins + XP. Completing all 3 gives a bonus token.
-- Only server-verified results count. 1 free reroll per day.
+### Daily quests (`feat/daily-rewards`, done)
+- 3 random quests per day from a pool of 12 (listed in README), e.g. "Win 2
+  Connect Four games vs Medium or harder", "Play 3 Tic-Tac-Toe games vs the
+  AI", "Score 5,000 in Angry Bird", "Win a series without undo", "Open a
+  mystery box".
+- Each pays 20 to 60 coins + XP via a **Claim** button. Claiming all 3 gives
+  a bonus token. Quest coins don't count toward the daily cap.
+- Only server-verified results count. 1 free reroll per day that swaps
+  **one** unfinished quest.
+- Shown both as a Hub panel and on the `/quests` page (nav badge when ready).
 
 ### Achievements (`feat/achievements`)
 - About 25 one-time achievements, e.g. "Beat Impossible", "Survive Hard
