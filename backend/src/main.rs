@@ -1,3 +1,4 @@
+mod achievements;
 mod auth;
 mod birds;
 mod birds_api;
@@ -66,6 +67,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/me/quests", get(quests::api::get_quests))
         .route("/api/me/quests/:slot/claim", post(quests::api::claim))
         .route("/api/me/quests/:slot/reroll", post(quests::api::reroll))
+        // Achievements (claim pays coins + XP + a title).
+        .route("/api/me/achievements", get(achievements::list))
+        .route("/api/me/achievements/:id/claim", post(achievements::claim))
         // Character, outfits, shop and public profiles.
         .route("/api/me/character", get(character::api::get_character))
         .route("/api/me/character/loadout", put(character::api::put_loadout))

@@ -19,7 +19,7 @@ use crate::state::AppState;
 // Player state helpers
 // ---------------------------------------------------------------------------
 
-async fn level_of(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<i32> {
+pub(crate) async fn level_of(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<i32> {
     let xp: Option<i64> = sqlx::query_scalar("SELECT xp FROM wallets WHERE user_id = $1")
         .bind(user_id)
         .fetch_optional(ex)
@@ -27,14 +27,14 @@ async fn level_of(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<i32> {
     Ok(economy::level_info(xp.unwrap_or(0)).level)
 }
 
-async fn inventory(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<Vec<String>> {
+pub(crate) async fn inventory(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<Vec<String>> {
     Ok(sqlx::query_scalar("SELECT item_id FROM user_items WHERE user_id = $1")
         .bind(user_id)
         .fetch_all(ex)
         .await?)
 }
 
-async fn stored_loadout(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<Loadout> {
+pub(crate) async fn stored_loadout(ex: impl PgExecutor<'_>, user_id: Uuid) -> AppResult<Loadout> {
     let l: Option<SqlJson<Loadout>> =
         sqlx::query_scalar("SELECT loadout FROM avatars WHERE user_id = $1")
             .bind(user_id)
@@ -292,6 +292,7 @@ pub struct PublicProfile {
     pub joined: chrono::DateTime<chrono::Utc>,
     pub items_owned: usize,
     pub stats: Vec<GameStat>,
+    pub achievements: Vec<crate::achievements::PublicAchievement>,
 }
 
 /// `GET /api/users/:username/profile` — public. Never includes email,
@@ -323,6 +324,7 @@ pub async fn public_profile(
         joined,
         items_owned: owned_ids(level, &inv).len(),
         stats,
+        achievements: crate::achievements::public_list(&state.pool, user_id).await?,
     }))
 }
 
