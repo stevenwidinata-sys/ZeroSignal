@@ -80,9 +80,52 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 | Open a mystery box | 30 | 40 |
 | Win 5 AI games in any game | 60 | 100 |
 
+## Achievements
+
+The `/achievements` page lists 25 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+
+| Achievement | Coins | Title |
+|-------------|-------|-------|
+| Win your first Connect Four series | 30 | Chip Dropper |
+| Win a Connect Four series vs Medium or harder | 40 | Four Thinker |
+| Win a Connect Four series vs Hard or harder | 80 | Grid Breaker |
+| Win a Connect Four series vs Impossible | 300 | The Impossible |
+| Win a best-of-5 Connect Four series 3–0 | 100 | Flawless |
+| Own all 10 Connect Four skins | 200 | Collector |
+| Win your first Tic-Tac-Toe series | 30 | X Marks It |
+| Draw a whole Hard Tic-Tac-Toe series | 100 | Unbreakable |
+| Own every Tic-Tac-Toe board and face | 200 | Board Baron |
+| Add a photo face | 20 | Say Cheese |
+| Finish your first Angry Bird round | 20 | Fledgling |
+| Score 10,000 in one Angry Bird round | 80 | Sharpshooter |
+| Score 25,000 in one Angry Bird round | 200 | Pig Slayer |
+| Unlock every bird | 150 | Flock Leader |
+| Reach level 5 / 10 / 25 | 50 / 150 / 400 | Rising Star / Veteran / Living Legend |
+| Spin the token wheel | 30 | Wheel Spinner |
+| Open 10 mystery boxes | 100 | Box Hunter |
+| Wear 10 non-starter items at once | 30 | Stylish |
+| Own 50 items beyond the starter set | 150 | Fashion Icon |
+| Spend 5,000 coins in total | 150 | High Roller |
+| Reach a 7-day login streak | 100 | Loyal |
+| Claim 10 daily quests | 60 | Adventurer |
+| Finish all 3 daily quests in one day, 7 times | 200 | Quest Master |
+
+### Title looks
+
+Every title has a tier. Harder titles get a stronger look:
+
+| Tier | Look | Used by |
+|------|------|---------|
+| Bronze | colored text, dashed border | common titles |
+| Silver | color + element icon | rare titles |
+| Gold | color + icon + glow | epic titles |
+| Mythic | icon + animation (flicker, shimmer, sparkle, metal shine, flame, rainbow, coin shine, heartbeat, rising stars) | legendary titles |
+
+Titles show in the wardrobe, on public profiles and next to names on leaderboards. The "Light graphics" setting stops the animations and keeps the colors.
+
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **158 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **183 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|
@@ -181,6 +224,7 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
+│       ├── achievements.rs     # 25 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
@@ -204,6 +248,8 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
+| GET  | `/api/me/achievements` | all 25 achievements with live progress (auth) |
+| POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
 | PUT  | `/api/me/character/presets/:n` | save outfit preset 1–3 (auth) |

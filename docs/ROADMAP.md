@@ -42,12 +42,15 @@ Branches, each merged into `main` after tests pass:
   **one** unfinished quest.
 - Shown both as a Hub panel and on the `/quests` page (nav badge when ready).
 
-### Achievements (`feat/achievements`)
-- About 25 one-time achievements, e.g. "Beat Impossible", "Survive Hard
-  Tic-Tac-Toe", "Collect every skin", "Reach level 10", "7-day login streak".
-- Each pays coins + XP once; some unlock exclusive character titles
-  (e.g. "Pig Slayer").
-- Shown on the public profile.
+### Achievements (`feat/achievements`, built, waiting for merge)
+- 25 one-time achievements (listed in README), progress computed live from
+  verified data, so old progress counts. Claim button pays coins + equal XP
+  and a title. Locked ones are visible with progress bars.
+- Every achievement gives its own title (25 new achievement-only titles).
+- Every title has a tier by how hard it is: bronze (color), silver (+ icon),
+  gold (+ glow), mythic (+ animation). Existing titles get tiers by rarity.
+- "Legend" already existed (level 30), so the level-25 title is "Living Legend".
+- Shown on `/achievements`, the public profile, wardrobe and leaderboards.
 
 ### Background music (`feat/music`)
 - Chiptune generated in code (Web Audio), no music files.
