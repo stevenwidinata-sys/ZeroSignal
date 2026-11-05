@@ -1629,6 +1629,31 @@ input:focus {
 .reward-toast small {
   color: var(--muted);
 }
+.reward-unlocks {
+  display: grid;
+  gap: 6px;
+}
+.reward-unlocks ul {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reward-unlocks li {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  max-width: 70px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+}
+.reward-unlocks svg {
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
 
 /* ---------- Character: wardrobe ---------- */
 .ward {
