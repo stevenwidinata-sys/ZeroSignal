@@ -3,6 +3,7 @@ import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-route
 import { SettingsButton, ThemeToggle } from "./components/QuickControls";
 import AvatarChip from "./components/AvatarChip";
 import DailyLoginDialog from "./components/DailyLoginDialog";
+import MusicPlayer from "./components/MusicPlayer";
 import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
@@ -211,6 +212,7 @@ export default function App() {
       </footer>
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DailyLoginDialog />
+      <MusicPlayer />
       <RewardToast />
     </div>
   );

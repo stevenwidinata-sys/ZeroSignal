@@ -88,6 +88,34 @@ export default function SettingsDialog({ open, onClose }: Props) {
         </fieldset>
 
         <fieldset>
+          <legend>Music</legend>
+          <label className="row-label">
+            <span>
+              Background music
+              <small>Chiptune made in code. Starts after your first click.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.music}
+              onChange={(e) => s.update({ music: e.target.checked })}
+            />
+          </label>
+          <label className="row-label">
+            <span>Music volume · {Math.round(s.musicVolume * 100)}%</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={Math.round(s.musicVolume * 100)}
+              disabled={!s.music}
+              onChange={(e) => s.update({ musicVolume: Number(e.target.value) / 100 })}
+            />
+          </label>
+        </fieldset>
+
+        <fieldset>
           <legend>Gameplay</legend>
           <div className="row-label">
             <span id="timer-label">
