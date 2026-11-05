@@ -1,12 +1,17 @@
 import type {
   AuthResponse,
   Bird,
+  BoxResponse,
   CfCollection,
   CfMatch,
   CfSpin,
+  CharacterView,
   Difficulty,
+  ItemWheelResponse,
   LeaderboardEntry,
+  LoadoutDto,
   MyScoresResponse,
+  PublicProfile,
   ShotInput,
   SubmitResponse,
   User,
@@ -80,6 +85,36 @@ export const api = {
   },
   wallet() {
     return request<Wallet>("/api/me/wallet");
+  },
+  character() {
+    return request<CharacterView>("/api/me/character");
+  },
+  saveLoadout(loadout: LoadoutDto) {
+    return request<CharacterView>("/api/me/character/loadout", {
+      method: "PUT",
+      body: JSON.stringify({ loadout }),
+    });
+  },
+  savePreset(slotNo: 1 | 2 | 3, name: string, loadout: LoadoutDto) {
+    return request<CharacterView>(`/api/me/character/presets/${slotNo}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, loadout }),
+    });
+  },
+  buyItem(itemId: string) {
+    return request<CharacterView>("/api/shop/buy", {
+      method: "POST",
+      body: JSON.stringify({ item_id: itemId }),
+    });
+  },
+  openMysteryBox() {
+    return request<BoxResponse>("/api/shop/mystery-box", { method: "POST" });
+  },
+  spinItemWheel() {
+    return request<ItemWheelResponse>("/api/shop/wheel", { method: "POST" });
+  },
+  profile(username: string) {
+    return request<PublicProfile>(`/api/users/${encodeURIComponent(username)}/profile`);
   },
   // Platform: per-game leaderboards/history. gameId is URL-encoded defensively.
   leaderboard(gameId: string) {

@@ -146,3 +146,53 @@ export interface CfSpin {
   won: string | null;
   collection: CfCollection;
 }
+
+// ---------------------------------------------------------------------------
+// Character, shop and profiles
+// ---------------------------------------------------------------------------
+
+/** slot id -> item id (catalog: shared/character_items.json). */
+export type LoadoutDto = Record<string, string>;
+
+export interface OutfitPreset {
+  slot_no: 1 | 2 | 3;
+  name: string;
+  loadout: LoadoutDto;
+}
+
+export interface CharacterView {
+  loadout: LoadoutDto;
+  /** Every item id the player owns (starter + level + bought/won). */
+  owned: string[];
+  presets: OutfitPreset[];
+  wallet: Wallet;
+}
+
+export interface BoxResponse {
+  item_id: string;
+  duplicate: boolean;
+  refund: number;
+  character: CharacterView;
+}
+
+export interface ItemWheelResponse {
+  /** Every landing in order; all but the last were owned (free re-spins). */
+  rolls: string[];
+  won: string;
+  character: CharacterView;
+}
+
+export interface GameStat {
+  game_id: string;
+  best_score: number;
+  plays: number;
+}
+
+export interface PublicProfile {
+  username: string;
+  level: number;
+  loadout: LoadoutDto;
+  joined: string;
+  items_owned: number;
+  stats: GameStat[];
+}
