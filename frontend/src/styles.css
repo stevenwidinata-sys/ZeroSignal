@@ -2570,3 +2570,50 @@ input:focus {
   outline-color: #03040c;
   outline-offset: 0;
 }
+
+/* Game tutorials ("?" button + step dialog) */
+.help-btn {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 40;
+  width: 46px;
+  height: 46px;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+}
+.tutorial-step {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 170px;
+  text-align: center;
+}
+.tutorial-step h3 {
+  margin: 0;
+}
+.tutorial-step p {
+  margin: 0;
+  color: var(--muted);
+}
+.tutorial-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+.tutorial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tutorial-dots li {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+}
+.tutorial-dots li.on {
+  background: var(--green);
+}

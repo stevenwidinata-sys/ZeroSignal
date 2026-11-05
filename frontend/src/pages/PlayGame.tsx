@@ -1,10 +1,19 @@
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import TutorialDialog from "../components/TutorialDialog";
 import { findGame } from "../platform/registry";
+import { hasSeen, markSeen } from "../platform/tutorial";
 
 export default function PlayGame() {
   const { gameId } = useParams();
   const game = findGame(gameId);
+  const steps = game?.meta.status === "live" ? game.meta.tutorial : undefined;
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  // First visit to each game: show its tutorial once.
+  useEffect(() => {
+    setHelpOpen(!!steps?.length && !!game && !hasSeen(game.meta.id));
+  }, [game, steps]);
 
   if (!game) {
     return (
@@ -34,9 +43,30 @@ export default function PlayGame() {
     );
   }
 
+  function closeHelp() {
+    markSeen(game!.meta.id);
+    setHelpOpen(false);
+  }
+
   return (
-    <Suspense fallback={<div className="loading">Loading {game.meta.title}</div>}>
-      <Play />
-    </Suspense>
+    <>
+      {steps?.length ? (
+        <>
+          <button
+            type="button"
+            className="icon-btn help-btn"
+            onClick={() => setHelpOpen(true)}
+            aria-label={`How to play ${game.meta.title}`}
+            title="How to play"
+          >
+            ?
+          </button>
+          <TutorialDialog title={game.meta.title} steps={steps} open={helpOpen} onClose={closeHelp} />
+        </>
+      ) : null}
+      <Suspense fallback={<div className="loading">Loading {game.meta.title}</div>}>
+        <Play />
+      </Suspense>
+    </>
   );
 }
