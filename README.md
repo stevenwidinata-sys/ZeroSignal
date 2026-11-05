@@ -20,6 +20,21 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Per-game leaderboards and personal history.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
 - Dark / light theme and a settings panel (sound, volume, light graphics, turn timer), saved in the browser.
+- Shared economy: every server-verified game pays **coins**, **XP** (levels) and sometimes a lucky **token**.
+
+## Coins, tokens and levels
+
+Only the server pays rewards, and only for results it verified itself, inside the same database transaction that records the result. Local 2-player games pay nothing.
+
+| Game | Coins | XP | Token drop |
+|------|-------|----|------------|
+| Angry Bird | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
+| Connect Four, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–4) | none |
+| Connect Four, series win | Easy 10 / Medium 25 / Hard 50 / Impossible 120 (×2 for best of 5) | bonus 25 × difficulty | 10% / 20% / 35% / 60% |
+
+- **Daily cap:** at most 1,000 coins per day from games (resets 00:00 UTC). XP and tokens are not capped.
+- **Levels:** level 1 → 2 needs 100 XP, and each level needs 50 more than the one before.
+- Every change is recorded in `wallet_ledger` for auditing.
 
 ## Connect Four
 
@@ -91,6 +106,7 @@ zero_signal/
 │   └── src/
 │       ├── games.rs            # game catalog (allowed game ids)
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
+│       ├── economy.rs          # coins, tokens, XP/levels, daily cap, ledger
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -106,6 +122,7 @@ zero_signal/
 |--------|------|-------|
 | POST | `/api/auth/register` | create account |
 | POST | `/api/auth/login` | returns JWT |
+| GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
 | GET  | `/api/games` | catalog |
 | GET  | `/api/games/:id/leaderboard` | top 20 for that game |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
