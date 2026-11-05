@@ -5,6 +5,7 @@ mod character;
 mod config;
 mod connect_four;
 mod daily;
+mod daily_login;
 mod db;
 mod economy;
 mod error;
@@ -57,6 +58,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/me", get(auth::handlers::me))
         .route("/api/me/wallet", get(economy::wallet))
+        // Daily login streak reward.
+        .route("/api/me/daily-login", get(daily_login::status))
+        .route("/api/me/daily-login/claim", post(daily_login::claim))
         // Character, outfits, shop and public profiles.
         .route("/api/me/character", get(character::api::get_character))
         .route("/api/me/character/loadout", put(character::api::put_loadout))
