@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
 import { useCharacter } from "./store/character";
+import { usePhoto } from "./store/photo";
 import { useSettingsDialog } from "./store/settingsDialog";
 import { useWallet } from "./store/wallet";
 
@@ -39,6 +40,7 @@ export default function App() {
   const refreshWallet = useWallet((s) => s.refresh);
   const clearWallet = useWallet((s) => s.clear);
   const clearCharacter = useCharacter((s) => s.clear);
+  const clearPhoto = usePhoto((s) => s.clear);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -51,8 +53,9 @@ export default function App() {
     else {
       clearWallet();
       clearCharacter();
+      clearPhoto();
     }
-  }, [user, refreshWallet, clearWallet, clearCharacter]);
+  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto]);
 
   // Scroll to top on page change.
   useEffect(() => {
