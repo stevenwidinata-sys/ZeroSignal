@@ -1,0 +1,24 @@
+{
+  "boards": [
+    { "id": "classic", "name": "Classic", "rarity": "common", "price": null, "art": { "bg": "#ffffff", "cell": "#f3f6ff", "line": "#141936", "glow": null } },
+    { "id": "chalk", "name": "Chalkboard", "rarity": "common", "price": 150, "art": { "bg": "#2f4f3a", "cell": "#35593f", "line": "#f1f1e6", "glow": null } },
+    { "id": "neon", "name": "Neon Night", "rarity": "rare", "price": 300, "art": { "bg": "#0b0e1f", "cell": "#121735", "line": "#00f5d4", "glow": "#00f5d4" } },
+    { "id": "wood", "name": "Wooden Crate", "rarity": "rare", "price": 300, "art": { "bg": "#a0632b", "cell": "#c8873a", "line": "#5a3412", "glow": null } },
+    { "id": "candy", "name": "Candy Land", "rarity": "epic", "price": 600, "art": { "bg": "#ffafcc", "cell": "#ffe5ec", "line": "#9b5de5", "glow": "#ffffff" } },
+    { "id": "space", "name": "Deep Space", "rarity": "legendary", "price": 1500, "art": { "bg": "#240046", "cell": "#3c096c", "line": "#ffd23f", "glow": "#e0aaff" } }
+  ],
+  "faces": [
+    { "id": "x", "name": "Classic X", "rarity": "common", "price": null, "art": { "kind": "x", "color": "#e63946" } },
+    { "id": "o", "name": "Classic O", "rarity": "common", "price": null, "art": { "kind": "o", "color": "#3a86ff" } },
+    { "id": "photo", "name": "My Photo", "rarity": "common", "price": null, "art": { "kind": "photo" } },
+    { "id": "avatar", "name": "My Character", "rarity": "common", "price": null, "art": { "kind": "avatar" } },
+    { "id": "cool", "name": "Cool Guy", "rarity": "common", "price": 100, "art": { "kind": "emoji", "value": "😎" } },
+    { "id": "cat", "name": "Kitty", "rarity": "common", "price": 100, "art": { "kind": "emoji", "value": "🐱" } },
+    { "id": "fox", "name": "Foxy", "rarity": "rare", "price": 250, "art": { "kind": "emoji", "value": "🦊" } },
+    { "id": "alien", "name": "Alien", "rarity": "rare", "price": 250, "art": { "kind": "emoji", "value": "👽" } },
+    { "id": "robot", "name": "Robot", "rarity": "rare", "price": 250, "art": { "kind": "emoji", "value": "🤖" } },
+    { "id": "red-bird", "name": "Red Bird", "rarity": "epic", "price": 600, "art": { "kind": "chip", "value": "red-bird" } },
+    { "id": "pig", "name": "Piggy", "rarity": "epic", "price": 600, "art": { "kind": "chip", "value": "pig" } },
+    { "id": "crown", "name": "Royal Crown", "rarity": "legendary", "price": 1500, "art": { "kind": "emoji", "value": "👑" } }
+  ]
+}

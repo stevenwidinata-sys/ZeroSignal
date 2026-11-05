@@ -2,3 +2,5 @@
 
 pub mod ai;
 pub mod board;
+pub mod items;
+pub mod rewards;
