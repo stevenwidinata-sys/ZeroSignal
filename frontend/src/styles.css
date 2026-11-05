@@ -1912,7 +1912,7 @@ input:focus {
   background: color-mix(in srgb, var(--green) 14%, var(--surface));
 }
 .shop-card.mystery svg {
-  filter: brightness(0.15) contrast(1.2);
+  filter: grayscale(1) brightness(0.6);
 }
 
 /* ---------- Character: public profile ---------- */
