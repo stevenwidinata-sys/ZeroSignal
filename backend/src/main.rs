@@ -11,6 +11,7 @@ mod games;
 mod physics;
 mod scores;
 mod state;
+mod tic_tac_toe;
 
 use axum::routing::{get, post, put};
 use axum::Router;
