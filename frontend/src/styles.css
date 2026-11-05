@@ -2537,3 +2537,36 @@ input:focus {
 .board-player .title-badge {
   margin-left: 6px;
 }
+
+/* Colorblind-friendly mode: shapes on pieces, win shown by outline too. */
+.ttt-marked {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.ttt-mark {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 38%;
+  height: 38%;
+  min-width: 14px;
+  min-height: 14px;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.5rem, 1.6vw, 0.75rem);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #03040c;
+}
+[data-colorblind="on"] .c4-piece.win,
+[data-colorblind="on"] .ttt-cell.win {
+  outline: 4px dashed #fff;
+  outline-offset: -4px;
+}
+[data-colorblind="on"] .c4-piece.win {
+  outline-color: #03040c;
+  outline-offset: 0;
+}

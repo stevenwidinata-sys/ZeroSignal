@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { type Mark, safeSkin, useColorblind } from "../../platform/colorblind";
 import { findSkin } from "./skins";
 
 interface Props {
@@ -7,11 +8,15 @@ interface Props {
   size?: number;
   className?: string;
   title?: string;
+  /** Which player owns it; adds a shape in colorblind mode. */
+  mark?: Mark;
 }
 
 /** One chip, drawn as SVG so all 10 skins scale crisply with no image files. */
-export default function Chip({ skin, size = 48, className, title }: Props) {
-  const s = findSkin(skin);
+export default function Chip({ skin, size = 48, className, title, mark }: Props) {
+  const colorblind = useColorblind();
+  const base = findSkin(skin);
+  const s = { ...base, ...(colorblind ? safeSkin(base.id) : null) };
   const uid = useId().replace(/:/g, "");
   const grad = `g${uid}`;
   return (
@@ -39,7 +44,22 @@ export default function Chip({ skin, size = 48, className, title }: Props) {
         <circle cx="50" cy="50" r="44" fill={`url(#${grad})`} stroke="#03040c" strokeWidth="5" />
       )}
       <Face id={s.id} />
+      {colorblind && mark && <MarkBadge mark={mark} />}
     </svg>
+  );
+}
+
+/** Corner badge: player 1 = circle, player 2 = cross (shape, not color). */
+export function MarkBadge({ mark }: { mark: Mark }) {
+  return (
+    <g className={`c4-mark c4-mark-${mark}`}>
+      <circle cx="76" cy="76" r="20" fill="#03040c" stroke="#fff" strokeWidth="3" />
+      {mark === 1 ? (
+        <circle cx="76" cy="76" r="9" fill="none" stroke="#fff" strokeWidth="5" />
+      ) : (
+        <path d="M68 68 L84 84 M84 68 L68 84" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
+      )}
+    </g>
   );
 }
 

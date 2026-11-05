@@ -50,7 +50,7 @@ export default function Board({
               aria-label={`Column ${c + 1}${playable ? "" : ", unavailable"}. ${filled} of ${ROWS} filled.`}
             >
               <span className="c4-preview" aria-hidden="true">
-                {playable && hover === c && <Chip skin={skins[turn - 1]} className="c4-chip" />}
+                {playable && hover === c && <Chip skin={skins[turn - 1]} mark={turn} className="c4-chip" />}
               </span>
               {/* Rows rendered top to bottom. */}
               {Array.from({ length: ROWS }, (_, i) => {
@@ -64,7 +64,7 @@ export default function Board({
                         className={`c4-piece${dropping ? " drop" : ""}${isWin(c, r) ? " win" : ""}`}
                         style={dropping ? ({ "--fall": ROWS - r } as React.CSSProperties) : undefined}
                       >
-                        <Chip skin={skins[v - 1]} className="c4-chip" />
+                        <Chip skin={skins[v - 1]} mark={v as 1 | 2} className="c4-chip" />
                       </span>
                     )}
                   </span>

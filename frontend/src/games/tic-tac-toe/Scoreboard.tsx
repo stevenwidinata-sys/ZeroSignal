@@ -15,7 +15,7 @@ export default function Scoreboard({ names, faces, wins, draws, bestOf, turn }: 
     <div className="c4-score" aria-label="Series score">
       {[0, 1].map((i) => (
         <div key={i} className={`c4-player${turn === i + 1 ? " active" : ""}`}>
-          <Piece face={faces[i]} size={36} />
+          <Piece face={faces[i]} size={36} mark={(i + 1) as 1 | 2} />
           <div>
             <strong>{names[i]}</strong>
             <span>

@@ -42,7 +42,7 @@ export default function Board({ cells, board, faces, interactive, line, lastMove
               onClick={() => onPlay(i)}
               aria-label={`${POS[i]}: ${v === 0 ? "empty" : names[v - 1]}`}
             >
-              {v !== 0 && <Piece face={faces[v - 1]} size={72} className={lastMove === i ? "pop" : ""} />}
+              {v !== 0 && <Piece face={faces[v - 1]} size={72} mark={v as 1 | 2} className={lastMove === i ? "pop" : ""} />}
             </button>
           );
         })}
