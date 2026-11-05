@@ -42,6 +42,33 @@ export interface SubmitResponse {
   blocks_destroyed: number;
   best_score: number;
   newly_unlocked: string[];
+  rewards: Granted;
+}
+
+// ---------------------------------------------------------------------------
+// Economy (shared by every game)
+// ---------------------------------------------------------------------------
+
+/** What the server actually paid for a verified result. */
+export interface Granted {
+  coins: number;
+  tokens: number;
+  xp: number;
+  /** Coins withheld because the daily cap was reached. */
+  coins_capped: number;
+  level_before: number;
+  level_after: number;
+}
+
+export interface Wallet {
+  coins: number;
+  tokens: number;
+  xp: number;
+  level: number;
+  xp_into_level: number;
+  xp_for_next: number;
+  coins_today: number;
+  daily_cap: number;
 }
 
 export interface LeaderboardEntry {
@@ -96,6 +123,8 @@ export interface CfMatch {
   points: number;
   ai_move: number | null;
   spin_granted: boolean;
+  /** Paid when a game finished on this move. */
+  rewards: Granted | null;
 }
 
 export interface CfSkin {

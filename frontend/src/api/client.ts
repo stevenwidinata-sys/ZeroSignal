@@ -10,6 +10,7 @@ import type {
   ShotInput,
   SubmitResponse,
   User,
+  Wallet,
 } from "./types";
 
 const BASE_URL =
@@ -76,6 +77,9 @@ export const api = {
   },
   me() {
     return request<User>("/api/me");
+  },
+  wallet() {
+    return request<Wallet>("/api/me/wallet");
   },
   // Platform: per-game leaderboards/history. gameId is URL-encoded defensively.
   leaderboard(gameId: string) {
