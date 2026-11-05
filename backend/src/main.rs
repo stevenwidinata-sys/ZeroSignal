@@ -4,6 +4,7 @@ mod birds_api;
 mod config;
 mod connect_four;
 mod db;
+mod economy;
 mod error;
 mod games;
 mod physics;
@@ -51,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/auth/register", post(auth::handlers::register))
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/me", get(auth::handlers::me))
+        .route("/api/me/wallet", get(economy::wallet))
         // Platform: game catalog + per-game leaderboards/history.
         .route("/api/games", get(games::list))
         .route("/api/games/:game_id/leaderboard", get(scores::leaderboard))
