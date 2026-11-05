@@ -9,7 +9,7 @@ import Board from "./Board";
 import { type Cells, canPlay, landingRow } from "./logic";
 import Scoreboard from "./Scoreboard";
 import { opponentSkin } from "./skins";
-import { TimerBadge, useTurnTimer } from "./timer";
+import { TimerBadge, useTurnTimer } from "../../platform/turnTimer";
 
 export const DIFFICULTY_LABEL: Record<Difficulty, string> = {
   easy: "Easy",

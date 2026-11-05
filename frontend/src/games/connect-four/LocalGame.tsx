@@ -14,7 +14,7 @@ import {
   toMove,
 } from "./logic";
 import Scoreboard from "./Scoreboard";
-import { TimerBadge, useTurnTimer } from "./timer";
+import { TimerBadge, useTurnTimer } from "../../platform/turnTimer";
 
 interface Props {
   bestOf: 3 | 5;

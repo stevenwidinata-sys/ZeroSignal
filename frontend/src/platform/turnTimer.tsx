@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { playSfx } from "../../platform/sound";
+import { playSfx } from "./sound";
 
 /**
  * Countdown for the current turn. Restarts whenever `turnKey` changes and
