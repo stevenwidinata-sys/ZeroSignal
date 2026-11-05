@@ -198,3 +198,56 @@ export interface PublicProfile {
   items_owned: number;
   stats: GameStat[];
 }
+
+// ---------------------------------------------------------------------------
+// Tic-Tac-Toe (server-authoritative AI matches)
+// ---------------------------------------------------------------------------
+
+export type TttDifficulty = "easy" | "medium" | "hard";
+
+export interface TttMatch {
+  id: string;
+  difficulty: TttDifficulty;
+  best_of: 3 | 5;
+  face: string;
+  board: string;
+  user_wins: number;
+  ai_wins: number;
+  draws: number;
+  moves: string;
+  /** 9 cells, row by row: 0 empty, 1 you (X), 2 AI (O). */
+  cells: (0 | 1 | 2)[];
+  outcome: CfOutcome;
+  winning_line: [number, number, number] | null;
+  game_over: boolean;
+  undos_left: number;
+  used_undo: boolean;
+  status: "active" | "won" | "lost" | "drawn" | "forfeited";
+  points: number;
+  ai_move: number | null;
+  spin_granted: boolean;
+  rewards: Granted | null;
+}
+
+export interface TttItemView {
+  id: string;
+  name: string;
+  rarity: SkinRarity;
+  price: number | null;
+  owned: boolean;
+}
+
+export interface TttCollection {
+  boards: TttItemView[];
+  faces: TttItemView[];
+  spins_available: number;
+  has_photo: boolean;
+}
+
+export interface TttSpin {
+  difficulty: TttDifficulty;
+  /** Item keys like "board:neon" or "face:pig"; all but the last were owned. */
+  rolls: string[];
+  won: string | null;
+  collection: TttCollection;
+}

@@ -14,6 +14,10 @@ import type {
   PublicProfile,
   ShotInput,
   SubmitResponse,
+  TttCollection,
+  TttDifficulty,
+  TttMatch,
+  TttSpin,
   User,
   Wallet,
 } from "./types";
@@ -65,6 +69,25 @@ async function request<T>(
 
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+/** Raw authenticated fetch for non-JSON bodies (photos). */
+export async function authFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const res = await fetch(`${BASE_URL}${path}`, { ...init, headers });
+  if (!res.ok && res.status !== 404) {
+    let message = `request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      if (body?.error) message = body.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return res;
 }
 
 export const api = {
@@ -174,5 +197,58 @@ export const connectFour = {
   },
   spin() {
     return post<CfSpin>(`${CF}/spins`);
+  },
+};
+
+const TTT = "/api/games/tic-tac-toe";
+
+/** Tic-Tac-Toe: the server owns the board; we only ever send a cell number. */
+export const ticTacToe = {
+  createMatch(difficulty: TttDifficulty, bestOf: 3 | 5, face: string, board: string) {
+    return post<TttMatch>(`${TTT}/matches`, { difficulty, best_of: bestOf, face, board });
+  },
+  async activeMatch(): Promise<TttMatch | null> {
+    try {
+      return await request<TttMatch>(`${TTT}/matches/active`);
+    } catch (e) {
+      if (e instanceof Error && e.message === "not found") return null;
+      throw e;
+    }
+  },
+  move(id: string, cell: number) {
+    return post<TttMatch>(`${TTT}/matches/${encodeURIComponent(id)}/move`, { cell });
+  },
+  undo(id: string) {
+    return post<TttMatch>(`${TTT}/matches/${encodeURIComponent(id)}/undo`);
+  },
+  nextGame(id: string) {
+    return post<TttMatch>(`${TTT}/matches/${encodeURIComponent(id)}/next`);
+  },
+  forfeit(id: string) {
+    return post<TttMatch>(`${TTT}/matches/${encodeURIComponent(id)}/forfeit`);
+  },
+  collection() {
+    return request<TttCollection>(`${TTT}/collection`);
+  },
+  buy(kind: "board" | "face", id: string) {
+    return post<TttCollection>(`${TTT}/buy`, { kind, id });
+  },
+  spin() {
+    return post<TttSpin>(`${TTT}/spins`);
+  },
+};
+
+/** Your private photo (used as a Tic-Tac-Toe face). Never shown to others. */
+export const photo = {
+  /** Resolves to null when you haven't added a photo. */
+  async get(): Promise<Blob | null> {
+    const res = await authFetch("/api/me/photo");
+    return res.status === 404 ? null : res.blob();
+  },
+  async put(image: Blob): Promise<void> {
+    await authFetch("/api/me/photo", { method: "PUT", headers: { "Content-Type": image.type }, body: image });
+  },
+  async remove(): Promise<void> {
+    await authFetch("/api/me/photo", { method: "DELETE" });
   },
 };
