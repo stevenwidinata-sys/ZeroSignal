@@ -22,6 +22,7 @@ use tower_http::trace::TraceLayer;
 use crate::config::Config;
 use crate::connect_four::api as cf;
 use crate::state::AppState;
+use crate::tic_tac_toe::api as ttt;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -63,6 +64,22 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/shop/mystery-box", post(character::api::mystery_box))
         .route("/api/shop/wheel", post(character::api::wheel))
         .route("/api/users/:username/profile", get(character::api::public_profile))
+        // Tic-Tac-Toe: server-run AI matches, boards/faces, private photo face.
+        .route("/api/games/tic-tac-toe/matches", post(ttt::create_match))
+        .route("/api/games/tic-tac-toe/matches/active", get(ttt::active_match))
+        .route("/api/games/tic-tac-toe/matches/:id/move", post(ttt::play_move))
+        .route("/api/games/tic-tac-toe/matches/:id/undo", post(ttt::undo_move))
+        .route("/api/games/tic-tac-toe/matches/:id/next", post(ttt::next_game))
+        .route("/api/games/tic-tac-toe/matches/:id/forfeit", post(ttt::forfeit_match))
+        .route("/api/games/tic-tac-toe/collection", get(ttt::get_collection))
+        .route("/api/games/tic-tac-toe/buy", post(ttt::buy))
+        .route("/api/games/tic-tac-toe/spins", post(ttt::spin))
+        .route(
+            "/api/me/photo",
+            get(tic_tac_toe::photo::get_photo)
+                .put(tic_tac_toe::photo::put_photo)
+                .delete(tic_tac_toe::photo::delete_photo),
+        )
         // Platform: game catalog + per-game leaderboards/history.
         .route("/api/games", get(games::list))
         .route("/api/games/:game_id/leaderboard", get(scores::leaderboard))
