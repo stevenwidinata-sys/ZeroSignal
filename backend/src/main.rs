@@ -1,6 +1,7 @@
 mod auth;
 mod birds;
 mod birds_api;
+mod character;
 mod config;
 mod connect_four;
 mod db;
