@@ -10,6 +10,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
 import Profile from "./pages/Profile";
+import PublicProfile from "./pages/PublicProfile";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
@@ -115,6 +116,7 @@ export default function App() {
           />
           <Route path="/leaderboard" element={<Navigate to="/leaderboard/angry-bird" replace />} />
           <Route path="/leaderboard/:gameId" element={<Leaderboard />} />
+          <Route path="/u/:username" element={<PublicProfile />} />
           <Route
             path="/profile"
             element={

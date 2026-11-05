@@ -75,6 +75,8 @@ export interface LeaderboardEntry {
   rank: number;
   username: string;
   best_score: number;
+  /** Saved outfit (slot -> item id), null if never customized. */
+  avatar: Record<string, string> | null;
 }
 
 export interface MyScore {

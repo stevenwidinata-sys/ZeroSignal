@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { LeaderboardEntry, MyScoresResponse } from "../api/types";
+import Avatar from "../character/Avatar";
 import { GAMES, findGame } from "../platform/registry";
 import { useAuth } from "../store/auth";
 
@@ -114,7 +115,10 @@ export default function Leaderboard() {
                   <span className={`rank rank-${e.rank}`}>{e.rank}</span>
                 </td>
                 <td>
-                  <strong>{e.username}</strong>
+                  <Link to={`/u/${encodeURIComponent(e.username)}`} className="board-player">
+                    <Avatar loadout={e.avatar} size={32} crop="head" />
+                    <strong>{e.username}</strong>
+                  </Link>
                   {user?.username === e.username && (
                     <>
                       {" "}
