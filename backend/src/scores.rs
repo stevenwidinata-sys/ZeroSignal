@@ -10,6 +10,7 @@ use crate::error::{AppError, AppResult};
 use crate::games::{self, ANGRY_BIRD};
 use crate::physics::engine::{score_shots, ShotInput};
 use crate::physics::level;
+use crate::quests;
 use crate::state::AppState;
 
 // ---------------------------------------------------------------------------
@@ -91,6 +92,8 @@ pub async fn submit_angry_bird(
     .execute(&mut *tx)
     .await?;
     let reward = angry_bird_reward(result.score, &mut rand::thread_rng());
+    let round = quests::Event::AngryBirdRound { score: result.score as i64 };
+    quests::api::record(&mut tx, user.user_id, &[round]).await?;
     let rewards = economy::grant(&mut tx, user.user_id, reward, "angry_bird_round", true).await?;
     tx.commit().await?;
 

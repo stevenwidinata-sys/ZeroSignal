@@ -15,6 +15,7 @@ use super::skins::{self, Rarity};
 use crate::auth::jwt::AuthUser;
 use crate::economy::{self, Granted};
 use crate::error::{AppError, AppResult};
+use crate::quests;
 use crate::state::AppState;
 
 pub const GAME_ID: &str = "connect-four";
@@ -368,12 +369,23 @@ pub async fn play_move(
     let mut spin_granted = false;
     let mut granted = None;
     if outcome != Outcome::Ongoing {
+        let mut events = vec![quests::Event::AiGame {
+            game: quests::Game::ConnectFour,
+            level: rewards::difficulty_mult(d),
+            result: rewards::game_result(outcome),
+        }];
         let mut reward = rewards::game_reward(d, outcome);
         if series_end == Some(SeriesEnd::Won) {
             spin_granted = reward_series(&mut tx, user.user_id, &mut m).await?;
             let bonus = rewards::series_reward(d, m.best_of, &mut rand::thread_rng());
             reward = reward + bonus;
+            events.push(quests::Event::SeriesWon {
+                game: quests::Game::ConnectFour,
+                level: rewards::difficulty_mult(d),
+                used_undo: m.used_undo,
+            });
         }
+        quests::api::record(&mut tx, user.user_id, &events).await?;
         granted =
             Some(economy::grant(&mut tx, user.user_id, reward, "connect_four_game", true).await?);
     }

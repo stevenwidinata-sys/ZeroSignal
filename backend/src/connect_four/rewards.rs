@@ -15,15 +15,21 @@ pub fn difficulty_mult(d: Difficulty) -> i64 {
     }
 }
 
-/// XP for one finished game. The user is always player 1.
-pub fn game_reward(d: Difficulty, outcome: Outcome) -> Reward {
-    let result = match outcome {
-        Outcome::Ongoing => return Reward::default(),
+/// The user's result for a finished game. The user is always player 1.
+pub fn game_result(outcome: Outcome) -> GameResult {
+    match outcome {
         Outcome::Win(Player::P1) => GameResult::Win,
         Outcome::Win(Player::P2) => GameResult::Loss,
-        Outcome::Draw => GameResult::Draw,
-    };
-    Reward { xp: economy::game_xp(result, difficulty_mult(d)), ..Reward::default() }
+        Outcome::Draw | Outcome::Ongoing => GameResult::Draw,
+    }
+}
+
+/// XP for one finished game. The user is always player 1.
+pub fn game_reward(d: Difficulty, outcome: Outcome) -> Reward {
+    if outcome == Outcome::Ongoing {
+        return Reward::default();
+    }
+    Reward { xp: economy::game_xp(game_result(outcome), difficulty_mult(d)), ..Reward::default() }
 }
 
 /// Coins for winning a series: Easy 10 / Medium 25 / Hard 50 / Impossible 120,

@@ -222,6 +222,8 @@ pub async fn mystery_box(
     user: AuthUser,
 ) -> AppResult<Json<BoxResponse>> {
     let mut tx = state.pool.begin().await?;
+    // Quest progress first: the quest day row is always locked before the wallet.
+    crate::quests::api::record(&mut tx, user.user_id, &[crate::quests::Event::MysteryBox]).await?;
     economy::spend(&mut tx, user.user_id, MYSTERY_BOX_PRICE, 0, "mystery_box").await?;
     let inv = inventory(&mut *tx, user.user_id).await?;
     let result = shop::open_box(catalog(), &inv, &mut rand::thread_rng());

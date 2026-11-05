@@ -17,6 +17,7 @@ use crate::character::catalog::Rarity;
 use crate::connect_four::board::{Outcome, Player};
 use crate::economy::{self, Granted};
 use crate::error::{AppError, AppResult};
+use crate::quests;
 use crate::state::AppState;
 
 pub const GAME_ID: &str = "tic-tac-toe";
@@ -331,6 +332,20 @@ pub async fn play_move(
     let mut granted = None;
     if outcome != Outcome::Ongoing {
         let s = m.record(outcome);
+        let level = rewards::difficulty_mult(m.difficulty());
+        let mut events = vec![quests::Event::AiGame {
+            game: quests::Game::TicTacToe,
+            level,
+            result: crate::connect_four::rewards::game_result(outcome),
+        }];
+        if s == SeriesState::Won {
+            events.push(quests::Event::SeriesWon {
+                game: quests::Game::TicTacToe,
+                level,
+                used_undo: m.used_undo,
+            });
+        }
+        quests::api::record(&mut tx, user.user_id, &events).await?;
         let mut reward = rewards::game_reward(m.difficulty(), outcome);
         if s != SeriesState::Ongoing {
             let (bonus, spin) = settle_series(&mut tx, user.user_id, &mut m, s).await?;
