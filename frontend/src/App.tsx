@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SettingsButton, ThemeToggle } from "./components/QuickControls";
+import AvatarChip from "./components/AvatarChip";
 import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
@@ -8,8 +9,10 @@ import Hub from "./pages/Hub";
 import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import { useAuth } from "./store/auth";
+import { useCharacter } from "./store/character";
 import { useSettingsDialog } from "./store/settingsDialog";
 import { useWallet } from "./store/wallet";
 
@@ -33,6 +36,7 @@ export default function App() {
   const setSettingsOpen = useSettingsDialog((s) => s.setOpen);
   const refreshWallet = useWallet((s) => s.refresh);
   const clearWallet = useWallet((s) => s.clear);
+  const clearCharacter = useCharacter((s) => s.clear);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -42,8 +46,11 @@ export default function App() {
   // Load balances whenever someone signs in; forget them on sign-out.
   useEffect(() => {
     if (user) void refreshWallet();
-    else clearWallet();
-  }, [user, refreshWallet, clearWallet]);
+    else {
+      clearWallet();
+      clearCharacter();
+    }
+  }, [user, refreshWallet, clearWallet, clearCharacter]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -74,10 +81,7 @@ export default function App() {
           {user ? (
             <>
               <WalletChip />
-              <span className="user-chip" title="Signed in">
-                <span className="dot" aria-hidden="true" />
-                {user.username}
-              </span>
+              <AvatarChip username={user.username} />
               <button className="btn-ghost btn-sm" onClick={logout}>
                 Log out
               </button>
@@ -105,6 +109,14 @@ export default function App() {
           />
           <Route path="/leaderboard" element={<Navigate to="/leaderboard/angry-bird" replace />} />
           <Route path="/leaderboard/:gameId" element={<Leaderboard />} />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/" replace />} />

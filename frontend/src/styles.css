@@ -220,6 +220,18 @@ h3 {
   background: var(--green);
   border: 2px solid var(--line);
 }
+.avatar-chip {
+  padding: 3px 10px 3px 4px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.avatar-chip svg {
+  border: 2px solid var(--line);
+  border-radius: 4px;
+}
+.avatar-chip:hover {
+  background: var(--surface-2);
+}
 
 /* ---------- Buttons ---------- */
 button,
@@ -1616,6 +1628,153 @@ input:focus {
 }
 .reward-toast small {
   color: var(--muted);
+}
+
+/* ---------- Character: wardrobe ---------- */
+.ward {
+  display: grid;
+  gap: 20px;
+}
+.ward-head-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ward-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.ward-preview {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px;
+}
+.ward-preview svg {
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 var(--line);
+}
+.ward-preview h3 {
+  justify-self: start;
+  margin: 8px 0 0;
+}
+.ward-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ward-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--muted);
+}
+.ward-presets {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ward-presets li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ward-presets .btn-ghost {
+  flex: 1;
+  justify-content: flex-start;
+  text-transform: none;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+.ward-empty {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.ward-picker {
+  display: grid;
+  gap: 14px;
+}
+.ward-slots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ward-count {
+  margin: 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+.ward-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ward-item {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--ink);
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 6px;
+  text-transform: none;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  box-shadow: 3px 3px 0 var(--line);
+}
+.ward-item svg {
+  border-radius: 4px;
+}
+.ward-item small {
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.ward-item.selected {
+  --btn-bg: color-mix(in srgb, var(--yellow) 35%, var(--surface));
+  outline: 3px solid var(--line);
+}
+.ward-item.locked:disabled {
+  opacity: 1;
+}
+.ward-item.locked svg {
+  filter: grayscale(1) brightness(0.6);
+}
+.ward-lock {
+  color: var(--muted);
+}
+.ward-none {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 64px;
+  font-size: 1.8rem;
+  color: var(--muted);
+}
+@media (max-width: 920px) {
+  .ward-layout {
+    grid-template-columns: 1fr;
+  }
+  .ward-preview {
+    position: static;
+  }
 }
 
 /* ---------- Footer ---------- */
