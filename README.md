@@ -49,6 +49,14 @@ Only the server pays rewards, and only for results it verified itself, inside th
 - **Levels:** level 1 → 2 needs 100 XP, and each level needs 50 more than the one before.
 - Every change is recorded in `wallet_ledger` for auditing.
 
+### Daily login reward
+
+A pop-up offers the reward when you open the site. Claim once per day (days start at 00:00 WIB). Claiming on consecutive days grows a 7-day streak; missing a day starts it over at day 1, and after day 7 it starts again at day 1. Login coins don't count toward the daily cap.
+
+| Day | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|-----|---|---|---|---|---|---|---|
+| Coins | 10 | 15 | 20 | 25 | 30 | 40 | 100 + 1 token |
+
 ## Character, shop and profiles
 
 Every player has a pixel-art character with **23 slots** and **158 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
@@ -147,6 +155,8 @@ zero_signal/
 │       ├── games.rs            # game catalog (allowed game ids)
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
 │       ├── economy.rs          # coins, tokens, XP/levels, daily cap, ledger
+│       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
+│       ├── daily_login.rs      # 7-day login streak reward
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
@@ -165,6 +175,8 @@ zero_signal/
 | POST | `/api/auth/register` | create account |
 | POST | `/api/auth/login` | returns JWT |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
+| GET  | `/api/me/daily-login` | login streak status and the 7-day reward table (auth) |
+| POST | `/api/me/daily-login/claim` | claim today's login reward, once per WIB day (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
 | PUT  | `/api/me/character/presets/:n` | save outfit preset 1–3 (auth) |
