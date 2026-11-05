@@ -137,6 +137,8 @@ pub struct LeaderboardEntry {
     pub rank: i64,
     pub username: String,
     pub best_score: i32,
+    /// The player's saved outfit (validated when it was saved), if any.
+    pub avatar: Option<serde_json::Value>,
 }
 
 pub async fn leaderboard(
@@ -147,7 +149,8 @@ pub async fn leaderboard(
     let rows: Vec<LeaderboardEntry> = sqlx::query_as(
         r#"SELECT ROW_NUMBER() OVER (ORDER BY MAX(s.score) DESC, MIN(s.created_at) ASC) AS rank,
                   u.username AS username,
-                  MAX(s.score) AS best_score
+                  MAX(s.score) AS best_score,
+                  (SELECT a.loadout FROM avatars a WHERE a.user_id = u.id) AS avatar
            FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.game_id = $1
            GROUP BY u.id, u.username
