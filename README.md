@@ -13,6 +13,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
 | Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
+| Whack-a-Mole | Coming soon | |
 
 ## Features
 
