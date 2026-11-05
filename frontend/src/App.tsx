@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
 import { useCharacter } from "./store/character";
 import { useSettingsDialog } from "./store/settingsDialog";
@@ -78,6 +79,11 @@ export default function App() {
           <NavLink to="/leaderboard" className={navClass}>
             Leaderboards
           </NavLink>
+          {user && (
+            <NavLink to="/shop" className={navClass}>
+              Shop
+            </NavLink>
+          )}
           {user ? (
             <>
               <WalletChip />
@@ -114,6 +120,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <Profile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/shop"
+            element={
+              <RequireAuth>
+                <Shop />
               </RequireAuth>
             }
           />

@@ -1777,6 +1777,119 @@ input:focus {
   }
 }
 
+/* ---------- Character: shop ---------- */
+.shop {
+  display: grid;
+  gap: 24px;
+}
+.shop-balance {
+  display: flex;
+  gap: 14px;
+  padding: 10px 14px;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.shop-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.shop-feature {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.shop-feature h2 {
+  margin: 0;
+}
+.shop-feature p {
+  margin: 0;
+  color: var(--muted);
+}
+.shop-box {
+  font-size: 4rem;
+  line-height: 1;
+}
+.shop-box.shake {
+  animation: shop-shake 0.15s linear infinite;
+}
+@keyframes shop-shake {
+  25% {
+    transform: rotate(-8deg) translateY(-2px);
+  }
+  75% {
+    transform: rotate(8deg) translateY(-2px);
+  }
+}
+.shop-reel {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  width: 140px;
+  min-height: 140px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+.shop-reel small {
+  font-weight: 700;
+}
+.shop-reel-idle {
+  font-family: var(--font-pixel);
+  font-size: 2.4rem;
+  color: var(--muted);
+}
+.shop-reveal {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.shop-reveal p {
+  margin: 6px 0 0;
+}
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.shop-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: 12px 8px;
+  text-align: center;
+  background: var(--surface);
+  border: var(--bw) solid;
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.shop-card svg {
+  border-radius: 4px;
+}
+.shop-card small {
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.shop-card.owned {
+  background: color-mix(in srgb, var(--green) 14%, var(--surface));
+}
+.shop-card.mystery svg {
+  filter: brightness(0.15) contrast(1.2);
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
