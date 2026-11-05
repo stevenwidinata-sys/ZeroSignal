@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SettingsButton, ThemeToggle } from "./components/QuickControls";
+import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
+import WalletChip from "./components/WalletChip";
 import Hub from "./pages/Hub";
 import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
@@ -9,6 +11,7 @@ import PlayGame from "./pages/PlayGame";
 import Register from "./pages/Register";
 import { useAuth } from "./store/auth";
 import { useSettingsDialog } from "./store/settingsDialog";
+import { useWallet } from "./store/wallet";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuth((s) => s.user);
@@ -28,11 +31,19 @@ export default function App() {
   const logout = useAuth((s) => s.logout);
   const settingsOpen = useSettingsDialog((s) => s.open);
   const setSettingsOpen = useSettingsDialog((s) => s.setOpen);
+  const refreshWallet = useWallet((s) => s.refresh);
+  const clearWallet = useWallet((s) => s.clear);
   const { pathname } = useLocation();
 
   useEffect(() => {
     void init();
   }, [init]);
+
+  // Load balances whenever someone signs in; forget them on sign-out.
+  useEffect(() => {
+    if (user) void refreshWallet();
+    else clearWallet();
+  }, [user, refreshWallet, clearWallet]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -62,6 +73,7 @@ export default function App() {
           </NavLink>
           {user ? (
             <>
+              <WalletChip />
               <span className="user-chip" title="Signed in">
                 <span className="dot" aria-hidden="true" />
                 {user.username}
@@ -103,6 +115,7 @@ export default function App() {
         ZERO SIGNAL · Scores are verified server-side. No cheats, just skill.
       </footer>
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <RewardToast />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../../api/client";
 import type { Bird, SubmitResponse } from "../../api/types";
 import { useTheme } from "../../store/theme";
+import { useWallet } from "../../store/wallet";
 import { ABILITY_LABEL, FALLBACK_BIRDS } from "./birds";
 import { GameEngine, MAX_SHOTS, type ShotRecord } from "./engine";
 import { LEVEL_ONE } from "./levels";
@@ -76,6 +77,7 @@ export default function Game() {
       const res = await api.submitScore(LEVEL_ONE.id, shots);
       setResult(res);
       setStatus(`Round over! Server scored ${fmt(res.score)} points.`);
+      useWallet.getState().celebrate(res.rewards);
       setBirds(await api.birds());
     } catch (e) {
       setError(e instanceof Error ? e.message : "failed to submit score");

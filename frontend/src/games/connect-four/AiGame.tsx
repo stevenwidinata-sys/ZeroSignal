@@ -4,6 +4,7 @@ import type { CfMatch, Difficulty } from "../../api/types";
 import { playSfx } from "../../platform/sound";
 import { useAuth } from "../../store/auth";
 import { useSettings } from "../../store/settings";
+import { useWallet } from "../../store/wallet";
 import Board from "./Board";
 import { type Cells, canPlay, landingRow } from "./logic";
 import Scoreboard from "./Scoreboard";
@@ -90,6 +91,7 @@ export default function AiGame({ initial, onExit, onSpin, onRematch }: Props) {
         playSfx("land");
       }
       announce(m);
+      useWallet.getState().celebrate(m.rewards);
       setBusy(false);
     } catch (e) {
       setCells(match.cells); // roll back the optimistic chip

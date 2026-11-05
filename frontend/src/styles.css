@@ -1542,6 +1542,82 @@ input:focus {
   font-size: 0.9rem;
 }
 
+/* ---------- Wallet + rewards ---------- */
+.wallet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  font-weight: 700;
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+.wallet-level {
+  display: grid;
+  gap: 3px;
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  color: var(--green);
+}
+.wallet-xp {
+  display: block;
+  width: 44px;
+  height: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.wallet-xp span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+}
+
+.reward-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 150;
+  display: grid;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 40px));
+  padding: 14px 52px 14px 16px;
+  background: var(--surface);
+  border: var(--bw) solid var(--line);
+  border-radius: 10px;
+  box-shadow: 6px 6px 0 var(--line);
+  animation: pop-in 0.3s var(--ease);
+}
+.reward-toast.level-up {
+  background: color-mix(in srgb, var(--yellow) 30%, var(--surface));
+}
+.reward-toast .icon-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+}
+.reward-level {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--blue);
+}
+.reward-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+}
+.reward-token {
+  color: var(--green);
+}
+.reward-toast small {
+  color: var(--muted);
+}
+
 /* ---------- Footer ---------- */
 .footer {
   margin-top: 48px;
