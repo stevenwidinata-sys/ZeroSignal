@@ -14,6 +14,8 @@ export interface Settings {
   musicVolume: number;
   /** Fewer animations/effects for slow devices. */
   lightGraphics: boolean;
+  /** Color-safe palette + shapes so players never rely on color alone. */
+  colorblind: boolean;
   turnTimer: TurnTimer;
 }
 
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: Settings = {
   music: true,
   musicVolume: 0.4,
   lightGraphics: false,
+  colorblind: false,
   turnTimer: 0,
 };
 
@@ -43,6 +46,7 @@ export function parseSettings(raw: string | null): Settings {
       musicVolume: unit(v.musicVolume, DEFAULT_SETTINGS.musicVolume),
       lightGraphics:
         typeof v.lightGraphics === "boolean" ? v.lightGraphics : DEFAULT_SETTINGS.lightGraphics,
+      colorblind: typeof v.colorblind === "boolean" ? v.colorblind : DEFAULT_SETTINGS.colorblind,
       turnTimer: TIMER_OPTIONS.includes(v.turnTimer as TurnTimer)
         ? (v.turnTimer as TurnTimer)
         : DEFAULT_SETTINGS.turnTimer,
@@ -50,6 +54,12 @@ export function parseSettings(raw: string | null): Settings {
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
+}
+
+/** Only the saved fields, in a fixed order. */
+function pick(s: Settings): Settings {
+  const { sound, volume, music, musicVolume, lightGraphics, colorblind, turnTimer } = s;
+  return { sound, volume, music, musicVolume, lightGraphics, colorblind, turnTimer };
 }
 
 function load(): Settings {
@@ -60,9 +70,10 @@ function load(): Settings {
   }
 }
 
-function applyGraphics(light: boolean) {
+function applyGraphics(s: Settings) {
   if (typeof document !== "undefined") {
-    document.documentElement.dataset.graphics = light ? "light" : "full";
+    document.documentElement.dataset.graphics = s.lightGraphics ? "light" : "full";
+    document.documentElement.dataset.colorblind = s.colorblind ? "on" : "off";
   }
 }
 
@@ -73,10 +84,10 @@ interface SettingsState extends Settings {
 
 export const useSettings = create<SettingsState>((set, get) => {
   const initial = load();
-  applyGraphics(initial.lightGraphics);
+  applyGraphics(initial);
 
   function persist(next: Settings) {
-    applyGraphics(next.lightGraphics);
+    applyGraphics(next);
     try {
       localStorage.setItem(KEY, JSON.stringify(next));
     } catch {
@@ -87,10 +98,9 @@ export const useSettings = create<SettingsState>((set, get) => {
   return {
     ...initial,
     update(patch) {
-      const { sound, volume, music, musicVolume, lightGraphics, turnTimer } = { ...get(), ...patch };
-      const next = parseSettings(
-        JSON.stringify({ sound, volume, music, musicVolume, lightGraphics, turnTimer }),
-      );
+      // Re-validate the merged settings (drops the store's functions too).
+      const merged = { ...get(), ...patch };
+      const next = parseSettings(JSON.stringify(pick(merged)));
       persist(next);
       set(next);
     },

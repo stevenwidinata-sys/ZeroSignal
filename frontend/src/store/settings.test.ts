@@ -8,7 +8,7 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid values", () => {
-    const stored = { sound: false, volume: 0.2, music: false, musicVolume: 0.7, lightGraphics: true, turnTimer: 20 };
+    const stored = { sound: false, volume: 0.2, music: false, musicVolume: 0.7, lightGraphics: true, colorblind: true, turnTimer: 20 };
     expect(parseSettings(JSON.stringify(stored))).toEqual(stored);
   });
 

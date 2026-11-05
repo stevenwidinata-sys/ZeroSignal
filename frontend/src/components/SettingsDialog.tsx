@@ -60,6 +60,18 @@ export default function SettingsDialog({ open, onClose }: Props) {
               onChange={(e) => s.update({ lightGraphics: e.target.checked })}
             />
           </label>
+          <label className="row-label">
+            <span>
+              Colorblind-friendly
+              <small>Color-safe palette, plus shapes on pieces so you never need color alone.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.colorblind}
+              onChange={(e) => s.update({ colorblind: e.target.checked })}
+            />
+          </label>
         </fieldset>
 
         <fieldset>
