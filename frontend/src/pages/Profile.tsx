@@ -12,11 +12,11 @@ import {
   type Item,
   type Loadout,
   type SlotGroup,
-  findItem,
   itemsForSlot,
   normalizeLoadout,
   unlockLabel,
 } from "../character/catalog";
+import TitleBadge from "../components/TitleBadge";
 import { playSfx } from "../platform/sound";
 import { useAuth } from "../store/auth";
 import { useCharacter } from "../store/character";
@@ -57,7 +57,11 @@ function ItemTile({
         aria-pressed={selected}
         title={item && !owned ? `${item.name}: ${unlockLabel(item.unlock)}` : label}
       >
-        {item ? (
+        {item?.slot === "title" ? (
+          <span className="ward-title">
+            <TitleBadge id={item.id} />
+          </span>
+        ) : item ? (
           <Avatar loadout={preview} size={head ? 64 : 56} crop={head ? "head" : "full"} />
         ) : (
           <span className="ward-none" aria-hidden="true">
@@ -101,7 +105,6 @@ export default function Profile() {
   const slotMeta = SLOTS.find((s) => s.id === slot)!;
   const items = itemsForSlot(slot);
   const ownedHere = items.filter((i) => owned.has(i.id)).length;
-  const title = findItem(draft.title)?.art.text;
   const w = view.wallet;
 
   function pickGroup(g: SlotGroup) {
@@ -182,7 +185,7 @@ export default function Profile() {
           <Avatar loadout={draft} size={220} label="Your character preview" />
           <div className="ward-name">
             <strong>{user?.username}</strong>
-            {title && <span className="tag tag-yellow">{title}</span>}
+            <TitleBadge id={draft.title} />
           </div>
           <div className="ward-stats">
             <span>Lv {w.level}</span>

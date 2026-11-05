@@ -3,11 +3,14 @@ import { Link, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { PublicProfile as Profile } from "../api/types";
 import Avatar from "../character/Avatar";
-import { ITEMS, findItem, normalizeLoadout } from "../character/catalog";
+import { ITEMS, normalizeLoadout } from "../character/catalog";
+import TitleBadge from "../components/TitleBadge";
 import { findGame } from "../platform/registry";
 import { useAuth } from "../store/auth";
 
 const fmt = (n: number) => n.toLocaleString();
+/** Achievement titles are the catalog items only achievements can unlock. */
+const ACHIEVEMENT_COUNT = ITEMS.filter((i) => i.unlock.kind === "achievement").length;
 
 /** Anyone's profile: character, level and game stats. Nothing private. */
 export default function PublicProfile() {
@@ -44,7 +47,6 @@ export default function PublicProfile() {
   if (!p) return <div className="loading">Loading profile</div>;
 
   const loadout = normalizeLoadout(p.loadout);
-  const title = findItem(loadout.title)?.art.text;
   const isMe = me?.username.toLowerCase() === p.username.toLowerCase();
 
   return (
@@ -56,7 +58,7 @@ export default function PublicProfile() {
         <Avatar loadout={loadout} size={200} label={`${p.username}'s character`} />
         <div className="pub-info">
           <h1>{p.username}</h1>
-          {title && <span className="tag tag-yellow">{title}</span>}
+          <TitleBadge id={loadout.title} />
           <dl className="hero-stats">
             <div>
               <dt>Level</dt>
@@ -80,6 +82,23 @@ export default function PublicProfile() {
           )}
         </div>
       </div>
+
+      <section>
+        <h2>🏅 Achievements · {p.achievements.length}/{ACHIEVEMENT_COUNT}</h2>
+        {p.achievements.length === 0 ? (
+          <p className="muted">No achievements claimed yet.</p>
+        ) : (
+          <ul className="pub-achievements">
+            {p.achievements.map((a) => (
+              <li key={a.id} className="panel">
+                <strong>{a.name}</strong>
+                <small>{a.description}</small>
+                <TitleBadge id={a.title} small />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section>
         <h2>Game stats</h2>
