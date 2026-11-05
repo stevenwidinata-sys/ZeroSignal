@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SettingsButton, ThemeToggle } from "../components/QuickControls";
+import QuestList from "../components/QuestList";
 import { GAMES } from "../platform/registry";
 import type { GameModule } from "../platform/types";
 import { useAuth } from "../store/auth";
@@ -93,6 +94,20 @@ export default function Hub() {
           </div>
         </dl>
       </section>
+
+      {user && (
+        <section aria-labelledby="quests-heading" className="hub-quests">
+          <div className="hub-quests-head">
+            <h2 id="quests-heading" className="section-title">
+              📜 Today's quests
+            </h2>
+            <Link to="/quests" className="btn btn-ghost btn-sm">
+              All quests →
+            </Link>
+          </div>
+          <QuestList />
+        </section>
+      )}
 
       <section aria-labelledby="games-heading">
         <h2 id="games-heading" className="section-title">

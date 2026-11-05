@@ -14,6 +14,8 @@ import type {
   LoginStatus,
   MyScoresResponse,
   PublicProfile,
+  QuestClaim,
+  QuestsView,
   ShotInput,
   SubmitResponse,
   TttCollection,
@@ -116,6 +118,15 @@ export const api = {
   },
   claimDailyLogin() {
     return request<LoginClaim>("/api/me/daily-login/claim", { method: "POST" });
+  },
+  quests() {
+    return request<QuestsView>("/api/me/quests");
+  },
+  claimQuest(slot: number) {
+    return request<QuestClaim>(`/api/me/quests/${slot}/claim`, { method: "POST" });
+  },
+  rerollQuest(slot: number) {
+    return request<QuestsView>(`/api/me/quests/${slot}/reroll`, { method: "POST" });
   },
   character() {
     return request<CharacterView>("/api/me/character");

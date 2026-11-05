@@ -12,11 +12,13 @@ import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
 import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
+import Quests from "./pages/Quests";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
 import { useCharacter } from "./store/character";
 import { useDailyLogin } from "./store/dailyLogin";
+import { readyCount, useQuests } from "./store/quests";
 import { usePhoto } from "./store/photo";
 import { useSettingsDialog } from "./store/settingsDialog";
 import { useWallet } from "./store/wallet";
@@ -45,6 +47,10 @@ export default function App() {
   const clearPhoto = usePhoto((s) => s.clear);
   const loadDaily = useDailyLogin((s) => s.load);
   const clearDaily = useDailyLogin((s) => s.clear);
+  const wallet = useWallet((s) => s.wallet);
+  const loadQuests = useQuests((s) => s.load);
+  const clearQuests = useQuests((s) => s.clear);
+  const questsReady = useQuests((s) => readyCount(s.view));
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -61,8 +67,14 @@ export default function App() {
       clearCharacter();
       clearPhoto();
       clearDaily();
+      clearQuests();
     }
-  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto, loadDaily, clearDaily]);
+  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto, loadDaily, clearDaily, clearQuests]);
+
+  // Every server payout refreshes the wallet; quest progress may have moved too.
+  useEffect(() => {
+    if (user && wallet) void loadQuests();
+  }, [user, wallet, loadQuests]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -93,6 +105,16 @@ export default function App() {
           {user && (
             <NavLink to="/shop" className={navClass}>
               Shop
+            </NavLink>
+          )}
+          {user && (
+            <NavLink to="/quests" className={navClass}>
+              Quests
+              {questsReady > 0 && (
+                <span className="nav-badge" aria-label={`${questsReady} ready to claim`}>
+                  {questsReady}
+                </span>
+              )}
             </NavLink>
           )}
           {user ? (
@@ -140,6 +162,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <Shop />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/quests"
+            element={
+              <RequireAuth>
+                <Quests />
               </RequireAuth>
             }
           />

@@ -272,3 +272,30 @@ export interface LoginClaim {
   status: LoginStatus;
   granted: Granted;
 }
+
+export interface Quest {
+  slot: number;
+  id: string;
+  title: string;
+  progress: number;
+  target: number;
+  coins: number;
+  xp: number;
+  done: boolean;
+  claimed: boolean;
+}
+
+export interface QuestsView {
+  quests: Quest[];
+  reroll_available: boolean;
+  bonus_tokens: number;
+  bonus_claimed: boolean;
+  /** ISO time when tomorrow's quests arrive (00:00 WIB). */
+  next_reset: string;
+}
+
+export interface QuestClaim {
+  quests: QuestsView;
+  granted: Granted;
+  bonus: boolean;
+}
