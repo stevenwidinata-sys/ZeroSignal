@@ -10,8 +10,10 @@ use uuid::Uuid;
 
 use super::ai::{choose_move, Difficulty};
 use super::board::{Board, Outcome, Player};
+use super::rewards;
 use super::skins::{self, Rarity};
 use crate::auth::jwt::AuthUser;
+use crate::economy::{self, Granted};
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 
@@ -118,6 +120,8 @@ pub struct MatchView {
     pub ai_move: Option<u8>,
     /// True when this response finished the series and granted a spin.
     pub spin_granted: bool,
+    /// Coins / tokens / XP paid when a game finished (move responses only).
+    pub rewards: Option<Granted>,
 }
 
 fn view(m: &MatchRow, ai_move: Option<u8>, spin_granted: bool) -> AppResult<MatchView> {
@@ -141,6 +145,7 @@ fn view(m: &MatchRow, ai_move: Option<u8>, spin_granted: bool) -> AppResult<Matc
         points: m.points,
         ai_move,
         spin_granted,
+        rewards: None,
     })
 }
 
@@ -357,13 +362,26 @@ pub async fn play_move(
     }
     m.moves = board.move_string();
 
+    let outcome = board.outcome();
+    let d = m.difficulty();
+    let series_end = record_game(&mut m, outcome);
     let mut spin_granted = false;
-    if record_game(&mut m, board.outcome()) == Some(SeriesEnd::Won) {
-        spin_granted = reward_series(&mut tx, user.user_id, &mut m).await?;
+    let mut granted = None;
+    if outcome != Outcome::Ongoing {
+        let mut reward = rewards::game_reward(d, outcome);
+        if series_end == Some(SeriesEnd::Won) {
+            spin_granted = reward_series(&mut tx, user.user_id, &mut m).await?;
+            let bonus = rewards::series_reward(d, m.best_of, &mut rand::thread_rng());
+            reward = reward + bonus;
+        }
+        granted =
+            Some(economy::grant(&mut tx, user.user_id, reward, "connect_four_game", true).await?);
     }
     save_match(&mut tx, &m).await?;
     tx.commit().await?;
-    Ok(Json(view(&m, ai_move, spin_granted)?))
+    let mut v = view(&m, ai_move, spin_granted)?;
+    v.rewards = granted;
+    Ok(Json(v))
 }
 
 /// Take back the user's last move and the AI's reply. Max 3 per game, never

@@ -3,4 +3,5 @@
 pub mod ai;
 pub mod api;
 pub mod board;
+pub mod rewards;
 pub mod skins;
