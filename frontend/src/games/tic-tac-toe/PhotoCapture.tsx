@@ -121,6 +121,10 @@ export default function PhotoCapture({ open, onClose }: Props) {
   async function confirm() {
     const image = img.current;
     if (!image) return;
+    if (!image.complete || !image.naturalWidth) {
+      setError("That picture couldn't be read. Try a different image.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -196,6 +200,10 @@ export default function PhotoCapture({ open, onClose }: Props) {
               alt="Your photo, drag to position"
               draggable={false}
               onLoad={(e) => setNatural({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+              onError={() => {
+                setError("That picture couldn't be read. Try a JPEG or PNG.");
+                setSrc(null);
+              }}
               onPointerDown={onDown}
               onPointerMove={onMove}
               onPointerUp={() => (drag.current = null)}
