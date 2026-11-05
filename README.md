@@ -57,6 +57,29 @@ A pop-up offers the reward when you open the site. Claim once per day (days star
 |-----|---|---|---|---|---|---|---|
 | Coins | 10 | 15 | 20 | 25 | 30 | 40 | 100 + 1 token |
 
+### Daily quests
+
+Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on the **Quests** page (`/quests`). The nav shows a badge when one is ready to claim. Only results the server verified count: AI games, Angry Bird rounds and mystery boxes. Local 2-player games don't count.
+
+- Press **Claim** on a finished quest to get its coins + XP. Claiming all 3 pays a bonus **1 token**.
+- **Reroll:** once per day, swap one unfinished quest for a new random one.
+- Quest coins don't count toward the daily cap (at most 180 coins a day from quests).
+
+| Quest | Coins | XP |
+|-------|-------|----|
+| Play 3 Connect Four games vs the AI | 20 | 30 |
+| Win 2 Connect Four games vs Medium or harder | 40 | 60 |
+| Win a Connect Four series vs Hard or Impossible | 60 | 100 |
+| Play 3 Tic-Tac-Toe games vs the AI | 20 | 30 |
+| Win or draw 2 Tic-Tac-Toe games vs Hard | 40 | 60 |
+| Win a Tic-Tac-Toe series vs Medium | 40 | 60 |
+| Play 3 Angry Bird rounds | 20 | 30 |
+| Score 5,000 in one Angry Bird round | 40 | 60 |
+| Score 15,000 in total in Angry Bird today | 50 | 80 |
+| Win any series without using undo | 50 | 80 |
+| Open a mystery box | 30 | 40 |
+| Win 5 AI games in any game | 60 | 100 |
+
 ## Character, shop and profiles
 
 Every player has a pixel-art character with **23 slots** and **158 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
@@ -157,6 +180,7 @@ zero_signal/
 │       ├── economy.rs          # coins, tokens, XP/levels, daily cap, ledger
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
+│       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
@@ -177,6 +201,9 @@ zero_signal/
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
 | GET  | `/api/me/daily-login` | login streak status and the 7-day reward table (auth) |
 | POST | `/api/me/daily-login/claim` | claim today's login reward, once per WIB day (auth) |
+| GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
+| POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
+| POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
 | PUT  | `/api/me/character/presets/:n` | save outfit preset 1–3 (auth) |
