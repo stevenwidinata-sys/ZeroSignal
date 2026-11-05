@@ -2002,6 +2002,7 @@ input:focus {
   cursor: default;
 }
 .ttt-cell.win {
+  box-shadow: inset 0 0 0 4px var(--yellow);
   animation: ttt-win 0.7s ease-in-out infinite alternate;
 }
 .has-win .ttt-cell:not(.win) .ttt-piece {
