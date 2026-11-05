@@ -1,4 +1,6 @@
 import type {
+  AchievementClaim,
+  AchievementsView,
   AuthResponse,
   Bird,
   BoxResponse,
@@ -127,6 +129,12 @@ export const api = {
   },
   rerollQuest(slot: number) {
     return request<QuestsView>(`/api/me/quests/${slot}/reroll`, { method: "POST" });
+  },
+  achievements() {
+    return request<AchievementsView>("/api/me/achievements");
+  },
+  claimAchievement(id: string) {
+    return request<AchievementClaim>(`/api/me/achievements/${encodeURIComponent(id)}/claim`, { method: "POST" });
   },
   character() {
     return request<CharacterView>("/api/me/character");

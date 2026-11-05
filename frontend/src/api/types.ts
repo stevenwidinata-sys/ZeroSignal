@@ -197,6 +197,7 @@ export interface PublicProfile {
   joined: string;
   items_owned: number;
   stats: GameStat[];
+  achievements: PublicAchievement[];
 }
 
 // ---------------------------------------------------------------------------
@@ -298,4 +299,40 @@ export interface QuestClaim {
   quests: QuestsView;
   granted: Granted;
   bonus: boolean;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  coins: number;
+  xp: number;
+  /** Title item id granted on claim (character catalog). */
+  title: string;
+  progress: number;
+  target: number;
+  unlocked: boolean;
+  claimed_at: string | null;
+}
+
+export interface AchievementsView {
+  achievements: Achievement[];
+  /** Unlocked but not claimed yet. */
+  ready: number;
+  claimed: number;
+}
+
+export interface AchievementClaim {
+  achievements: AchievementsView;
+  granted: Granted;
+  title: string;
+}
+
+/** A claimed achievement as shown on public profiles. */
+export interface PublicAchievement {
+  id: string;
+  name: string;
+  description: string;
+  title: string;
+  claimed_at: string;
 }

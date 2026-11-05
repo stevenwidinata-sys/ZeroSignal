@@ -7,6 +7,7 @@ import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
 import Hub from "./pages/Hub";
+import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import PlayGame from "./pages/PlayGame";
@@ -16,6 +17,7 @@ import Quests from "./pages/Quests";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import { useAuth } from "./store/auth";
+import { useAchievements } from "./store/achievements";
 import { useCharacter } from "./store/character";
 import { useDailyLogin } from "./store/dailyLogin";
 import { readyCount, useQuests } from "./store/quests";
@@ -51,6 +53,9 @@ export default function App() {
   const loadQuests = useQuests((s) => s.load);
   const clearQuests = useQuests((s) => s.clear);
   const questsReady = useQuests((s) => readyCount(s.view));
+  const loadAchievements = useAchievements((s) => s.load);
+  const clearAchievements = useAchievements((s) => s.clear);
+  const achievementsReady = useAchievements((s) => s.view?.ready ?? 0);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -68,13 +73,17 @@ export default function App() {
       clearPhoto();
       clearDaily();
       clearQuests();
+      clearAchievements();
     }
-  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto, loadDaily, clearDaily, clearQuests]);
+  }, [user, refreshWallet, clearWallet, clearCharacter, clearPhoto, loadDaily, clearDaily, clearQuests, clearAchievements]);
 
-  // Every server payout refreshes the wallet; quest progress may have moved too.
+  // Every server payout refreshes the wallet; quests and achievements may have moved too.
   useEffect(() => {
-    if (user && wallet) void loadQuests();
-  }, [user, wallet, loadQuests]);
+    if (user && wallet) {
+      void loadQuests();
+      void loadAchievements();
+    }
+  }, [user, wallet, loadQuests, loadAchievements]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -113,6 +122,16 @@ export default function App() {
               {questsReady > 0 && (
                 <span className="nav-badge" aria-label={`${questsReady} ready to claim`}>
                   {questsReady}
+                </span>
+              )}
+            </NavLink>
+          )}
+          {user && (
+            <NavLink to="/achievements" className={navClass}>
+              Achievements
+              {achievementsReady > 0 && (
+                <span className="nav-badge" aria-label={`${achievementsReady} ready to claim`}>
+                  {achievementsReady}
                 </span>
               )}
             </NavLink>
@@ -170,6 +189,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <Quests />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/achievements"
+            element={
+              <RequireAuth>
+                <Achievements />
               </RequireAuth>
             }
           />
