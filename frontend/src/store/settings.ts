@@ -8,6 +8,10 @@ export interface Settings {
   sound: boolean;
   /** 0..1 */
   volume: number;
+  /** Background music (separate from sound effects). */
+  music: boolean;
+  /** 0..1 */
+  musicVolume: number;
   /** Fewer animations/effects for slow devices. */
   lightGraphics: boolean;
   turnTimer: TurnTimer;
@@ -16,11 +20,16 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   sound: true,
   volume: 0.6,
+  music: true,
+  musicVolume: 0.4,
   lightGraphics: false,
   turnTimer: 0,
 };
 
 const KEY = "zerosignal_settings";
+
+const unit = (v: unknown, fallback: number) =>
+  typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : fallback;
 
 /** Parse stored JSON defensively: unknown/invalid fields fall back to defaults. */
 export function parseSettings(raw: string | null): Settings {
@@ -29,10 +38,9 @@ export function parseSettings(raw: string | null): Settings {
     const v = JSON.parse(raw) as Partial<Settings>;
     return {
       sound: typeof v.sound === "boolean" ? v.sound : DEFAULT_SETTINGS.sound,
-      volume:
-        typeof v.volume === "number" && Number.isFinite(v.volume)
-          ? Math.min(1, Math.max(0, v.volume))
-          : DEFAULT_SETTINGS.volume,
+      volume: unit(v.volume, DEFAULT_SETTINGS.volume),
+      music: typeof v.music === "boolean" ? v.music : DEFAULT_SETTINGS.music,
+      musicVolume: unit(v.musicVolume, DEFAULT_SETTINGS.musicVolume),
       lightGraphics:
         typeof v.lightGraphics === "boolean" ? v.lightGraphics : DEFAULT_SETTINGS.lightGraphics,
       turnTimer: TIMER_OPTIONS.includes(v.turnTimer as TurnTimer)
@@ -79,8 +87,10 @@ export const useSettings = create<SettingsState>((set, get) => {
   return {
     ...initial,
     update(patch) {
-      const { sound, volume, lightGraphics, turnTimer } = { ...get(), ...patch };
-      const next = parseSettings(JSON.stringify({ sound, volume, lightGraphics, turnTimer }));
+      const { sound, volume, music, musicVolume, lightGraphics, turnTimer } = { ...get(), ...patch };
+      const next = parseSettings(
+        JSON.stringify({ sound, volume, music, musicVolume, lightGraphics, turnTimer }),
+      );
       persist(next);
       set(next);
     },
