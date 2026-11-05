@@ -12,7 +12,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 |--------------|-------------|-------|
 | Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
 | Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
-| Tic-Tac-Toe  | Coming soon | |
+| Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
 
 ## Features
 
@@ -21,6 +21,16 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
 - Dark / light theme and a settings panel (sound, volume, light graphics, turn timer), saved in the browser.
 - Shared economy: every server-verified game pays **coins**, **XP** (levels) and sometimes a lucky **token**.
+
+## Tic-Tac-Toe
+
+- **Modes:** vs AI or a friend on one device. You (X) always move first.
+- **AI:** Easy (mostly random), Medium (always blocks, but slips up), **Hard (perfect play, can never lose)**. A test checks every possible human strategy against Hard.
+- **Series:** best of 3 or 5 games, and draws count as games. A series ends early once one side can't be caught; equal wins at the end means the series is drawn.
+- **Rewards (AI only):** XP every game. Winning a series pays Easy 5 / Medium 15 / Hard 40 coins. A drawn series against Hard pays 15 coins, because surviving it is the achievement. Best of 5 pays double. Token chance 8% / 15% / 50% (15% for a drawn Hard series).
+- **Undo:** max 3 per game, none on Hard. Using undo cancels the series' reward spin.
+- **Boards and faces:** 6 boards and 12 faces (X/O, emojis, Angry Bird chips, your character's face, your photo), listed in `shared/tic_tac_toe_items.json`. Buy them with coins or win them on the reward spin, which never gives a duplicate.
+- **Photo face:** upload a picture or use your webcam, then drag and zoom to crop it to a circle. The browser shrinks it to 128×128 before upload, and the server only accepts real JPEG/PNG/WebP files up to 64 KB. Your photo is **private**: only you can load it, and it's deleted with your account.
 
 ## Coins, tokens and levels
 
@@ -31,6 +41,8 @@ Only the server pays rewards, and only for results it verified itself, inside th
 | Angry Bird | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
 | Connect Four, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–4) | none |
 | Connect Four, series win | Easy 10 / Medium 25 / Hard 50 / Impossible 120 (×2 for best of 5) | bonus 25 × difficulty | 10% / 20% / 35% / 60% |
+| Tic-Tac-Toe, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–3) | none |
+| Tic-Tac-Toe, series | win: Easy 5 / Medium 15 / Hard 40; drawn Hard series 15 (×2 for best of 5) | bonus 20 × difficulty | 8% / 15% / 50% (drawn Hard 15%) |
 
 - **Daily cap:** at most 1,000 coins per day from games (resets 00:00 UTC). XP and tokens are not capped.
 - **Levels:** level 1 → 2 needs 100 XP, and each level needs 50 more than the one before.
@@ -126,7 +138,8 @@ cd frontend; npm test
 zero_signal/
 ├── docker-compose.yml          # local Postgres
 ├── shared/
-│   └── character_items.json    # character slots + items (read by backend AND frontend)
+│   ├── character_items.json    # character slots + items (read by backend AND frontend)
+│   └── tic_tac_toe_items.json  # boards + faces (read by backend AND frontend)
 ├── backend/                    # Rust + Axum API
 │   ├── migrations/             # sqlx SQL migrations
 │   └── src/
@@ -134,6 +147,7 @@ zero_signal/
 │       ├── scores.rs           # per-game leaderboards + Angry Bird scorer
 │       ├── economy.rs          # coins, tokens, XP/levels, daily cap, ledger
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
+│       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -157,6 +171,13 @@ zero_signal/
 | POST | `/api/shop/mystery-box` | 250 coins for a random shop item (auth) |
 | POST | `/api/shop/wheel` | 1 token for a wheel exclusive (auth) |
 | GET  | `/api/users/:username/profile` | public profile |
+| POST | `/api/games/tic-tac-toe/matches` | start an AI series `{difficulty, best_of, face, board}` (auth) |
+| POST | `/api/games/tic-tac-toe/matches/:id/move` | `{cell}` 0–8; server replies with the AI move (auth) |
+| POST | `/api/games/tic-tac-toe/matches/:id/{undo,next,forfeit}` | same as Connect Four (auth) |
+| GET  | `/api/games/tic-tac-toe/collection` | boards, faces, spins, has_photo (auth) |
+| POST | `/api/games/tic-tac-toe/buy` | `{kind, id}` buy a board or face (auth) |
+| POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
+| GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
 | GET  | `/api/games/:id/leaderboard` | top 20 for that game |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
