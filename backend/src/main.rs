@@ -12,7 +12,7 @@ mod physics;
 mod scores;
 mod state;
 
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use axum::Router;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
@@ -54,6 +54,14 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/me", get(auth::handlers::me))
         .route("/api/me/wallet", get(economy::wallet))
+        // Character, outfits, shop and public profiles.
+        .route("/api/me/character", get(character::api::get_character))
+        .route("/api/me/character/loadout", put(character::api::put_loadout))
+        .route("/api/me/character/presets/:slot_no", put(character::api::put_preset))
+        .route("/api/shop/buy", post(character::api::buy))
+        .route("/api/shop/mystery-box", post(character::api::mystery_box))
+        .route("/api/shop/wheel", post(character::api::wheel))
+        .route("/api/users/:username/profile", get(character::api::public_profile))
         // Platform: game catalog + per-game leaderboards/history.
         .route("/api/games", get(games::list))
         .route("/api/games/:game_id/leaderboard", get(scores::leaderboard))
