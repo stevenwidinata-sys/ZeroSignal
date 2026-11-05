@@ -2,6 +2,13 @@ import type { ComponentType, LazyExoticComponent } from "react";
 
 export type GameStatus = "live" | "soon";
 
+/** One step of a game's short "how to play" tutorial. */
+export interface TutorialStep {
+  icon: string;
+  title: string;
+  text: string;
+}
+
 /** Static info shown on the hub card and game pages. */
 export interface GameMeta {
   /** URL slug and leaderboard key. Must match backend/src/games.rs. */
@@ -17,6 +24,8 @@ export interface GameMeta {
   status: GameStatus;
   /** Label for the score column on the leaderboard. */
   scoreLabel: string;
+  /** 3-4 steps shown the first time the game is opened (live games). */
+  tutorial?: TutorialStep[];
 }
 
 /**
