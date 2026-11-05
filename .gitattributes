@@ -1,0 +1,3 @@
+# sqlx checksums migration files byte-for-byte: never convert their line
+# endings, or already-applied migrations stop matching the database.
+*.sql text eol=lf
