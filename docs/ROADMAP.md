@@ -42,7 +42,7 @@ Branches, each merged into `main` after tests pass:
   **one** unfinished quest.
 - Shown both as a Hub panel and on the `/quests` page (nav badge when ready).
 
-### Achievements (`feat/achievements`, built, waiting for merge)
+### Achievements (`feat/achievements`, done)
 - 25 one-time achievements (listed in README), progress computed live from
   verified data, so old progress counts. Claim button pays coins + equal XP
   and a title. Locked ones are visible with progress bars.
@@ -52,7 +52,7 @@ Branches, each merged into `main` after tests pass:
 - "Legend" already existed (level 30), so the level-25 title is "Living Legend".
 - Shown on `/achievements`, the public profile, wardrobe and leaderboards.
 
-### Background music (`feat/music`)
+### Background music (`feat/music`, done)
 - Chiptune generated in code (Web Audio), no music files.
 - 3 tracks: hub, calm (Tic-Tac-Toe / Connect Four), upbeat (Angry Bird).
 - Separate music on/off + volume in Settings. Default **on at 40%**, starting
