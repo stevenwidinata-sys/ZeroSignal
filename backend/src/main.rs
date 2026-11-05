@@ -11,6 +11,7 @@ mod economy;
 mod error;
 mod games;
 mod physics;
+mod quests;
 mod scores;
 mod state;
 mod tic_tac_toe;
@@ -61,6 +62,10 @@ async fn main() -> anyhow::Result<()> {
         // Daily login streak reward.
         .route("/api/me/daily-login", get(daily_login::status))
         .route("/api/me/daily-login/claim", post(daily_login::claim))
+        // Daily quests.
+        .route("/api/me/quests", get(quests::api::get_quests))
+        .route("/api/me/quests/:slot/claim", post(quests::api::claim))
+        .route("/api/me/quests/:slot/reroll", post(quests::api::reroll))
         // Character, outfits, shop and public profiles.
         .route("/api/me/character", get(character::api::get_character))
         .route("/api/me/character/loadout", put(character::api::put_loadout))
