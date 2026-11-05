@@ -14,10 +14,11 @@ use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
 use crate::auth::jwt::AuthUser;
+use crate::daily;
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 
-/// Max coins one account can earn from games per UTC day.
+/// Max coins one account can earn from games per WIB day (see `daily`).
 pub const DAILY_COIN_CAP: i64 = 1000;
 
 // ---------------------------------------------------------------------------
@@ -136,17 +137,17 @@ async fn lock_wallet(tx: &mut Transaction<'_, Postgres>, user_id: Uuid) -> AppRe
         .await?)
 }
 
-/// Coins earned from capped game rewards since 00:00 UTC.
+/// Coins earned from capped game rewards since 00:00 WIB.
 async fn coins_earned_today(
     ex: impl sqlx::PgExecutor<'_>,
     user_id: Uuid,
 ) -> AppResult<i64> {
     Ok(sqlx::query_scalar(
         r#"SELECT COALESCE(SUM(coins), 0)::BIGINT FROM wallet_ledger
-           WHERE user_id = $1 AND counts_to_cap AND coins > 0
-             AND created_at >= (date_trunc('day', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC')"#,
+           WHERE user_id = $1 AND counts_to_cap AND coins > 0 AND created_at >= $2"#,
     )
     .bind(user_id)
+    .bind(daily::today_start(chrono::Utc::now()))
     .fetch_one(ex)
     .await?)
 }

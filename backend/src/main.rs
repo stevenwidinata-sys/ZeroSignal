@@ -4,6 +4,7 @@ mod birds_api;
 mod character;
 mod config;
 mod connect_four;
+mod daily;
 mod db;
 mod economy;
 mod error;

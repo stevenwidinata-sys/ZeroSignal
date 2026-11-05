@@ -45,7 +45,7 @@ Only the server pays rewards, and only for results it verified itself, inside th
 | Tic-Tac-Toe, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–3) | none |
 | Tic-Tac-Toe, series | win: Easy 5 / Medium 15 / Hard 40; drawn Hard series 15 (×2 for best of 5) | bonus 20 × difficulty | 8% / 15% / 50% (drawn Hard 15%) |
 
-- **Daily cap:** at most 1,000 coins per day from games (resets 00:00 UTC). XP and tokens are not capped.
+- **Daily cap:** at most 1,000 coins per day from games (resets 00:00 WIB, UTC+7). XP and tokens are not capped.
 - **Levels:** level 1 → 2 needs 100 XP, and each level needs 50 more than the one before.
 - Every change is recorded in `wallet_ledger` for auditing.
 
