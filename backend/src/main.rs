@@ -16,6 +16,7 @@ mod physics;
 mod quests;
 mod scores;
 mod state;
+mod stats;
 mod tic_tac_toe;
 mod whack_a_mole;
 
@@ -62,6 +63,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/me", get(auth::handlers::me))
         .route("/api/me/wallet", get(economy::wallet))
+        .route("/api/me/stats", get(stats::my_stats))
         // Daily login streak reward.
         .route("/api/me/daily-login", get(daily_login::status))
         .route("/api/me/daily-login/claim", post(daily_login::claim))
