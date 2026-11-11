@@ -233,6 +233,10 @@
     { "id": "title-first-bonk", "slot": "title", "name": "First Bonk", "rarity": "common", "unlock": { "kind": "achievement" }, "art": { "text": "First Bonk", "tier": "bronze", "color": "#c97a2e" } },
     { "id": "title-fever-pitch", "slot": "title", "name": "Fever Pitch", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Fever Pitch", "tier": "silver", "color": "#ff4d6d", "icon": "🔥" } },
     { "id": "title-mole-master", "slot": "title", "name": "Mole Master", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Mole Master", "tier": "mythic", "color": "#f4b400", "icon": "🔨", "effect": "sparkle" } },
-    { "id": "title-survivor", "slot": "title", "name": "Survivor", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Survivor", "tier": "gold", "color": "#22c55e", "icon": "🛡️", "effect": "glow" } }
+    { "id": "title-survivor", "slot": "title", "name": "Survivor", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Survivor", "tier": "gold", "color": "#22c55e", "icon": "🛡️", "effect": "glow" } },
+    { "id": "title-first-sweep", "slot": "title", "name": "First Sweep", "rarity": "common", "unlock": { "kind": "achievement" }, "art": { "text": "First Sweep", "tier": "bronze", "color": "#7a8597" } },
+    { "id": "title-expert-sweeper", "slot": "title", "name": "Expert Sweeper", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Expert Sweeper", "tier": "mythic", "color": "#ff5a5f", "icon": "💣", "effect": "flicker" } },
+    { "id": "title-speed-sweeper", "slot": "title", "name": "Speed Sweeper", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Speed Sweeper", "tier": "gold", "color": "#3a86ff", "icon": "⚡", "effect": "glow" } },
+    { "id": "title-daily-devotee", "slot": "title", "name": "Daily Devotee", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Daily Devotee", "tier": "silver", "color": "#2fbf71", "icon": "📅" } }
   ]
 }

@@ -28,6 +28,8 @@ pub enum Event {
     SeriesWon { game: Game, level: i64, used_undo: bool },
     AngryBirdRound { score: i64 },
     WhackRound { score: i64, golden_hits: i64 },
+    /// `level`: 1 Beginner, 2 Intermediate/Daily, 3 Expert.
+    MinefieldWin { level: i64, hints: i64 },
     MysteryBox,
 }
 
@@ -44,6 +46,7 @@ enum Goal {
     WhackRounds,
     WhackSingleScore(i64),
     WhackGoldenHits,
+    MinefieldWins { min_level: i64, no_hints: bool },
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +90,9 @@ impl QuestDef {
             (Goal::WhackGoldenHits, WhackRound { golden_hits, .. }) => {
                 golden_hits.clamp(0, i32::MAX as i64) as i32
             }
+            (Goal::MinefieldWins { min_level, no_hints }, MinefieldWin { level, hints }) => {
+                hit(level >= min_level && !(no_hints && hints > 0))
+            }
             _ => 0,
         }
     }
@@ -98,7 +104,7 @@ const fn q(id: &'static str, title: &'static str, goal: Goal, target: i32, coins
 
 use Game::{ConnectFour as CF, TicTacToe as TTT};
 
-pub const POOL: [QuestDef; 15] = [
+pub const POOL: [QuestDef; 18] = [
     q("cf_play_3", "Play 3 Connect Four games vs the AI", Goal::PlayAi(CF), 3, 20, 30),
     q("cf_win_2_medium", "Win 2 Connect Four games vs Medium or harder",
         Goal::WinAi { game: Some(CF), min_level: 2 }, 2, 40, 60),
@@ -119,6 +125,11 @@ pub const POOL: [QuestDef; 15] = [
     q("wam_play_3", "Play 3 Whack-a-Mole rounds", Goal::WhackRounds, 3, 20, 30),
     q("wam_score_5000", "Score 5,000 in one Whack-a-Mole round", Goal::WhackSingleScore(5_000), 1, 40, 60),
     q("wam_golden_5", "Hit 5 golden moles today", Goal::WhackGoldenHits, 5, 40, 60),
+    q("mf_clear_2", "Clear 2 Minefield boards", Goal::MinefieldWins { min_level: 1, no_hints: false }, 2, 20, 30),
+    q("mf_clear_intermediate", "Clear an Intermediate or harder Minefield board",
+        Goal::MinefieldWins { min_level: 2, no_hints: false }, 1, 40, 60),
+    q("mf_no_hints", "Clear a Minefield board without hints",
+        Goal::MinefieldWins { min_level: 1, no_hints: true }, 1, 30, 40),
 ];
 
 pub fn find(id: &str) -> Option<&'static QuestDef> {
@@ -216,6 +227,17 @@ mod tests {
         assert_eq!(quest("wam_golden_5").progress(&round(9_000, 2)), 2);
         assert_eq!(quest("wam_golden_5").progress(&Event::AngryBirdRound { score: 9_000 }), 0);
         assert_eq!(quest("ab_play_3").progress(&round(100, 0)), 0);
+    }
+
+    #[test]
+    fn minefield_quests() {
+        let win = |level, hints| Event::MinefieldWin { level, hints };
+        assert_eq!(quest("mf_clear_2").progress(&win(1, 3)), 1);
+        assert_eq!(quest("mf_clear_intermediate").progress(&win(1, 0)), 0);
+        assert_eq!(quest("mf_clear_intermediate").progress(&win(3, 1)), 1);
+        assert_eq!(quest("mf_no_hints").progress(&win(2, 1)), 0);
+        assert_eq!(quest("mf_no_hints").progress(&win(1, 0)), 1);
+        assert_eq!(quest("wam_play_3").progress(&win(1, 0)), 0);
     }
 
     #[test]

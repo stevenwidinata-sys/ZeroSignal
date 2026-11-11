@@ -113,6 +113,13 @@ async fn main() -> anyhow::Result<()> {
         // Whack-a-Mole: seeded runs, scored by replaying the taps.
         .route("/api/games/whack-a-mole/runs", post(whack_a_mole::api::start))
         .route("/api/games/whack-a-mole/runs/:id/finish", post(whack_a_mole::api::finish))
+        // Minefield: the server holds the mines and opens cells for you.
+        .route("/api/games/minefield/games", post(minefield::api::create))
+        .route("/api/games/minefield/games/active", get(minefield::api::active))
+        .route("/api/games/minefield/games/:id/reveal", post(minefield::api::reveal))
+        .route("/api/games/minefield/games/:id/chord", post(minefield::api::chord))
+        .route("/api/games/minefield/games/:id/hint", post(minefield::api::hint))
+        .route("/api/games/minefield/games/:id/forfeit", post(minefield::api::forfeit))
         .route("/api/games/connect-four/skins", get(cf::list_skins))
         .route("/api/games/connect-four/spins", post(cf::spin))
         // Legacy aliases (Angry Bird) for older clients.

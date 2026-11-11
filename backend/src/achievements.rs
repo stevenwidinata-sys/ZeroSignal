@@ -53,6 +53,11 @@ pub struct Stats {
     pub wam_fever: bool,
     /// Longest Survival round, ms.
     pub wam_survival_ms: i64,
+    pub mf_wins: i64,
+    pub mf_expert_wins: i64,
+    /// Fastest Beginner win, ms (0 = none).
+    pub mf_best_beginner_ms: i64,
+    pub mf_daily_wins: i64,
 }
 
 pub struct Achievement {
@@ -86,7 +91,7 @@ macro_rules! ach {
     };
 }
 
-pub static ACHIEVEMENTS: [Achievement; 29] = [
+pub static ACHIEVEMENTS: [Achievement; 33] = [
     ach!("cf_first_win", "First Drop", "Win your first Connect Four series", 30, "title-chip-dropper", 1, |s| s.cf_wins),
     ach!("cf_medium", "Thinking Ahead", "Win a Connect Four series vs Medium or harder", 40, "title-four-thinker", 1, |s| s.cf_wins_medium),
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
@@ -120,6 +125,11 @@ pub static ACHIEVEMENTS: [Achievement; 29] = [
     ach!("wam_10000", "Mole Master", "Score 10,000 in one Whack-a-Mole round", 150, "title-mole-master", 10_000, |s| s.wam_best),
     ach!("wam_survivor", "Survivor", "Last 2 minutes in Whack-a-Mole Survival", 150, "title-survivor", 120,
         |s| s.wam_survival_ms / 1_000),
+    ach!("mf_first_win", "First Sweep", "Clear your first Minefield board", 20, "title-first-sweep", 1, |s| s.mf_wins),
+    ach!("mf_expert", "Expert Sweeper", "Clear an Expert Minefield board", 150, "title-expert-sweeper", 1, |s| s.mf_expert_wins),
+    ach!("mf_speed", "Speed Sweeper", "Clear a Beginner Minefield board in under 20 seconds", 80, "title-speed-sweeper", 1,
+        |s| i64::from(s.mf_best_beginner_ms > 0 && s.mf_best_beginner_ms < 20_000)),
+    ach!("mf_daily_5", "Daily Devotee", "Clear 5 Daily Minefield boards", 100, "title-daily-devotee", 5, |s| s.mf_daily_wins),
     ach!("quest_days_7", "Quest Master", "Finish all 3 daily quests in one day, 7 times", 200, "title-quest-master", 7, |s| s.quest_full_days),
 ];
 
@@ -175,6 +185,17 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
         r#"SELECT COUNT(*), MAX(score), BOOL_OR(fever),
                   MAX(ended_ms) FILTER (WHERE mode = 'survival')
            FROM wam_runs WHERE user_id = $1 AND finished_at IS NOT NULL"#,
+    )
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+
+    let mf: (i64, i64, Option<i32>, i64) = sqlx::query_as(
+        r#"SELECT COUNT(*),
+                  COUNT(*) FILTER (WHERE difficulty = 'expert'),
+                  MIN(time_ms) FILTER (WHERE difficulty = 'beginner'),
+                  COUNT(*) FILTER (WHERE difficulty = 'daily')
+           FROM mf_games WHERE user_id = $1 AND status = 'won'"#,
     )
     .bind(user_id)
     .fetch_one(pool)
@@ -244,6 +265,10 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
         wam_best: wam.1.unwrap_or(0) as i64,
         wam_fever: wam.2.unwrap_or(false),
         wam_survival_ms: wam.3.unwrap_or(0) as i64,
+        mf_wins: mf.0,
+        mf_expert_wins: mf.1,
+        mf_best_beginner_ms: mf.2.unwrap_or(0) as i64,
+        mf_daily_wins: mf.3,
     })
 }
 
@@ -401,7 +426,7 @@ mod tests {
         let mut ids: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.id).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 29);
+        assert_eq!(ids.len(), 33);
         assert!(ACHIEVEMENTS.iter().all(|a| a.coins > 0 && a.target > 0 && a.id.len() <= 32));
     }
 
@@ -416,9 +441,9 @@ mod tests {
         let mut titles: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.title).collect();
         titles.sort();
         titles.dedup();
-        assert_eq!(titles.len(), 29);
+        assert_eq!(titles.len(), 33);
         let achievement_items = c.items.iter().filter(|i| i.unlock == Unlock::Achievement).count();
-        assert_eq!(achievement_items, 29, "orphan achievement-only items in catalog");
+        assert_eq!(achievement_items, 33, "orphan achievement-only items in catalog");
     }
 
     #[test]

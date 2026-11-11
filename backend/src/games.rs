@@ -50,6 +50,11 @@ pub const GAMES: &[GameInfo] = &[
         title: "Whack-a-Mole",
         status: GameStatus::Live,
     },
+    GameInfo {
+        id: "minefield",
+        title: "Minefield",
+        status: GameStatus::Live,
+    },
 ];
 
 pub fn find(id: &str) -> Option<&'static GameInfo> {
@@ -87,6 +92,7 @@ mod tests {
         assert!(require("connect-four").is_ok());
         assert!(require("tic-tac-toe").is_ok());
         assert!(require("whack-a-mole").is_ok());
+        assert!(require("minefield").is_ok());
         assert!(require("../etc").is_err());
         assert!(require("").is_err());
     }
