@@ -17,6 +17,12 @@ export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
   const [mine, setMine] = useState<MyScoresResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [boardIdx, setBoardIdx] = useState(0);
+  const boards = game?.meta.boards;
+  const board = boards?.[boardIdx] ?? boards?.[0];
+
+  // Each game starts on its first board.
+  useEffect(() => setBoardIdx(0), [gameId]);
 
   useEffect(() => {
     if (!game) return;
@@ -24,7 +30,7 @@ export default function Leaderboard() {
     setEntries(null);
     setError(null);
     api
-      .leaderboard(game.meta.id)
+      .leaderboard(game.meta.id, board ? { level: board.level, period: board.period } : {})
       .then((e) => !cancelled && setEntries(e))
       .catch((e) => {
         if (cancelled) return;
@@ -34,7 +40,7 @@ export default function Leaderboard() {
     return () => {
       cancelled = true;
     };
-  }, [game]);
+  }, [game, board]);
 
   useEffect(() => {
     if (!game || !user) {
@@ -86,6 +92,22 @@ export default function Leaderboard() {
           </NavLink>
         ))}
       </nav>
+
+      {boards && (
+        <div className="board-subtabs segmented" role="radiogroup" aria-label={`${meta.title} boards`}>
+          {boards.map((b, i) => (
+            <button
+              key={b.level}
+              role="radio"
+              aria-checked={board === b}
+              className={`btn-sm${board === b ? "" : " btn-ghost"}`}
+              onClick={() => setBoardIdx(i)}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && (
         <div className="error" role="alert">
@@ -154,7 +176,7 @@ export default function Leaderboard() {
                 <tr>
                   <th scope="col">Score</th>
                   {showBird && <th scope="col">Bird</th>}
-                  <th scope="col">Level</th>
+                  <th scope="col">{boards ? "Mode" : "Level"}</th>
                   <th scope="col">When</th>
                 </tr>
               </thead>
@@ -165,7 +187,7 @@ export default function Leaderboard() {
                     {showBird && (
                       <td style={{ textTransform: "capitalize" }}>{s.bird_variant ?? "-"}</td>
                     )}
-                    <td>{s.level}</td>
+                    <td>{boards?.find((b) => b.level === s.level)?.label ?? s.level}</td>
                     <td>{new Date(s.created_at).toLocaleString()}</td>
                   </tr>
                 ))}

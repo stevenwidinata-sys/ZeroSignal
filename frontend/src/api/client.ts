@@ -26,6 +26,10 @@ import type {
   TttSpin,
   User,
   Wallet,
+  WamFinish,
+  WamMode,
+  WamStart,
+  WamTap,
 } from "./types";
 
 const BASE_URL =
@@ -167,9 +171,14 @@ export const api = {
     return request<PublicProfile>(`/api/users/${encodeURIComponent(username)}/profile`);
   },
   // Platform: per-game leaderboards/history. gameId is URL-encoded defensively.
-  leaderboard(gameId: string) {
+  /** `level` picks one board of a game (e.g. a Whack-a-Mole mode). */
+  leaderboard(gameId: string, filter: { level?: number; period?: "all" | "today" } = {}) {
+    const q = new URLSearchParams();
+    if (filter.level !== undefined) q.set("level", String(filter.level));
+    if (filter.period) q.set("period", filter.period);
+    const qs = q.toString();
     return request<LeaderboardEntry[]>(
-      `/api/games/${encodeURIComponent(gameId)}/leaderboard`,
+      `/api/games/${encodeURIComponent(gameId)}/leaderboard${qs ? `?${qs}` : ""}`,
     );
   },
   myScores(gameId: string) {
@@ -277,5 +286,17 @@ export const photo = {
   },
   async remove(): Promise<void> {
     await authFetch("/api/me/photo", { method: "DELETE" });
+  },
+};
+
+const WAM = "/api/games/whack-a-mole";
+
+/** Whack-a-Mole: the server gives a seed and scores the taps itself. */
+export const whackAMole = {
+  start(mode: WamMode, grid: 3 | 4) {
+    return post<WamStart>(`${WAM}/runs`, { mode, grid });
+  },
+  finish(runId: string, taps: WamTap[]) {
+    return post<WamFinish>(`${WAM}/runs/${encodeURIComponent(runId)}/finish`, { taps });
   },
 };

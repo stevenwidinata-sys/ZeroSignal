@@ -336,3 +336,48 @@ export interface PublicAchievement {
   title: string;
   claimed_at: string;
 }
+
+// ---------------------------------------------------------------------------
+// Whack-a-Mole
+// ---------------------------------------------------------------------------
+
+export type WamMode = "classic" | "frenzy" | "survival" | "daily";
+
+export interface WamTap {
+  t: number;
+  hole: number;
+}
+
+export interface WamStart {
+  run_id: string;
+  seed: number;
+  mode: WamMode;
+  grid: 3 | 4;
+}
+
+/** The server's replay of a round (same shape as the engine's Summary). */
+export interface WamSummary {
+  score: number;
+  hits: number;
+  misses: number;
+  escapes: number;
+  best_streak: number;
+  fever: boolean;
+  golden_hits: number;
+  bombs_hit: number;
+  by_kind: number[];
+  hole_hits: number[];
+  hole_misses: number[];
+  reaction_total_ms: number;
+  reactions: number;
+  ended_ms: number;
+  lives_left: number;
+}
+
+export interface WamFinish {
+  mode: WamMode;
+  summary: WamSummary;
+  previous_best: number;
+  new_best: boolean;
+  rewards: Granted;
+}

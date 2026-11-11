@@ -26,6 +26,15 @@ export interface GameMeta {
   scoreLabel: string;
   /** 3-4 steps shown the first time the game is opened (live games). */
   tutorial?: TutorialStep[];
+  /** Separate leaderboards inside one game (stored as the score's `level`). */
+  boards?: GameBoard[];
+}
+
+export interface GameBoard {
+  level: number;
+  label: string;
+  /** "today" = only scores from the current WIB day. */
+  period?: "today";
 }
 
 /**
