@@ -16,6 +16,7 @@ mod quests;
 mod scores;
 mod state;
 mod tic_tac_toe;
+mod whack_a_mole;
 
 use axum::routing::{get, post, put};
 use axum::Router;
