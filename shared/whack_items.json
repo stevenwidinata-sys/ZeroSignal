@@ -1,0 +1,17 @@
+{
+  "hammers": [
+    { "id": "mallet", "name": "Wooden Mallet", "rarity": "common", "price": null, "art": { "head": "#b07a43", "handle": "#7a4a1d", "fx": "#ffffff", "sound": "bonk" } },
+    { "id": "squeaky", "name": "Squeaky Toy", "rarity": "common", "price": 150, "art": { "head": "#ff6fb5", "handle": "#ffd23f", "fx": "#ff9fd0", "sound": "squeak" } },
+    { "id": "pan", "name": "Frying Pan", "rarity": "rare", "price": 250, "art": { "head": "#3a3d4a", "handle": "#1b1b2e", "fx": "#ffd23f", "sound": "clang" } },
+    { "id": "fish", "name": "Wet Fish", "rarity": "rare", "price": 250, "art": { "head": "#6cc4ff", "handle": "#3a86ff", "fx": "#9ad8ff", "sound": "splash" } },
+    { "id": "neon", "name": "Neon Ban-Hammer", "rarity": "epic", "price": 600, "art": { "head": "#00f5d4", "handle": "#9b5de5", "fx": "#00f5d4", "sound": "zap" } },
+    { "id": "golden", "name": "Golden Hammer", "rarity": "legendary", "price": 1500, "art": { "head": "#ffd23f", "handle": "#c9932e", "fx": "#fff3b0", "sound": "chime" } }
+  ],
+  "themes": [
+    { "id": "garden", "name": "Garden", "rarity": "common", "price": null, "art": { "board": "#3f9b4a", "hole": "#1d120b", "rim": "#4a2f1d", "moleBody": "#8a5a3b", "moleBelly": "#c79a73", "deco": "🌼" } },
+    { "id": "neon", "name": "Neon Arcade", "rarity": "rare", "price": 300, "art": { "board": "#14183a", "hole": "#05060f", "rim": "#9b5de5", "moleBody": "#00b3a4", "moleBelly": "#7ff5e6", "deco": "✨" } },
+    { "id": "graveyard", "name": "Graveyard", "rarity": "rare", "price": 400, "art": { "board": "#3b4252", "hole": "#0f1117", "rim": "#5c4b3b", "moleBody": "#7fa36b", "moleBelly": "#c4d9a8", "deco": "🪦" } },
+    { "id": "beach", "name": "Sunny Beach", "rarity": "rare", "price": 400, "art": { "board": "#f2d38a", "hole": "#7a5a2e", "rim": "#c9a15a", "moleBody": "#e07a4f", "moleBelly": "#ffc9a8", "deco": "🐚" } },
+    { "id": "space", "name": "Deep Space", "rarity": "legendary", "price": 1200, "art": { "board": "#1a0b33", "hole": "#000000", "rim": "#5a3d99", "moleBody": "#7ed957", "moleBelly": "#c9f7b0", "deco": "⭐" } }
+  ]
+}

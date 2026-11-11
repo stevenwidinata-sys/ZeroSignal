@@ -53,6 +53,7 @@ pub struct Stats {
     pub wam_fever: bool,
     /// Longest Survival round, ms.
     pub wam_survival_ms: i64,
+    pub wam_bosses: i64,
     pub mf_wins: i64,
     pub mf_expert_wins: i64,
     /// Fastest Beginner win, ms (0 = none).
@@ -91,7 +92,7 @@ macro_rules! ach {
     };
 }
 
-pub static ACHIEVEMENTS: [Achievement; 33] = [
+pub static ACHIEVEMENTS: [Achievement; 34] = [
     ach!("cf_first_win", "First Drop", "Win your first Connect Four series", 30, "title-chip-dropper", 1, |s| s.cf_wins),
     ach!("cf_medium", "Thinking Ahead", "Win a Connect Four series vs Medium or harder", 40, "title-four-thinker", 1, |s| s.cf_wins_medium),
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
@@ -125,6 +126,7 @@ pub static ACHIEVEMENTS: [Achievement; 33] = [
     ach!("wam_10000", "Mole Master", "Score 10,000 in one Whack-a-Mole round", 150, "title-mole-master", 10_000, |s| s.wam_best),
     ach!("wam_survivor", "Survivor", "Last 2 minutes in Whack-a-Mole Survival", 150, "title-survivor", 120,
         |s| s.wam_survival_ms / 1_000),
+    ach!("wam_boss", "Boss Breaker", "Knock out a boss mole in Whack-a-Mole", 100, "title-boss-breaker", 1, |s| s.wam_bosses),
     ach!("mf_first_win", "First Sweep", "Clear your first Minefield board", 20, "title-first-sweep", 1, |s| s.mf_wins),
     ach!("mf_expert", "Expert Sweeper", "Clear an Expert Minefield board", 150, "title-expert-sweeper", 1, |s| s.mf_expert_wins),
     ach!("mf_speed", "Speed Sweeper", "Clear a Beginner Minefield board in under 20 seconds", 80, "title-speed-sweeper", 1,
@@ -181,9 +183,10 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
     .fetch_one(pool)
     .await?;
 
-    let wam: (i64, Option<i32>, Option<bool>, Option<i32>) = sqlx::query_as(
+    let wam: (i64, Option<i32>, Option<bool>, Option<i32>, Option<i64>) = sqlx::query_as(
         r#"SELECT COUNT(*), MAX(score), BOOL_OR(fever),
-                  MAX(ended_ms) FILTER (WHERE mode = 'survival')
+                  MAX(ended_ms) FILTER (WHERE mode = 'survival'),
+                  SUM(bosses_beaten)::BIGINT
            FROM wam_runs WHERE user_id = $1 AND finished_at IS NOT NULL"#,
     )
     .bind(user_id)
@@ -265,6 +268,7 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
         wam_best: wam.1.unwrap_or(0) as i64,
         wam_fever: wam.2.unwrap_or(false),
         wam_survival_ms: wam.3.unwrap_or(0) as i64,
+        wam_bosses: wam.4.unwrap_or(0),
         mf_wins: mf.0,
         mf_expert_wins: mf.1,
         mf_best_beginner_ms: mf.2.unwrap_or(0) as i64,
@@ -426,7 +430,7 @@ mod tests {
         let mut ids: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.id).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 33);
+        assert_eq!(ids.len(), 34);
         assert!(ACHIEVEMENTS.iter().all(|a| a.coins > 0 && a.target > 0 && a.id.len() <= 32));
     }
 
@@ -441,9 +445,9 @@ mod tests {
         let mut titles: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.title).collect();
         titles.sort();
         titles.dedup();
-        assert_eq!(titles.len(), 33);
+        assert_eq!(titles.len(), 34);
         let achievement_items = c.items.iter().filter(|i| i.unlock == Unlock::Achievement).count();
-        assert_eq!(achievement_items, 33, "orphan achievement-only items in catalog");
+        assert_eq!(achievement_items, 34, "orphan achievement-only items in catalog");
     }
 
     #[test]

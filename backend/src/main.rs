@@ -115,6 +115,8 @@ async fn main() -> anyhow::Result<()> {
         // Whack-a-Mole: seeded runs, scored by replaying the taps.
         .route("/api/games/whack-a-mole/runs", post(whack_a_mole::api::start))
         .route("/api/games/whack-a-mole/runs/:id/finish", post(whack_a_mole::api::finish))
+        .route("/api/games/whack-a-mole/collection", get(whack_a_mole::api::collection))
+        .route("/api/games/whack-a-mole/buy", post(whack_a_mole::api::buy))
         // Minefield: the server holds the mines and opens cells for you.
         .route("/api/games/minefield/games", post(minefield::api::create))
         .route("/api/games/minefield/games/active", get(minefield::api::active))

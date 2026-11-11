@@ -237,6 +237,7 @@
     { "id": "title-first-sweep", "slot": "title", "name": "First Sweep", "rarity": "common", "unlock": { "kind": "achievement" }, "art": { "text": "First Sweep", "tier": "bronze", "color": "#7a8597" } },
     { "id": "title-expert-sweeper", "slot": "title", "name": "Expert Sweeper", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Expert Sweeper", "tier": "mythic", "color": "#ff5a5f", "icon": "💣", "effect": "flicker" } },
     { "id": "title-speed-sweeper", "slot": "title", "name": "Speed Sweeper", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Speed Sweeper", "tier": "gold", "color": "#3a86ff", "icon": "⚡", "effect": "glow" } },
+    { "id": "title-boss-breaker", "slot": "title", "name": "Boss Breaker", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Boss Breaker", "tier": "gold", "color": "#9b5de5", "icon": "👑", "effect": "glow" } },
     { "id": "title-daily-devotee", "slot": "title", "name": "Daily Devotee", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Daily Devotee", "tier": "silver", "color": "#2fbf71", "icon": "📅" } }
   ]
 }

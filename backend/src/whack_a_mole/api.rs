@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::engine::{self, Mode, ReplayError, Summary, Tap};
+use super::items::{self, Kind as ItemKind};
 use crate::auth::jwt::AuthUser;
 use crate::daily;
 use crate::economy::{self, Granted};
@@ -28,6 +29,11 @@ pub struct StartRequest {
     pub mode: String,
     #[serde(default = "default_grid")]
     pub grid: u32,
+    /// Cosmetics; you must own them. Default: the free ones.
+    #[serde(default)]
+    pub hammer: Option<String>,
+    #[serde(default)]
+    pub theme: Option<String>,
 }
 
 fn default_grid() -> u32 {
@@ -59,13 +65,26 @@ pub async fn start(
         (rand::thread_rng().gen::<u32>(), req.grid)
     };
 
+    let cat = items::items();
+    let owned = owned_keys(&state.pool, user.user_id).await?;
+    let hammer = req.hammer.unwrap_or_else(|| cat.default_id(ItemKind::Hammer).to_string());
+    let theme = req.theme.unwrap_or_else(|| cat.default_id(ItemKind::Theme).to_string());
+    if !cat.owns(ItemKind::Hammer, &hammer, &owned) {
+        return Err(AppError::Validation("you don't own that hammer".into()));
+    }
+    if !cat.owns(ItemKind::Theme, &theme, &owned) {
+        return Err(AppError::Validation("you don't own that board theme".into()));
+    }
+
     let run_id: Uuid = sqlx::query_scalar(
-        "INSERT INTO wam_runs (user_id, mode, grid, seed) VALUES ($1, $2, $3, $4) RETURNING id",
+        "INSERT INTO wam_runs (user_id, mode, grid, seed, hammer, theme) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
     )
     .bind(user.user_id)
     .bind(mode.as_str())
     .bind(grid as i16)
     .bind(i64::from(seed))
+    .bind(&hammer)
+    .bind(&theme)
     .fetch_one(&state.pool)
     .await?;
 
@@ -86,6 +105,8 @@ pub struct FinishResponse {
     pub previous_best: i32,
     pub new_best: bool,
     pub rewards: Granted,
+    /// Lucky drop: an item key ("hammer:pan") you just got, if any.
+    pub drop: Option<String>,
 }
 
 #[derive(sqlx::FromRow)]
@@ -145,7 +166,7 @@ pub async fn finish(
 
     sqlx::query(
         r#"UPDATE wam_runs SET finished_at = now(), score = $2, best_streak = $3,
-               golden_hits = $4, fever = $5, ended_ms = $6
+               golden_hits = $4, fever = $5, ended_ms = $6, bosses_beaten = $7
            WHERE id = $1"#,
     )
     .bind(run_id)
@@ -154,6 +175,7 @@ pub async fn finish(
     .bind(summary.golden_hits as i32)
     .bind(summary.fever)
     .bind(summary.ended_ms as i32)
+    .bind(summary.bosses_beaten as i32)
     .execute(&mut *tx)
     .await?;
     sqlx::query("INSERT INTO scores (user_id, game_id, score, level) VALUES ($1, $2, $3, $4)")
@@ -168,9 +190,27 @@ pub async fn finish(
     quests::api::record(&mut tx, user.user_id, &[round]).await?;
     let reward = score_round_reward(score, &mut rand::thread_rng());
     let rewards = economy::grant(&mut tx, user.user_id, reward, "whack_a_mole_round", true).await?;
+
+    // Lucky drop: a good round may give a hammer or theme you don't own.
+    let mut drop = None;
+    if i64::from(score) >= items::DROP_MIN_SCORE {
+        let roll: f64 = rand::thread_rng().gen();
+        if roll < items::DROP_CHANCE {
+            let owned = owned_keys(&mut *tx, user.user_id).await?;
+            let pick = items::items().random_unowned(&owned, &mut rand::thread_rng());
+            if let Some(k) = pick {
+                sqlx::query("INSERT INTO wam_items (user_id, item_key, source) VALUES ($1, $2, 'drop') ON CONFLICT DO NOTHING")
+                    .bind(user.user_id)
+                    .bind(&k)
+                    .execute(&mut *tx)
+                    .await?;
+                drop = Some(k);
+            }
+        }
+    }
     tx.commit().await?;
 
-    Ok(Json(FinishResponse { mode, summary, previous_best, new_best: score > previous_best, rewards }))
+    Ok(Json(FinishResponse { mode, summary, previous_best, new_best: score > previous_best, rewards, drop }))
 }
 
 /// Best score in a mode's leaderboard (Daily: today only).
@@ -194,4 +234,86 @@ async fn mode_best(
     .bind(since)
     .fetch_one(&mut **tx)
     .await?)
+}
+
+// ---------------------------------------------------------------------------
+// Hammers and board themes
+// ---------------------------------------------------------------------------
+
+async fn owned_keys(ex: impl sqlx::PgExecutor<'_>, user_id: Uuid) -> AppResult<Vec<String>> {
+    Ok(sqlx::query_scalar("SELECT item_key FROM wam_items WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_all(ex)
+        .await?)
+}
+
+#[derive(Serialize)]
+pub struct ItemView {
+    pub id: String,
+    pub name: String,
+    pub rarity: crate::character::catalog::Rarity,
+    pub price: Option<i64>,
+    pub owned: bool,
+}
+
+#[derive(Serialize)]
+pub struct Collection {
+    pub hammers: Vec<ItemView>,
+    pub themes: Vec<ItemView>,
+}
+
+async fn collection_of(state: &AppState, user_id: Uuid) -> AppResult<Collection> {
+    let owned = owned_keys(&state.pool, user_id).await?;
+    let cat = items::items();
+    let view = |kind| {
+        cat.list(kind)
+            .iter()
+            .map(|i| ItemView {
+                id: i.id.clone(),
+                name: i.name.clone(),
+                rarity: i.rarity,
+                price: i.price,
+                owned: cat.owns(kind, &i.id, &owned),
+            })
+            .collect()
+    };
+    Ok(Collection { hammers: view(ItemKind::Hammer), themes: view(ItemKind::Theme) })
+}
+
+pub async fn collection(State(state): State<AppState>, user: AuthUser) -> AppResult<Json<Collection>> {
+    Ok(Json(collection_of(&state, user.user_id).await?))
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BuyRequest {
+    pub kind: ItemKind,
+    pub id: String,
+}
+
+pub async fn buy(
+    State(state): State<AppState>,
+    user: AuthUser,
+    Json(req): Json<BuyRequest>,
+) -> AppResult<Json<Collection>> {
+    let it = items::items()
+        .find(req.kind, &req.id)
+        .ok_or_else(|| AppError::Validation(format!("unknown item: {}", req.id)))?;
+    let price = it.price.ok_or_else(|| AppError::Validation(format!("{} is already free", it.name)))?;
+    let key = items::key(req.kind, &it.id);
+    let mut tx = state.pool.begin().await?;
+    let inserted = sqlx::query(
+        "INSERT INTO wam_items (user_id, item_key, source) VALUES ($1, $2, 'shop') ON CONFLICT DO NOTHING",
+    )
+    .bind(user.user_id)
+    .bind(&key)
+    .execute(&mut *tx)
+    .await?
+    .rows_affected();
+    if inserted == 0 {
+        return Err(AppError::Conflict(format!("you already own {}", it.name)));
+    }
+    economy::spend(&mut tx, user.user_id, price, 0, &format!("wam_shop:{key}")).await?;
+    tx.commit().await?;
+    Ok(Json(collection_of(&state, user.user_id).await?))
 }
