@@ -66,7 +66,55 @@ Branches, each merged into `main` after tests pass:
 - Short 3–4 step "how to play" the first time each game is opened, plus a "?"
   button to see it again. Seen tutorials are remembered in the browser.
 
-## Phase 3 (planned)
+## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
+
+Owner said "go with your picks" for the 10 ideas. Branch order:
+`feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
+
+### Whack-a-Mole v1 (`feat/whack-a-mole`): ideas 1, 2, 3, 9, 10
+- **Setup screen before each round:** mode, grid size (3×3 or 4×4).
+- **Modes:** Classic (60 s), Frenzy (30 s, faster and shorter moles),
+  Survival (no clock, 3 lives, gets faster, max 5 min), Daily Challenge
+  (Classic rules, 3×3, same moles for everyone that WIB day, its own
+  leaderboard for today).
+- **Moles:** normal 100, ninja 150 (very short), helmet 250 (2 hits),
+  golden 500 (rare), bomb (don't hit: −300, or −1 life in Survival; breaks
+  the combo), ice (+3 s on timed modes, +1 life in Survival, max 3).
+  Every kind has its own shape/icon, so colorblind players can tell them apart.
+- **Combo:** streak ×1.5 at 5 hits in a row, **FEVER ×3** at 10+ (board
+  glows). An empty tap, bomb hit or escaped mole ends the streak.
+  Survival: an escaped normal/ninja/helmet mole costs a life.
+- **4×4 grid** pays ×1.2 score. Keyboard: 1–9 (3×3, numpad layout),
+  `1234 / QWER / ASDF / ZXCV` (4×4). Mouse and touch work everywhere.
+- **Anti-cheat:** `POST start` gives a run id + seed; both sides build the
+  same mole schedule from the seed (same PRNG in TS and Rust). The client
+  sends only taps `(ms, hole)`; the server replays them, checks timing
+  (sorted, inside the round, ≥ 40 ms apart, real time ≥ round length) and
+  computes the score. One finish per run; runs expire after 15 min.
+- **Rewards:** same formula as Angry Bird (1 coin / 1,000 points, 10–100 XP,
+  token 3% → 15%), counts toward the daily cap.
+- **Quests (+3):** play 3 rounds (20/30), score 5,000 in a round (40/60),
+  hit 5 golden moles today (40/60).
+- **Achievements (+4, each with a title):** First Bonk (first round),
+  Fever Pitch (reach FEVER), Mole Master (10,000 in one round),
+  Survivor (last 120 s in Survival).
+- **Results screen:** score, accuracy, average reaction time, best combo,
+  hits per mole type, heat map of the holes, new-best badge, rewards.
+- Leaderboard: one tab per mode (Daily shows today only). Upbeat music,
+  hit sounds, tutorial, light-graphics and colorblind support.
+
+### Settings (`feat/settings-plus`)
+- Screen shake on/off, reduced motion (separate from light graphics),
+  text size (S/M/L), ask before leaving a match, "reset tutorials" button.
+
+### Whack-a-Mole extras (`feat/whack-a-mole-extras`): ideas 4–8
+- Boss mole, power-ups, hammer skins (shop + spin), board themes
+  (Garden, Neon, Graveyard, Beach, Space), your character beside the board.
+
+### Website upgrades to schedule after that
+- Stats page, weekly leaderboards, Indonesian language, PWA, cleaner Hub.
+
+## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays).
 - Game replays (step through Connect Four / Tic-Tac-Toe moves).
