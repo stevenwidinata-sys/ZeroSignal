@@ -27,6 +27,7 @@ pub enum Event {
     AiGame { game: Game, level: i64, result: GameResult },
     SeriesWon { game: Game, level: i64, used_undo: bool },
     AngryBirdRound { score: i64 },
+    WhackRound { score: i64, golden_hits: i64 },
     MysteryBox,
 }
 

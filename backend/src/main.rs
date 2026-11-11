@@ -109,6 +109,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/games/connect-four/matches/:id/undo", post(cf::undo_move))
         .route("/api/games/connect-four/matches/:id/next", post(cf::next_game))
         .route("/api/games/connect-four/matches/:id/forfeit", post(cf::forfeit_match))
+        // Whack-a-Mole: seeded runs, scored by replaying the taps.
+        .route("/api/games/whack-a-mole/runs", post(whack_a_mole::api::start))
+        .route("/api/games/whack-a-mole/runs/:id/finish", post(whack_a_mole::api::finish))
         .route("/api/games/connect-four/skins", get(cf::list_skins))
         .route("/api/games/connect-four/spins", post(cf::spin))
         // Legacy aliases (Angry Bird) for older clients.

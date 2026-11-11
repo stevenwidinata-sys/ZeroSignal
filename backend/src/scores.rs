@@ -1,4 +1,4 @@
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -145,11 +145,26 @@ pub struct LeaderboardEntry {
     pub avatar: Option<serde_json::Value>,
 }
 
+/// Optional leaderboard filters: `level` picks one board of a game (e.g. a
+/// Whack-a-Mole mode) and `period=today` keeps only today's (WIB) scores.
+#[derive(Deserialize, Default)]
+pub struct BoardFilter {
+    pub level: Option<i32>,
+    pub period: Option<String>,
+}
+
 pub async fn leaderboard(
     State(state): State<AppState>,
     Path(game_id): Path<String>,
+    filter: Option<Query<BoardFilter>>,
 ) -> AppResult<Json<Vec<LeaderboardEntry>>> {
     let game = games::require(&game_id)?;
+    let filter = filter.map(|q| q.0).unwrap_or_default();
+    let since = match filter.period.as_deref() {
+        None | Some("all") => chrono::DateTime::<chrono::Utc>::UNIX_EPOCH,
+        Some("today") => crate::daily::today_start(chrono::Utc::now()),
+        Some(_) => return Err(AppError::Validation("period must be all or today".into())),
+    };
     let rows: Vec<LeaderboardEntry> = sqlx::query_as(
         r#"SELECT ROW_NUMBER() OVER (ORDER BY MAX(s.score) DESC, MIN(s.created_at) ASC) AS rank,
                   u.username AS username,
@@ -157,12 +172,16 @@ pub async fn leaderboard(
                   (SELECT a.loadout FROM avatars a WHERE a.user_id = u.id) AS avatar
            FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.game_id = $1
+             AND ($3::INT IS NULL OR s.level = $3)
+             AND s.created_at >= $4
            GROUP BY u.id, u.username
            ORDER BY rank
            LIMIT $2"#,
     )
     .bind(game.id)
     .bind(LEADERBOARD_SIZE)
+    .bind(filter.level)
+    .bind(since)
     .fetch_all(&state.pool)
     .await?;
     Ok(Json(rows))
@@ -210,7 +229,7 @@ pub async fn my_scores(
 
 // Legacy routes (pre-platform clients) map to Angry Bird.
 pub async fn legacy_leaderboard(state: State<AppState>) -> AppResult<Json<Vec<LeaderboardEntry>>> {
-    leaderboard(state, Path(ANGRY_BIRD.to_string())).await
+    leaderboard(state, Path(ANGRY_BIRD.to_string()), None).await
 }
 
 pub async fn legacy_my_scores(
