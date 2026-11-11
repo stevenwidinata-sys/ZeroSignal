@@ -174,7 +174,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
   banner on the Hub and Leaderboards (once per board per week, not counted
   toward the daily cap).
 
-### Cleaner Hub (`feat/cleaner-hub`, agreed 2026-11-12)
+### Cleaner Hub (`feat/cleaner-hub`, done; agreed 2026-11-12)
 - Logged out: a compact hero (no duplicate theme/settings buttons, no
   stale "Coming soon: 0" stat), "Create account" + "Log in", then games.
 - Logged in: the hero becomes a **welcome strip**: your character, name,
