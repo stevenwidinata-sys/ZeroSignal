@@ -21,3 +21,6 @@ node_modules
 
 # Postgres volume (if mounted locally)
 /pgdata
+
+# TypeScript incremental build cache
+*.tsbuildinfo
