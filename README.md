@@ -13,7 +13,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
 | Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
-| Whack-a-Mole | Coming soon | |
+| Whack-a-Mole | Live        | 4 modes, 6 kinds of moles, combos and FEVER; the server replays every tap |
 
 ## Features
 
@@ -36,13 +36,33 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - **Boards and faces:** 6 boards and 12 faces (X/O, emojis, Angry Bird chips, your character's face, your photo), listed in `shared/tic_tac_toe_items.json`. Buy them with coins or win them on the reward spin, which never gives a duplicate.
 - **Photo face:** upload a picture or use your webcam, then drag and zoom to crop it to a circle. The browser shrinks it to 128×128 before upload, and the server only accepts real JPEG/PNG/WebP files up to 64 KB. Your photo is **private**: only you can load it, and it's deleted with your account.
 
+## Whack-a-Mole
+
+- **Modes:** Classic (60 s, speeds up), Frenzy (30 s, faster moles, more at once), Survival (no clock, 3 lives, gets faster, ends at 5 min), Daily Challenge (Classic rules on 3×3, the same moles for everyone that WIB day, with a Today leaderboard).
+- **Board:** 3×3, or 4×4 for ×1.2 points. Mouse, touch or keyboard: 3×3 uses the numpad layout (7 8 9 / 4 5 6 / 1 2 3) or Q W E / A S D / Z X C; 4×4 uses 1 2 3 4 / Q W E R / A S D F / Z X C V. "Show keyboard keys" prints them in the holes.
+
+| Mole | Points | What it does |
+|------|--------|--------------|
+| Mole | 100 | |
+| Ninja | 150 | pops up only briefly |
+| Helmet | 250 | needs 2 hits (the helmet cracks first) |
+| Golden | 500 | rare |
+| Ice | 50 | +3 s on timed modes (max +15 s), +1 life in Survival |
+| Bomb | −300 | don't hit it; in Survival it costs a life |
+
+- **Combo:** 5 hits in a row pay ×1.5, 10 in a row start **FEVER ×3** (the board glows). A tap on an empty hole, a bomb, or an escaped mole ends it. In Survival every escaped mole (not golden or ice) costs a life.
+- Every mole kind has its own shape (mask, hard hat, crown, ice block, skull bomb), so color is never needed.
+- **Results:** accuracy, average reaction time, best combo, moles per kind and a heat map of the holes.
+- **Anti-cheat:** `start` gives the client a run id and a seed; client and server build the same mole schedule from it (same 32-bit integer code in `engine.ts` and `engine.rs`, checked by shared test vectors). The client sends only its taps `(ms, hole)`; the server replays them, rejects rounds that finished faster than real time, and computes the score. Each run can be finished once, within 15 minutes.
+- Pausing (or switching tabs) stops the game clock.
+
 ## Coins, tokens and levels
 
 Only the server pays rewards, and only for results it verified itself, inside the same database transaction that records the result. Local 2-player games pay nothing.
 
 | Game | Coins | XP | Token drop |
 |------|-------|----|------------|
-| Angry Bird | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
+| Angry Bird, Whack-a-Mole | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
 | Connect Four, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–4) | none |
 | Connect Four, series win | Easy 10 / Medium 25 / Hard 50 / Impossible 120 (×2 for best of 5) | bonus 25 × difficulty | 10% / 20% / 35% / 60% |
 | Tic-Tac-Toe, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–3) | none |
@@ -82,10 +102,13 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 | Win any series without using undo | 50 | 80 |
 | Open a mystery box | 30 | 40 |
 | Win 5 AI games in any game | 60 | 100 |
+| Play 3 Whack-a-Mole rounds | 20 | 30 |
+| Score 5,000 in one Whack-a-Mole round | 40 | 60 |
+| Hit 5 golden moles today | 40 | 60 |
 
 ## Achievements
 
-The `/achievements` page lists 25 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+The `/achievements` page lists 29 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
 
 | Achievement | Coins | Title |
 |-------------|-------|-------|
@@ -103,6 +126,10 @@ The `/achievements` page lists 25 one-time achievements with progress bars; lock
 | Score 10,000 in one Angry Bird round | 80 | Sharpshooter |
 | Score 25,000 in one Angry Bird round | 200 | Pig Slayer |
 | Unlock every bird | 150 | Flock Leader |
+| Finish your first Whack-a-Mole round | 20 | First Bonk |
+| Reach FEVER in Whack-a-Mole | 80 | Fever Pitch |
+| Score 10,000 in one Whack-a-Mole round | 150 | Mole Master |
+| Last 2 minutes in Whack-a-Mole Survival | 150 | Survivor |
 | Reach level 5 / 10 / 25 | 50 / 150 / 400 | Rising Star / Veteran / Living Legend |
 | Spin the token wheel | 30 | Wheel Spinner |
 | Open 10 mystery boxes | 100 | Box Hunter |
@@ -128,7 +155,7 @@ Titles show in the wardrobe, on public profiles and next to names on leaderboard
 
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **183 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **187 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|
@@ -227,9 +254,10 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
-│       ├── achievements.rs     # 25 achievements, live progress, claim + titles
+│       ├── achievements.rs     # 29 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
+│       ├── whack_a_mole/       # seeded mole schedule, tap replay scorer, runs API
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -251,7 +279,7 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
-| GET  | `/api/me/achievements` | all 25 achievements with live progress (auth) |
+| GET  | `/api/me/achievements` | all 29 achievements with live progress (auth) |
 | POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
@@ -268,10 +296,12 @@ zero_signal/
 | POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
 | GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
-| GET  | `/api/games/:id/leaderboard` | top 20 for that game |
+| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily), `?period=today` keeps today only |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
+| POST | `/api/games/whack-a-mole/runs` | `{mode, grid}` start a run; returns `run_id` + `seed` (auth) |
+| POST | `/api/games/whack-a-mole/runs/:id/finish` | `{taps:[{t, hole}]}`; server replays and scores, pays rewards (auth) |
 | POST | `/api/games/connect-four/matches` | start an AI series `{difficulty, best_of, skin}` (auth) |
 | GET  | `/api/games/connect-four/matches/active` | resume your unfinished series (auth) |
 | POST | `/api/games/connect-four/matches/:id/move` | `{column}`; server replies with the AI move (auth) |

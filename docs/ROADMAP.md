@@ -68,10 +68,12 @@ Branches, each merged into `main` after tests pass:
 
 ## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
 
+Status: `feat/whack-a-mole` (v1) done and merged; next is `feat/settings-plus`.
+
 Owner said "go with your picks" for the 10 ideas. Branch order:
 `feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
 
-### Whack-a-Mole v1 (`feat/whack-a-mole`): ideas 1, 2, 3, 9, 10
+### Whack-a-Mole v1 (`feat/whack-a-mole`, done): ideas 1, 2, 3, 9, 10
 - **Setup screen before each round:** mode, grid size (3×3 or 4×4).
 - **Modes:** Classic (60 s), Frenzy (30 s, faster and shorter moles),
   Survival (no clock, 3 lives, gets faster, max 5 min), Daily Challenge
