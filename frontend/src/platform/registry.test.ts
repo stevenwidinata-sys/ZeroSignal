@@ -35,7 +35,7 @@ describe("game registry", () => {
     expect(findGame("angry-bird")?.meta.title).toBe("Angry Bird");
     expect(findGame("connect-four")?.meta.status).toBe("live");
     expect(findGame("tic-tac-toe")?.meta.status).toBe("live");
-    expect(findGame("whack-a-mole")?.meta.status).toBe("soon");
+    expect(findGame("whack-a-mole")?.meta.status).toBe("live");
     expect(findGame("nope")).toBeUndefined();
     expect(findGame(undefined)).toBeUndefined();
   });

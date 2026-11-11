@@ -4,7 +4,22 @@ import { useSettings } from "../store/settings";
  * Tiny synthesized sound effects (Web Audio API, no audio files).
  * Every effect respects the user's sound on/off + volume settings.
  */
-export type Sfx = "click" | "drop" | "land" | "tick" | "win" | "lose" | "draw" | "spin" | "reward";
+export type Sfx =
+  | "click"
+  | "drop"
+  | "land"
+  | "tick"
+  | "win"
+  | "lose"
+  | "draw"
+  | "spin"
+  | "reward"
+  | "bonk"
+  | "clank"
+  | "boom"
+  | "whiff"
+  | "golden"
+  | "fever";
 
 interface Note {
   /** Hz at start (and optional end, for slides). */
@@ -39,6 +54,26 @@ export const RECIPES: Record<Sfx, Note[]> = {
     { freq: 440, at: 0.2, dur: 0.15, type: "triangle", gain: 0.3 },
   ],
   spin: [{ freq: 900, at: 0, dur: 0.025, type: "square", gain: 0.12 }],
+  // Whack-a-Mole
+  bonk: [
+    { freq: 320, to: 120, at: 0, dur: 0.09, type: "square", gain: 0.35 },
+    { freq: 880, at: 0.02, dur: 0.04, type: "triangle", gain: 0.15 },
+  ],
+  clank: [
+    { freq: 1400, to: 1100, at: 0, dur: 0.08, type: "square", gain: 0.2 },
+    { freq: 2100, at: 0.01, dur: 0.06, type: "triangle", gain: 0.12 },
+  ],
+  boom: [{ freq: 160, to: 40, at: 0, dur: 0.35, type: "sawtooth", gain: 0.35 }],
+  whiff: [{ freq: 260, to: 200, at: 0, dur: 0.06, type: "triangle", gain: 0.12 }],
+  golden: [
+    { freq: 1047, at: 0, dur: 0.07, type: "square", gain: 0.22 },
+    { freq: 1319, at: 0.07, dur: 0.07, type: "square", gain: 0.22 },
+    { freq: 2093, at: 0.14, dur: 0.16, type: "square", gain: 0.22 },
+  ],
+  fever: [
+    { freq: 523, to: 1047, at: 0, dur: 0.25, type: "sawtooth", gain: 0.2 },
+    { freq: 784, to: 1568, at: 0.1, dur: 0.25, type: "square", gain: 0.15 },
+  ],
   reward: [
     { freq: 784, at: 0, dur: 0.1, type: "triangle", gain: 0.3 },
     { freq: 988, at: 0.1, dur: 0.1, type: "triangle", gain: 0.3 },
