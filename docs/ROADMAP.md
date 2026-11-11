@@ -160,7 +160,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 ### Website upgrades to schedule after that
 - Stats page (done, `feat/stats`), weekly leaderboards, Indonesian language, PWA, cleaner Hub.
 
-### Weekly leaderboards (`feat/weekly-leaderboards`, agreed 2026-11-11)
+### Weekly leaderboards (`feat/weekly-leaderboards`, done; agreed 2026-11-11)
 - Weeks run Monday 00:00 → Monday 00:00 WIB. Every leaderboard gets an
   **All time / This week / Last week** switch (Daily boards stay "today").
   The page shows when the week resets.
@@ -176,7 +176,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 
 ## Phase 3b (planned)
 
-- Weekly leaderboards (reset each week, all-time board stays).
+- Weekly leaderboards (reset each week, all-time board stays) — done.
 - Game replays (step through Connect Four / Tic-Tac-Toe moves).
 - Install as an app (PWA, add to home screen).
 

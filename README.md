@@ -19,7 +19,8 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 ## Features
 
 - Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
-- Per-game leaderboards and personal history.
+- Per-game leaderboards and personal history, with **All time / This week / Last week** views. Weeks run Monday 00:00 → Monday 00:00 WIB.
+- **Weekly prizes:** the top 3 last week on each board (Angry Bird, Connect Four, Tic-Tac-Toe, each Whack-a-Mole mode, each Minefield size; not the Daily boards) claim 150 coins + 1 token, 100 or 50 coins from a banner on the Hub or Leaderboards. Best-score games rank by the week's best score; Connect Four and Tic-Tac-Toe by points earned that week. Prize coins don't count toward the daily cap.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
 - Dark / light theme and a settings panel, saved in the browser:
   - **Display:** light graphics, colorblind-friendly, reduced motion (also follows your device setting), screen shake, text size S/M/L/XL.
@@ -310,6 +311,8 @@ zero_signal/
 | POST | `/api/auth/login` | returns JWT |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
 | GET  | `/api/me/stats` | your records in every game, for the Stats page (auth) |
+| GET  | `/api/me/weekly-prizes` | your top-3 places last week and whether they're claimed (auth) |
+| POST | `/api/me/weekly-prizes/claim` | claim every unclaimed weekly prize (auth) |
 | GET  | `/api/me/daily-login` | login streak status and the 7-day reward table (auth) |
 | POST | `/api/me/daily-login/claim` | claim today's login reward, once per WIB day (auth) |
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
@@ -332,7 +335,7 @@ zero_signal/
 | POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
 | GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
-| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `?period=today` keeps today only |
+| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?period=all|today|week|last_week`; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `period=today` keeps today only |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
