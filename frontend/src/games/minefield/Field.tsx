@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { minefield } from "../../api/client";
 import type { MfGame } from "../../api/types";
+import { useGuardWhile } from "../../platform/leaveGuard";
 import { playSfx } from "../../platform/sound";
+import { vibrate } from "../../store/settings";
 import { useWallet } from "../../store/wallet";
 import {
   EXPLODED,
@@ -49,6 +51,8 @@ export default function Field({ initial, onNew, onMenu }: Props) {
 
   const { rows, cols, cells, status } = game;
   const over = status === "won" || status === "lost";
+  // The board waits on the server, but the clock keeps running while you're away.
+  useGuardWhile("minefield", status === "playing");
 
   // Clock: the server's elapsed time, ticking locally between moves.
   useEffect(() => {
@@ -70,6 +74,7 @@ export default function Field({ initial, onNew, onMenu }: Props) {
       useWallet.getState().celebrate(g.result?.rewards);
     } else if (g.status === "lost") {
       playSfx("boom");
+      vibrate([60, 40, 90]);
       useWallet.getState().celebrate(g.result?.rewards);
     }
   }, []);
@@ -267,7 +272,7 @@ export default function Field({ initial, onNew, onMenu }: Props) {
                   const timer = window.setTimeout(() => {
                     if (longPress.current) longPress.current.fired = true;
                     if (hidden) toggleMark(i);
-                    navigator.vibrate?.(20);
+                    vibrate(20);
                   }, LONG_PRESS_MS);
                   longPress.current = { timer, fired: false };
                 }}

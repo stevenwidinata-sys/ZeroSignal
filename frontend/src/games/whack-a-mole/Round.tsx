@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WamTap } from "../../api/types";
+import { useGuardWhile } from "../../platform/leaveGuard";
 import { playSfx } from "../../platform/sound";
+import { useSettings, vibrate } from "../../store/settings";
 import { SURVIVAL_LIVES, comboTenths, type Game, type Kind } from "./engine";
 import { holeForKey, keyLabel } from "./keys";
 import Mole, { KIND_LABEL } from "./Mole";
@@ -41,6 +43,8 @@ export default function Round({ game, showKeys, onDone, onQuit }: Props) {
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const playing = count >= COUNTDOWN.length && !paused;
+  const shakeOn = useSettings((s) => s.screenShake);
+  useGuardWhile("whack-a-mole", count >= COUNTDOWN.length && !game.over);
 
   const now = useCallback(() => {
     if (t0.current === null) return 0;
@@ -132,11 +136,13 @@ export default function Round({ game, showKeys, onDone, onQuit }: Props) {
           break;
         case "bomb":
           playSfx("boom");
+          vibrate([40, 30, 60]);
           addPop(hole, game.mode === "survival" ? "-1 ♥" : "-300", "bad");
-          setShake((s) => s + 1);
+          if (shakeOn) setShake((s) => s + 1);
           break;
         case "hit":
           playSfx(out.kind === "golden" ? "golden" : "bonk");
+          vibrate(out.kind === "golden" ? 30 : 12);
           if (game.streak === 10) playSfx("fever");
           addPop(
             hole,
@@ -158,7 +164,7 @@ export default function Round({ game, showKeys, onDone, onQuit }: Props) {
           break;
       }
     },
-    [playing, game, now, addPop],
+    [playing, game, now, addPop, shakeOn],
   );
 
   useEffect(() => {

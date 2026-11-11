@@ -7,6 +7,7 @@ import MusicPlayer from "./components/MusicPlayer";
 import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
+import { useLeaveGuardListeners } from "./platform/leaveGuard";
 import Hub from "./pages/Hub";
 import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
@@ -58,6 +59,7 @@ export default function App() {
   const clearAchievements = useAchievements((s) => s.clear);
   const achievementsReady = useAchievements((s) => s.view?.ready ?? 0);
   const { pathname } = useLocation();
+  useLeaveGuardListeners();
 
   useEffect(() => {
     void init();

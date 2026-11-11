@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useGuardWhile } from "../../platform/leaveGuard";
 import { Link } from "react-router-dom";
 import { api } from "../../api/client";
 import type { Bird, SubmitResponse } from "../../api/types";
@@ -22,6 +23,8 @@ export default function Game() {
   const [result, setResult] = useState<SubmitResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [roundOver, setRoundOver] = useState(false);
+  const [shotFired, setShotFired] = useState(false);
+  useGuardWhile("angry-bird", shotFired && !roundOver);
   const [error, setError] = useState<string | null>(null);
 
   // Load bird catalog (with unlock state) from the server.
@@ -42,7 +45,13 @@ export default function Game() {
       canvasRef.current,
       LEVEL_ONE,
       selectedRef.current,
-      { onStatus: setStatus, onShotComplete: handleShotComplete },
+      {
+        onStatus: (s) => {
+          setStatus(s);
+          setShotFired((engineRef.current?.shotsTaken() ?? 0) > 0);
+        },
+        onShotComplete: handleShotComplete,
+      },
       themeRef.current,
     );
     engineRef.current = engine;
@@ -98,6 +107,7 @@ export default function Game() {
     setResult(null);
     setError(null);
     setRoundOver(false);
+    setShotFired(false);
     newEngine();
   }
 
