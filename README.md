@@ -335,7 +335,7 @@ zero_signal/
 | POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
 | GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
-| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?period=all|today|week|last_week`; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `period=today` keeps today only |
+| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?period=` `all`, `today`, `week` or `last_week`; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `period=today` keeps today only |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
