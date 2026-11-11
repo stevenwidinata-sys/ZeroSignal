@@ -111,8 +111,25 @@ Owner said "go with your picks" for the 10 ideas. Branch order:
   text size (S/M/L), ask before leaving a match, "reset tutorials" button.
 
 ### Whack-a-Mole extras (`feat/whack-a-mole-extras`): ideas 4–8
-- Boss mole, power-ups, hammer skins (shop + spin), board themes
-  (Garden, Neon, Graveyard, Beach, Space), your character beside the board.
+Owner said "yes do whack-a-mole extras" (2026-11-11). Details:
+- **Boss mole** (idea 4): a giant mole every 20 s (Frenzy 12 s, Survival
+  30 s). It stays up 3.5 s and takes 8 hits; each hit pays 50 (combo and
+  grid bonuses apply) and the knock-out pays a 1,000 bonus. An escaped boss
+  costs nothing. Hits on it build the combo.
+- **Power-ups** (idea 5), rare moles that give an effect when hit:
+  Double (×2 points for 6 s), Shield (your next combo-breaker is forgiven,
+  holds up to 2), Slow-mo (the game clock runs at half speed for 5 s).
+- **Hammer skins** (idea 6): Wooden Mallet (free), Squeaky Toy, Frying
+  Pan, Fish, Neon Ban-Hammer, Golden Hammer. Each has its own cursor, hit
+  effect color and sound. Bought with coins, or a lucky drop: a round that
+  scores 3,000+ has a 5% chance to drop one you don't own.
+- **Board themes** (idea 7): Garden (free), Neon Arcade, Graveyard,
+  Beach, Space. Each changes the board, holes and mole colors. Same shop
+  and drop rules. The server checks you own the hammer and theme at start.
+- **Your character** (idea 8) stands beside the board and reacts
+  (FEVER, bombs, boss knock-outs).
+- Both engines (Rust + TS) change together; shared test vectors updated.
+- New achievement: Boss Breaker (knock out a boss mole).
 
 ### Minefield (`feat/minefield`, done; agreed 2026-11-11: "make all ideas you can")
 Owner picked Minefield from the 10 new-game ideas. v1 includes:
