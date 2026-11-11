@@ -1,17 +1,19 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { whackAMole } from "../../api/client";
-import type { WamFinish, WamMode, WamStart, WamTap } from "../../api/types";
+import type { WamCollection, WamFinish, WamMode, WamStart, WamTap } from "../../api/types";
 import { playSfx } from "../../platform/sound";
 import { useWallet } from "../../store/wallet";
 import { Game } from "./engine";
+import { HAMMERS, THEMES, findTheme, hammerSvg } from "./items";
+import type { Kind } from "./engine";
 import Mole from "./Mole";
 import Results from "./Results";
 import Round from "./Round";
 
 type Screen =
   | { kind: "setup" }
-  | { kind: "round"; run: WamStart; game: Game }
+  | { kind: "round"; run: WamStart; game: Game; cosmetics: { hammer: string; theme: string } }
   | { kind: "submitting" }
   | { kind: "results"; result: WamFinish; grid: 3 | 4 };
 
@@ -28,10 +30,12 @@ interface Prefs {
   mode: WamMode;
   grid: 3 | 4;
   showKeys: boolean;
+  hammer: string;
+  theme: string;
 }
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { mode: "classic", grid: 3, showKeys: false };
+  const fallback: Prefs = { mode: "classic", grid: 3, showKeys: false, hammer: "mallet", theme: "garden" };
   try {
     const v = JSON.parse(localStorage.getItem(PREFS_KEY) ?? "null") as Partial<Prefs> | null;
     if (!v) return fallback;
@@ -39,6 +43,8 @@ function loadPrefs(): Prefs {
       mode: v.mode && v.mode in MODE_INFO ? v.mode : fallback.mode,
       grid: v.grid === 4 ? 4 : 3,
       showKeys: v.showKeys === true,
+      hammer: HAMMERS.some((h) => h.id === v.hammer) ? (v.hammer as string) : fallback.hammer,
+      theme: THEMES.some((t) => t.id === v.theme) ? (v.theme as string) : fallback.theme,
     };
   } catch {
     return fallback;
@@ -53,20 +59,105 @@ function savePrefs(p: Prefs) {
   }
 }
 
-const LEGEND: { kind: "normal" | "ninja" | "helmet" | "golden" | "bomb" | "ice"; text: string }[] = [
+const LEGEND: { kind: Kind; text: string }[] = [
   { kind: "normal", text: "100" },
   { kind: "ninja", text: "150 · quick!" },
   { kind: "helmet", text: "250 · 2 hits" },
   { kind: "golden", text: "500 · rare" },
   { kind: "ice", text: "+3s / +1 ♥" },
+  { kind: "double", text: "×2 points 6s" },
+  { kind: "shield", text: "Saves combo" },
+  { kind: "slow_mo", text: "Slow-mo 5s" },
+  { kind: "boss", text: "8 hits · +1,000" },
   { kind: "bomb", text: "Don't hit!" },
 ];
+
+/** Hammer/theme picker: owned items are selectable, others show a price. */
+function ItemPicker({
+  legend,
+  kind,
+  items,
+  value,
+  collection,
+  busy,
+  onPick,
+  onBuy,
+}: {
+  legend: string;
+  kind: "hammer" | "theme";
+  items: { id: string; name: string; price: number | null }[];
+  value: string;
+  collection: WamCollection | null;
+  busy: boolean;
+  onPick: (id: string) => void;
+  onBuy: (id: string) => void;
+}) {
+  const owned = (id: string) =>
+    (kind === "hammer" ? collection?.hammers : collection?.themes)?.find((i) => i.id === id)?.owned ??
+    items.find((i) => i.id === id)?.price === null;
+  return (
+    <fieldset className="wam-items">
+      <legend>{legend}</legend>
+      {items.map((it) => {
+        const mine = owned(it.id);
+        return (
+          <button
+            key={it.id}
+            type="button"
+            className={`wam-item${value === it.id ? " selected" : ""}${mine ? "" : " locked"}`}
+            aria-pressed={value === it.id}
+            disabled={busy}
+            title={mine ? it.name : `${it.name}: buy for ${it.price} coins`}
+            onClick={() => (mine ? onPick(it.id) : onBuy(it.id))}
+          >
+            {kind === "hammer" ? (
+              <span className="wam-item-art" dangerouslySetInnerHTML={{ __html: hammerSvg(HAMMERS.find((h) => h.id === it.id)!.art, 36) }} />
+            ) : (
+              <span className="wam-item-art wam-swatch" style={{ background: findTheme(it.id).art.board }}>
+                {findTheme(it.id).art.deco}
+              </span>
+            )}
+            <small>{it.name}</small>
+            {!mine && <small className="wam-price">🔒 {it.price} 🪙</small>}
+          </button>
+        );
+      })}
+    </fieldset>
+  );
+}
 
 export default function Play() {
   const [screen, setScreen] = useState<Screen>({ kind: "setup" });
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [collection, setCollection] = useState<WamCollection | null>(null);
+  const [buying, setBuying] = useState(false);
+  const [confirmBuy, setConfirmBuy] = useState<{ kind: "hammer" | "theme"; id: string } | null>(null);
+
+  useEffect(() => {
+    whackAMole
+      .collection()
+      .then(setCollection)
+      .catch(() => setCollection(null));
+  }, []);
+
+  async function buy(kind: "hammer" | "theme", id: string) {
+    setBuying(true);
+    setError(null);
+    try {
+      const c = await whackAMole.buy(kind, id);
+      setCollection(c);
+      playSfx("reward");
+      void useWallet.getState().refresh();
+      update(kind === "hammer" ? { hammer: id } : { theme: id });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "could not buy that");
+    } finally {
+      setBuying(false);
+      setConfirmBuy(null);
+    }
+  }
 
   function update(patch: Partial<Prefs>) {
     const next = { ...prefs, ...patch };
@@ -75,12 +166,17 @@ export default function Play() {
   }
 
   async function start() {
+    // Fall back to the free items if a saved choice isn't owned (any more).
+    const owns = (list: { id: string; owned: boolean }[] | undefined, id: string) => !list || list.some((i) => i.id === id && i.owned);
+    const hammer = owns(collection?.hammers, prefs.hammer) ? prefs.hammer : "mallet";
+    const theme = owns(collection?.themes, prefs.theme) ? prefs.theme : "garden";
+    if (hammer !== prefs.hammer || theme !== prefs.theme) update({ hammer, theme });
     setStarting(true);
     setError(null);
     try {
-      const run = await whackAMole.start(prefs.mode, prefs.grid);
+      const run = await whackAMole.start(prefs.mode, prefs.grid, hammer, theme);
       playSfx("click");
-      setScreen({ kind: "round", run, game: new Game(run.seed, run.mode, run.grid) });
+      setScreen({ kind: "round", run, game: new Game(run.seed, run.mode, run.grid), cosmetics: { hammer, theme } });
     } catch (e) {
       setError(e instanceof Error ? e.message : "could not start a round");
     } finally {
@@ -95,6 +191,12 @@ export default function Play() {
       playSfx(result.new_best ? "reward" : "win");
       setScreen({ kind: "results", result, grid });
       useWallet.getState().celebrate(result.rewards);
+      if (result.drop) {
+        whackAMole
+          .collection()
+          .then(setCollection)
+          .catch(() => undefined);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "the server could not score this round");
       setScreen({ kind: "setup" });
@@ -132,6 +234,8 @@ export default function Play() {
           key={run.run_id}
           game={game}
           showKeys={prefs.showKeys}
+          hammer={screen.cosmetics.hammer}
+          theme={screen.cosmetics.theme}
           onDone={(taps) => void finish(run.run_id, run.grid, taps)}
           onQuit={() => setScreen({ kind: "setup" })}
         />
@@ -213,6 +317,50 @@ export default function Play() {
             </span>
             <input type="checkbox" className="switch" checked={prefs.showKeys} onChange={(e) => update({ showKeys: e.target.checked })} />
           </label>
+
+          <ItemPicker
+            legend="Hammer"
+            kind="hammer"
+            items={HAMMERS}
+            value={prefs.hammer}
+            collection={collection}
+            busy={buying}
+            onPick={(id) => update({ hammer: id })}
+            onBuy={(id) => setConfirmBuy({ kind: "hammer", id })}
+          />
+          <ItemPicker
+            legend="Board theme"
+            kind="theme"
+            items={THEMES}
+            value={prefs.theme}
+            collection={collection}
+            busy={buying}
+            onPick={(id) => update({ theme: id })}
+            onBuy={(id) => setConfirmBuy({ kind: "theme", id })}
+          />
+          {confirmBuy && (
+            <div className="panel wam-confirm" role="alertdialog" aria-label="Confirm purchase">
+              {(() => {
+                const it = (confirmBuy.kind === "hammer" ? HAMMERS : THEMES).find((i) => i.id === confirmBuy.id)!;
+                return (
+                  <>
+                    <span>
+                      Buy <strong>{it.name}</strong> for <strong>{it.price} coins</strong>?
+                    </span>
+                    <div className="game-controls">
+                      <button className="btn-green btn-sm" disabled={buying} onClick={() => void buy(confirmBuy.kind, confirmBuy.id)}>
+                        {buying ? "Buying…" : "Buy"}
+                      </button>
+                      <button className="btn-ghost btn-sm" onClick={() => setConfirmBuy(null)}>
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+          <p className="wam-hint">Locked items can be bought with coins, or drop by luck after a round of 3,000+ points.</p>
 
           <fieldset className="wam-legend">
             <legend>Who's who</legend>

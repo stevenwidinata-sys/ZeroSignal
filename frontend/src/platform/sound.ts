@@ -19,7 +19,12 @@ export type Sfx =
   | "boom"
   | "whiff"
   | "golden"
-  | "fever";
+  | "fever"
+  | "squeak"
+  | "clang"
+  | "splash"
+  | "zap"
+  | "chime";
 
 interface Note {
   /** Hz at start (and optional end, for slides). */
@@ -69,6 +74,23 @@ export const RECIPES: Record<Sfx, Note[]> = {
     { freq: 1047, at: 0, dur: 0.07, type: "square", gain: 0.22 },
     { freq: 1319, at: 0.07, dur: 0.07, type: "square", gain: 0.22 },
     { freq: 2093, at: 0.14, dur: 0.16, type: "square", gain: 0.22 },
+  ],
+  squeak: [
+    { freq: 900, to: 1500, at: 0, dur: 0.07, type: "sine", gain: 0.3 },
+    { freq: 1500, to: 1100, at: 0.07, dur: 0.06, type: "sine", gain: 0.25 },
+  ],
+  clang: [
+    { freq: 620, at: 0, dur: 0.22, type: "square", gain: 0.18 },
+    { freq: 1245, at: 0, dur: 0.18, type: "triangle", gain: 0.14 },
+  ],
+  splash: [
+    { freq: 420, to: 140, at: 0, dur: 0.14, type: "sawtooth", gain: 0.16 },
+    { freq: 700, to: 300, at: 0.03, dur: 0.1, type: "triangle", gain: 0.14 },
+  ],
+  zap: [{ freq: 1800, to: 300, at: 0, dur: 0.12, type: "square", gain: 0.18 }],
+  chime: [
+    { freq: 1319, at: 0, dur: 0.12, type: "triangle", gain: 0.25 },
+    { freq: 1976, at: 0.05, dur: 0.16, type: "triangle", gain: 0.2 },
   ],
   fever: [
     { freq: 523, to: 1047, at: 0, dur: 0.25, type: "sawtooth", gain: 0.2 },

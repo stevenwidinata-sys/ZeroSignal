@@ -29,6 +29,7 @@ import type {
   Wallet,
   MfDifficulty,
   MfGame,
+  WamCollection,
   WamFinish,
   WamMode,
   WamStart,
@@ -299,8 +300,14 @@ const WAM = "/api/games/whack-a-mole";
 
 /** Whack-a-Mole: the server gives a seed and scores the taps itself. */
 export const whackAMole = {
-  start(mode: WamMode, grid: 3 | 4) {
-    return post<WamStart>(`${WAM}/runs`, { mode, grid });
+  start(mode: WamMode, grid: 3 | 4, hammer: string, theme: string) {
+    return post<WamStart>(`${WAM}/runs`, { mode, grid, hammer, theme });
+  },
+  collection() {
+    return request<WamCollection>(`${WAM}/collection`);
+  },
+  buy(kind: "hammer" | "theme", id: string) {
+    return post<WamCollection>(`${WAM}/buy`, { kind, id });
   },
   finish(runId: string, taps: WamTap[]) {
     return post<WamFinish>(`${WAM}/runs/${encodeURIComponent(runId)}/finish`, { taps });

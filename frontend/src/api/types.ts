@@ -366,6 +366,7 @@ export interface WamSummary {
   golden_hits: number;
   bombs_hit: number;
   by_kind: number[];
+  bosses_beaten: number;
   hole_hits: number[];
   hole_misses: number[];
   reaction_total_ms: number;
@@ -380,6 +381,21 @@ export interface WamFinish {
   previous_best: number;
   new_best: boolean;
   rewards: Granted;
+  /** Lucky drop ("hammer:pan"), if any. */
+  drop: string | null;
+}
+
+export interface WamItemView {
+  id: string;
+  name: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  price: number | null;
+  owned: boolean;
+}
+
+export interface WamCollection {
+  hammers: WamItemView[];
+  themes: WamItemView[];
 }
 
 // ---------------------------------------------------------------------------

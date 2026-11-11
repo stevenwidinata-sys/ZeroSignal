@@ -1,5 +1,6 @@
 import type { WamFinish } from "../../api/types";
 import { KINDS } from "./engine";
+import { itemName } from "./items";
 import Mole, { KIND_LABEL } from "./Mole";
 
 const fmt = (n: number) => n.toLocaleString();
@@ -41,7 +42,14 @@ export default function Results({ result, grid, onAgain, onMenu }: Props) {
           result.previous_best > 0 && <span className="tag">Best: {fmt(result.previous_best)}</span>
         )}
         {s.fever && <span className="tag tag-blue">🔥 FEVER reached</span>}
+        {s.bosses_beaten > 0 && <span className="tag">👑 {s.bosses_beaten} boss{s.bosses_beaten > 1 ? "es" : ""} knocked out</span>}
       </div>
+
+      {result.drop && (
+        <div className="wam-drop" role="status">
+          🎁 <strong>Lucky drop!</strong> You got the <strong>{itemName(result.drop)}</strong>. Pick it on the setup screen.
+        </div>
+      )}
 
       <dl className="wam-stats">
         <div>
@@ -76,7 +84,7 @@ export default function Results({ result, grid, onAgain, onMenu }: Props) {
         <section>
           <h3>Moles whacked</h3>
           <ul className="wam-kinds">
-            {KINDS.filter((k) => k !== "bomb").map((k) => (
+            {KINDS.filter((k) => k !== "bomb" && (s.by_kind[KINDS.indexOf(k)] ?? 0) + (k === "normal" ? 1 : 0) > 0).map((k) => (
               <li key={k}>
                 <Mole kind={k} size={34} />
                 <span>{KIND_LABEL[k]}</span>

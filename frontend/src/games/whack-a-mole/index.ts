@@ -26,7 +26,7 @@ const whackAMole: GameModule = {
       {
         icon: "⭐",
         title: "Know your moles",
-        text: "Ninjas are quick, helmets need 2 hits, golden moles pay 500, ice moles give extra time. Never hit the bomb!",
+        text: "Ninjas are quick, helmets need 2 hits, golden moles pay 500. Power-up moles give ×2 points, a combo shield or slow-mo. Bosses take 8 hits. Never hit the bomb!",
       },
       {
         icon: "🔥",
