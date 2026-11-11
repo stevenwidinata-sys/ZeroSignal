@@ -21,7 +21,12 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
 - Per-game leaderboards and personal history.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
-- Dark / light theme and a settings panel (sound, volume, music, light graphics, colorblind-friendly, turn timer), saved in the browser.
+- Dark / light theme and a settings panel, saved in the browser:
+  - **Display:** light graphics, colorblind-friendly, reduced motion (also follows your device setting), screen shake, text size S/M/L/XL.
+  - **Sound and music:** on/off and volume for each.
+  - **Gameplay:** turn timer, **ask before leaving a round** (warns before closing the tab or opening another page mid-round in Whack-a-Mole, Angry Bird and Minefield), vibration on phones.
+  - **Help:** reset tutorials so every "how to play" shows again.
+- **Stats page** (`/stats`): your level, coins earned and spent, tokens, login streak, quests and achievements, plus a card per game: AI series win rates per level, best and average scores per mode or size, Minefield best times, Whack-a-Mole best combo and FEVER rounds. Only server-verified results count.
 - **Colorblind-friendly** switch (Settings → Display): pieces switch to the Okabe-Ito palette, which people with common color vision deficiencies can tell apart, and get shapes so no game relies on color alone. In Connect Four, player 1's chips carry a circle and player 2's a cross. In Tic-Tac-Toe, X and O get safe colors and other faces get an X or O badge. Winning lines also get a dashed outline.
 - **Tutorials:** each live game shows a short 4-step "how to play" the first time you open it. The **?** button (bottom-left) shows it again. Seen tutorials are remembered in the browser.
 - Background music: 3 chiptune tracks made in code with Web Audio (no music files). "Insert Coin" plays on the hub and menus, "Quiet Board" in Connect Four and Tic-Tac-Toe, and "Slingshot Rush" in Angry Bird. Music has its own on/off switch and volume (default on at 40%). It starts after your first click or key press, because browsers block autoplay, and it pauses while the tab is hidden.
@@ -295,6 +300,7 @@ zero_signal/
 | POST | `/api/auth/register` | create account |
 | POST | `/api/auth/login` | returns JWT |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
+| GET  | `/api/me/stats` | your records in every game, for the Stats page (auth) |
 | GET  | `/api/me/daily-login` | login streak status and the 7-day reward table (auth) |
 | POST | `/api/me/daily-login/claim` | claim today's login reward, once per WIB day (auth) |
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |

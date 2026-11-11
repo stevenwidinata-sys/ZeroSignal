@@ -68,7 +68,7 @@ Branches, each merged into `main` after tests pass:
 
 ## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
 
-Status: `feat/whack-a-mole` (v1) and `feat/minefield` done and merged; next is `feat/settings-plus`.
+Status: `feat/whack-a-mole` (v1), `feat/minefield`, `feat/settings-plus` and `feat/stats` done and merged; next is `feat/whack-a-mole-extras`.
 
 Owner said "go with your picks" for the 10 ideas. Branch order:
 `feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
@@ -105,7 +105,8 @@ Owner said "go with your picks" for the 10 ideas. Branch order:
 - Leaderboard: one tab per mode (Daily shows today only). Upbeat music,
   hit sounds, tutorial, light-graphics and colorblind support.
 
-### Settings (`feat/settings-plus`)
+### Settings (`feat/settings-plus`, done)
+- Also added: vibration on phones. "Ask before leaving" covers Whack-a-Mole, Angry Bird (after the first shot) and Minefield.
 - Screen shake on/off, reduced motion (separate from light graphics),
   text size (S/M/L), ask before leaving a match, "reset tutorials" button.
 
@@ -140,7 +141,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 - Later (extras): board skins, Blitz mode, lives mode.
 
 ### Website upgrades to schedule after that
-- Stats page, weekly leaderboards, Indonesian language, PWA, cleaner Hub.
+- Stats page (done, `feat/stats`), weekly leaderboards, Indonesian language, PWA, cleaner Hub.
 
 ## Phase 3b (planned)
 
@@ -161,7 +162,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 3. Your character in the games — partly done (character face in Tic-Tac-Toe).
 4. Seasonal items (Halloween, Christmas, sold only at that time).
 5. Level-up rewards screen — done (level-up pop-up lists unlocks).
-6. Stats page (win rate per game/AI level, best streak, coins earned).
+6. Stats page (win rate per game/AI level, best streak, coins earned) — done.
 7. Rename and profile bio (rename once a month or for coins).
 8. Admin page (player count, give coins, add shop items, remove bad photos/names).
 9. Report button for photos/profiles.
