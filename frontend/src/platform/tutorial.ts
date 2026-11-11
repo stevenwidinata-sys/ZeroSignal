@@ -26,3 +26,12 @@ export function markSeen(gameId: string): void {
     /* storage may be blocked */
   }
 }
+
+/** Show every tutorial again on the next visit. */
+export function resetSeen(): void {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* storage may be blocked */
+  }
+}

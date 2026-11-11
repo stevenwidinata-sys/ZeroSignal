@@ -8,7 +8,20 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid values", () => {
-    const stored = { sound: false, volume: 0.2, music: false, musicVolume: 0.7, lightGraphics: true, colorblind: true, turnTimer: 20 };
+    const stored = {
+      sound: false,
+      volume: 0.2,
+      music: false,
+      musicVolume: 0.7,
+      lightGraphics: true,
+      colorblind: true,
+      turnTimer: 20,
+      screenShake: false,
+      reducedMotion: true,
+      textSize: "xl",
+      confirmLeave: false,
+      vibration: false,
+    };
     expect(parseSettings(JSON.stringify(stored))).toEqual(stored);
   });
 
@@ -26,5 +39,18 @@ describe("parseSettings", () => {
     const old = parseSettings(JSON.stringify({ sound: true, volume: 0.6, lightGraphics: false, turnTimer: 0 }));
     expect(old.music).toBe(true);
     expect(old.musicVolume).toBe(0.4);
+  });
+
+  it("new display and gameplay options default sensibly and reject junk", () => {
+    const old = parseSettings(JSON.stringify({ sound: true }));
+    expect(old.screenShake).toBe(true);
+    expect(old.reducedMotion).toBe(false);
+    expect(old.textSize).toBe("m");
+    expect(old.confirmLeave).toBe(true);
+    expect(old.vibration).toBe(true);
+    const junk = parseSettings(JSON.stringify({ textSize: "huge", screenShake: "no", confirmLeave: 1 }));
+    expect(junk.textSize).toBe("m");
+    expect(junk.screenShake).toBe(true);
+    expect(junk.confirmLeave).toBe(true);
   });
 });

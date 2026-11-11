@@ -69,7 +69,7 @@ body {
 
 body {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
   color: var(--ink);
   background-color: var(--bg);
@@ -1082,6 +1082,14 @@ input:focus {
   flex-wrap: wrap;
   font-weight: 700;
 }
+/* Label text takes the free space so switches stay on the right. */
+.row-label > span {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.row-label .switch {
+  flex-shrink: 0;
+}
 .row-label small {
   display: block;
   font-weight: 500;
@@ -1135,6 +1143,27 @@ input:focus {
 .switch:focus-visible {
   outline: 3px solid var(--yellow);
   outline-offset: 2px;
+}
+
+/* Text size setting: everything in rem scales with the root size. */
+html[data-text="s"] { font-size: 14px; }
+html[data-text="m"] { font-size: 16px; }
+html[data-text="l"] { font-size: 18px; }
+html[data-text="xl"] { font-size: 20px; }
+
+/* Reduced motion setting: stop animations, keep the look. */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Screen shake setting. */
+[data-shake="off"] .shake {
+  animation: none !important;
 }
 
 /* Light graphics: drop decorative effects and motion. */

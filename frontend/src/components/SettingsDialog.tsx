@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
-import { TIMER_OPTIONS, useSettings } from "../store/settings";
+import { useEffect, useRef, useState } from "react";
+import { resetSeen } from "../platform/tutorial";
+import { TEXT_SIZES, TIMER_OPTIONS, useSettings, type TextSize } from "../store/settings";
 import { useTheme } from "../store/theme";
 
 interface Props {
@@ -7,18 +8,22 @@ interface Props {
   onClose: () => void;
 }
 
+const TEXT_SIZE_NAME: Record<TextSize, string> = { s: "Small", m: "Medium", l: "Large", xl: "Extra large" };
+
 /** Settings modal (native <dialog> for focus trapping + Esc to close). */
 export default function SettingsDialog({ open, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const s = useSettings();
   const theme = useTheme((t) => t.theme);
   const toggleTheme = useTheme((t) => t.toggle);
+  const [tutorialsReset, setTutorialsReset] = useState(false);
 
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
+    if (open) setTutorialsReset(false);
   }, [open]);
 
   return (
@@ -72,6 +77,50 @@ export default function SettingsDialog({ open, onClose }: Props) {
               onChange={(e) => s.update({ colorblind: e.target.checked })}
             />
           </label>
+          <label className="row-label">
+            <span>
+              Reduced motion
+              <small>Stops animations but keeps the effects. Your device setting is followed too.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.reducedMotion}
+              onChange={(e) => s.update({ reducedMotion: e.target.checked })}
+            />
+          </label>
+          <label className="row-label">
+            <span>
+              Screen shake
+              <small>The board shakes on bombs and big hits.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.screenShake}
+              onChange={(e) => s.update({ screenShake: e.target.checked })}
+            />
+          </label>
+          <div className="row-label">
+            <span id="text-size-label">
+              Text size
+              <small>Makes the whole site bigger or smaller.</small>
+            </span>
+            <div className="segmented" role="radiogroup" aria-labelledby="text-size-label">
+              {TEXT_SIZES.map((t: TextSize) => (
+                <button
+                  key={t}
+                  role="radio"
+                  aria-checked={s.textSize === t}
+                  aria-label={TEXT_SIZE_NAME[t]}
+                  className={`btn-sm${s.textSize === t ? "" : " btn-ghost"}`}
+                  onClick={() => s.update({ textSize: t })}
+                >
+                  {t.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </fieldset>
 
         <fieldset>
@@ -147,6 +196,50 @@ export default function SettingsDialog({ open, onClose }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+          <label className="row-label">
+            <span>
+              Ask before leaving a round
+              <small>Warns you before closing the tab or opening another page mid-round.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.confirmLeave}
+              onChange={(e) => s.update({ confirmLeave: e.target.checked })}
+            />
+          </label>
+          <label className="row-label">
+            <span>
+              Vibration
+              <small>Short buzzes on phones for hits, bombs and flags.</small>
+            </span>
+            <input
+              type="checkbox"
+              className="switch"
+              checked={s.vibration}
+              onChange={(e) => s.update({ vibration: e.target.checked })}
+            />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Help</legend>
+          <div className="row-label">
+            <span>
+              Tutorials
+              <small>Show each game's "how to play" again the next time you open it.</small>
+            </span>
+            <button
+              className="btn-sm btn-ghost"
+              onClick={() => {
+                resetSeen();
+                setTutorialsReset(true);
+              }}
+              disabled={tutorialsReset}
+            >
+              {tutorialsReset ? "✓ Reset" : "Reset tutorials"}
+            </button>
           </div>
         </fieldset>
 

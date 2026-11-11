@@ -4,6 +4,10 @@ import { create } from "zustand";
 export type TurnTimer = 0 | 10 | 20 | 30;
 export const TIMER_OPTIONS: TurnTimer[] = [0, 10, 20, 30];
 
+/** Base text size: small, medium (default), large, extra large. */
+export type TextSize = "s" | "m" | "l" | "xl";
+export const TEXT_SIZES: TextSize[] = ["s", "m", "l", "xl"];
+
 export interface Settings {
   sound: boolean;
   /** 0..1 */
@@ -17,6 +21,15 @@ export interface Settings {
   /** Color-safe palette + shapes so players never rely on color alone. */
   colorblind: boolean;
   turnTimer: TurnTimer;
+  /** Board shakes on bombs and other big hits. */
+  screenShake: boolean;
+  /** Turn off animations (also follows the device's own setting). */
+  reducedMotion: boolean;
+  textSize: TextSize;
+  /** Ask before leaving a page while a round is in progress. */
+  confirmLeave: boolean;
+  /** Short vibrations on phones (hits, flags). */
+  vibration: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -27,9 +40,16 @@ export const DEFAULT_SETTINGS: Settings = {
   lightGraphics: false,
   colorblind: false,
   turnTimer: 0,
+  screenShake: true,
+  reducedMotion: false,
+  textSize: "m",
+  confirmLeave: true,
+  vibration: true,
 };
 
 const KEY = "zerosignal_settings";
+
+const bool = (v: unknown, fallback: boolean) => (typeof v === "boolean" ? v : fallback);
 
 const unit = (v: unknown, fallback: number) =>
   typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : fallback;
@@ -50,6 +70,11 @@ export function parseSettings(raw: string | null): Settings {
       turnTimer: TIMER_OPTIONS.includes(v.turnTimer as TurnTimer)
         ? (v.turnTimer as TurnTimer)
         : DEFAULT_SETTINGS.turnTimer,
+      screenShake: bool(v.screenShake, DEFAULT_SETTINGS.screenShake),
+      reducedMotion: bool(v.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
+      textSize: TEXT_SIZES.includes(v.textSize as TextSize) ? (v.textSize as TextSize) : DEFAULT_SETTINGS.textSize,
+      confirmLeave: bool(v.confirmLeave, DEFAULT_SETTINGS.confirmLeave),
+      vibration: bool(v.vibration, DEFAULT_SETTINGS.vibration),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -59,7 +84,21 @@ export function parseSettings(raw: string | null): Settings {
 /** Only the saved fields, in a fixed order. */
 function pick(s: Settings): Settings {
   const { sound, volume, music, musicVolume, lightGraphics, colorblind, turnTimer } = s;
-  return { sound, volume, music, musicVolume, lightGraphics, colorblind, turnTimer };
+  const { screenShake, reducedMotion, textSize, confirmLeave, vibration } = s;
+  return {
+    sound,
+    volume,
+    music,
+    musicVolume,
+    lightGraphics,
+    colorblind,
+    turnTimer,
+    screenShake,
+    reducedMotion,
+    textSize,
+    confirmLeave,
+    vibration,
+  };
 }
 
 function load(): Settings {
@@ -74,6 +113,9 @@ function applyGraphics(s: Settings) {
   if (typeof document !== "undefined") {
     document.documentElement.dataset.graphics = s.lightGraphics ? "light" : "full";
     document.documentElement.dataset.colorblind = s.colorblind ? "on" : "off";
+    document.documentElement.dataset.shake = s.screenShake ? "on" : "off";
+    document.documentElement.dataset.motion = s.reducedMotion ? "reduced" : "full";
+    document.documentElement.dataset.text = s.textSize;
   }
 }
 
@@ -110,3 +152,13 @@ export const useSettings = create<SettingsState>((set, get) => {
     },
   };
 });
+
+/** A short buzz on phones, if the player allows it. */
+export function vibrate(ms: number | number[]): void {
+  if (!useSettings.getState().vibration) return;
+  try {
+    navigator.vibrate?.(ms);
+  } catch {
+    /* not supported */
+  }
+}
