@@ -412,16 +412,6 @@ impl Game {
             .map(|(i, _)| i)
     }
 
-    /// Is spawn `i` still up and unhit?
-    pub fn is_up(&self, i: usize, now: u32) -> bool {
-        let s = &self.spawns[i];
-        self.left[i] > 0 && s.t <= now && now < s.until() && now < self.end_ms
-    }
-
-    pub fn hits_left(&self, i: usize) -> u8 {
-        self.left[i]
-    }
-
     pub fn tap(&mut self, tap: Tap) -> TapOutcome {
         self.advance(tap.t);
         if self.over || tap.hole >= self.grid * self.grid {
@@ -585,6 +575,21 @@ mod tests {
         (2417, 1, Kind::Normal, 1134),
         (3397, 5, Kind::Helmet, 1522),
     ];
+
+    /// Same fingerprints are asserted in frontend engine.test.ts.
+    #[test]
+    fn replays_match_the_shared_test_vector() {
+        let fp = |seed, mode, grid, every: usize| {
+            let taps: Vec<Tap> = perfect_taps(seed, mode, grid).into_iter().step_by(every).collect();
+            let s = replay(seed, mode, grid, &taps).unwrap();
+            [s.score, s.hits as i64, s.misses as i64, s.escapes as i64, s.best_streak as i64,
+             s.golden_hits as i64, s.ended_ms as i64, s.lives_left as i64]
+        };
+        assert_eq!(fp(5, Mode::Classic, 3, 1), [49075, 107, 0, 0, 107, 9, 66000, 0]);
+        assert_eq!(fp(5, Mode::Classic, 4, 2), [7620, 48, 0, 53, 3, 3, 66000, 0]);
+        assert_eq!(fp(9, Mode::Survival, 3, 3), [100, 1, 0, 3, 1, 0, 5746, 0]);
+        assert_eq!(fp(77, Mode::Frenzy, 4, 1), [34410, 73, 0, 0, 73, 3, 30000, 0]);
+    }
 
     #[test]
     fn same_seed_same_schedule_and_holes_never_overlap() {
