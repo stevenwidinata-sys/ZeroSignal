@@ -26,6 +26,8 @@ export interface GameMeta {
   scoreLabel: string;
   /** 3-4 steps shown the first time the game is opened (live games). */
   tutorial?: TutorialStep[];
+  /** Show a NEW badge on the hub card. */
+  isNew?: boolean;
   /** Separate leaderboards inside one game (stored as the score's `level`). */
   boards?: GameBoard[];
 }

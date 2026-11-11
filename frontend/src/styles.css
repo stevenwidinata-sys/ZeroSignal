@@ -718,7 +718,7 @@ input:focus {
 /* ---------- Platform: hub ---------- */
 .hub {
   display: grid;
-  gap: 48px;
+  gap: 32px;
 }
 
 .hero {
@@ -813,10 +813,11 @@ input:focus {
   margin-bottom: 20px;
 }
 
+/* Five games fit on one row on a desktop; fewer columns on smaller screens. */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  gap: 20px;
 }
 
 .game-card {
@@ -890,7 +891,9 @@ input:focus {
 }
 .game-card-body h2 {
   margin: 0 0 10px;
-  font-size: 0.95rem;
+  /* Fits "Whack-a-Mole" on one line in the narrower 5-across cards. */
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 .game-card-body p {
   margin: 0 0 14px;
@@ -1015,19 +1018,6 @@ input:focus {
 }
 
 /* ---------- Settings ---------- */
-.hero-quick {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-  font-weight: 700;
-  color: var(--muted);
-}
-.hero-quick span + .icon-btn {
-  margin-left: 10px;
-}
-
 .settings-dialog {
   width: min(480px, calc(100vw - 32px));
   padding: 0;
@@ -3460,4 +3450,116 @@ html[data-text="xl"] { font-size: 20px; }
   list-style: none;
   display: grid;
   gap: 2px;
+}
+
+/* ---------- Cleaner Hub ---------- */
+.hero-compact {
+  padding: 28px 28px 30px;
+}
+.hero-compact .hero-title {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  margin: 0 0 12px;
+}
+.hero-compact .hero-sub {
+  margin: 0 0 18px;
+}
+.welcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 22px;
+  padding: 18px 20px;
+}
+.welcome-avatar {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border: var(--bw) solid var(--line);
+  border-radius: 50%;
+  background: var(--surface-2);
+  overflow: hidden;
+  font-size: 2rem;
+  text-decoration: none;
+}
+.welcome-main {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.welcome-main h1 {
+  margin: 0 0 10px;
+  font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.welcome-level {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 280px);
+  align-items: center;
+  gap: 6px 10px;
+}
+.welcome-level small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+}
+.welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.hub-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.hub-top .section-title {
+  margin-bottom: 12px;
+}
+.recent-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recent-item {
+  --accent: var(--yellow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: var(--bw) solid var(--line);
+  border-left: 8px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.recent-item.accent-green { --accent: var(--green); }
+.recent-item.accent-blue { --accent: var(--blue); }
+.recent-icon {
+  font-size: 1.6rem;
+}
+.recent-text {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}
+.recent-text small {
+  color: var(--muted);
+}
+.ribbon-new {
+  background: var(--green);
+  color: var(--on-green);
+}
+.game-card-best {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.game-card-best strong {
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
 }

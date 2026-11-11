@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import TutorialDialog from "../components/TutorialDialog";
 import { findGame } from "../platform/registry";
+import { recordPlayed } from "../platform/recent";
 import { hasSeen, markSeen } from "../platform/tutorial";
 
 export default function PlayGame() {
@@ -9,6 +10,11 @@ export default function PlayGame() {
   const game = findGame(gameId);
   const steps = game?.meta.status === "live" ? game.meta.tutorial : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
+
+  // Remember it for the Hub's "Continue" and "Recently played".
+  useEffect(() => {
+    if (game?.meta.status === "live" && game.Play) recordPlayed(game.meta.id);
+  }, [game]);
 
   // First visit to each game: show its tutorial once.
   useEffect(() => {
