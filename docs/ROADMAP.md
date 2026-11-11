@@ -174,6 +174,17 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
   banner on the Hub and Leaderboards (once per board per week, not counted
   toward the daily cap).
 
+### Cleaner Hub (`feat/cleaner-hub`, agreed 2026-11-12)
+- Logged out: a compact hero (no duplicate theme/settings buttons, no
+  stale "Coming soon: 0" stat), "Create account" + "Log in", then games.
+- Logged in: the hero becomes a **welcome strip**: your character, name,
+  level and XP bar, coins, and a **Continue** button for the last game
+  you played, plus shortcuts to Stats and Achievements.
+- **Recently played** row (last 3 games, remembered in this browser) next
+  to **Today's quests**; weekly prizes banner above them when you have any.
+- Game grid fits all games on one row on desktop; cards show your best
+  score (or points) and a NEW badge on the newest games.
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays) — done.
