@@ -14,6 +14,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
 | Whack-a-Mole | Live        | 4 modes, 6 kinds of moles, combos and FEVER; the server replays every tap |
+| Minefield    | Live        | No-guess boards in 3 sizes + a Daily; the server keeps the mines |
 
 ## Features
 
@@ -56,6 +57,17 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - **Anti-cheat:** `start` gives the client a run id and a seed; client and server build the same mole schedule from it (same 32-bit integer code in `engine.ts` and `engine.rs`, checked by shared test vectors). The client sends only its taps `(ms, hole)`; the server replays them, rejects rounds that finished faster than real time, and computes the score. Each run can be finished once, within 15 minutes.
 - Pausing (or switching tabs) stops the game clock.
 
+## Minefield
+
+- **Boards:** Beginner 9×9 / 10 mines, Intermediate 16×16 / 40, Expert 16×30 / 99, and the **Daily** (Intermediate size, the same board for everyone that WIB day, already opened in the middle, one ranked try, the clock starts when it opens).
+- **No guessing, ever:** the board is made on your first click. The server keeps only boards its logic solver (single-cell, subset and mine-count rules) can clear from that click, so there is never a 50/50.
+- **Server holds the mines:** the client sends the cell it opens and gets back only opened cells. Mines are sent only after the game ends, so peeking is impossible.
+- **Controls:** click opens; right-click or long-press cycles flag → ? → none; **Flag mode** for touch; click (or middle-click) a number whose flags are placed to open around it (chording). Keyboard: arrows move, Space/Enter open or chord, F flags.
+- **Hints:** up to 3 per game. Each opens a safe cell next to what you've opened and adds 20 s.
+- **Score (wins only):** Beginner 1,000 + 20 per second under 60 s; Intermediate and Daily 3,000 + 15 per second under 240 s; Expert 8,000 + 12 per second under 600 s. One leaderboard per size plus Today's Daily.
+- **Results:** time, 3BV (fewest clicks that clear the board), 3BV/s, click efficiency, hints. A loss shows every mine and crosses out wrong flags.
+- **Rewards:** win Beginner 5 / Intermediate 20 / Expert 60 / Daily 25 coins; XP 20 × (1 / 2 / 4 / 2); token 2% / 8% / 25% / 10%. A loss gives 5 XP.
+
 ## Coins, tokens and levels
 
 Only the server pays rewards, and only for results it verified itself, inside the same database transaction that records the result. Local 2-player games pay nothing.
@@ -63,6 +75,7 @@ Only the server pays rewards, and only for results it verified itself, inside th
 | Game | Coins | XP | Token drop |
 |------|-------|----|------------|
 | Angry Bird, Whack-a-Mole | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
+| Minefield win | Beginner 5 / Intermediate 20 / Expert 60 / Daily 25 | 20 × (1 / 2 / 4 / 2); loss 5 | 2% / 8% / 25% / 10% |
 | Connect Four, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–4) | none |
 | Connect Four, series win | Easy 10 / Medium 25 / Hard 50 / Impossible 120 (×2 for best of 5) | bonus 25 × difficulty | 10% / 20% / 35% / 60% |
 | Tic-Tac-Toe, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–3) | none |
@@ -105,10 +118,13 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 | Play 3 Whack-a-Mole rounds | 20 | 30 |
 | Score 5,000 in one Whack-a-Mole round | 40 | 60 |
 | Hit 5 golden moles today | 40 | 60 |
+| Clear 2 Minefield boards | 20 | 30 |
+| Clear an Intermediate or harder Minefield board | 40 | 60 |
+| Clear a Minefield board without hints | 30 | 40 |
 
 ## Achievements
 
-The `/achievements` page lists 29 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+The `/achievements` page lists 33 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
 
 | Achievement | Coins | Title |
 |-------------|-------|-------|
@@ -130,6 +146,10 @@ The `/achievements` page lists 29 one-time achievements with progress bars; lock
 | Reach FEVER in Whack-a-Mole | 80 | Fever Pitch |
 | Score 10,000 in one Whack-a-Mole round | 150 | Mole Master |
 | Last 2 minutes in Whack-a-Mole Survival | 150 | Survivor |
+| Clear your first Minefield board | 20 | First Sweep |
+| Clear an Expert Minefield board | 150 | Expert Sweeper |
+| Clear a Beginner Minefield board in under 20 seconds | 80 | Speed Sweeper |
+| Clear 5 Daily Minefield boards | 100 | Daily Devotee |
 | Reach level 5 / 10 / 25 | 50 / 150 / 400 | Rising Star / Veteran / Living Legend |
 | Spin the token wheel | 30 | Wheel Spinner |
 | Open 10 mystery boxes | 100 | Box Hunter |
@@ -155,7 +175,7 @@ Titles show in the wardrobe, on public profiles and next to names on leaderboard
 
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **187 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **191 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|
@@ -254,10 +274,11 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
-│       ├── achievements.rs     # 29 achievements, live progress, claim + titles
+│       ├── achievements.rs     # 33 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── whack_a_mole/       # seeded mole schedule, tap replay scorer, runs API
+│       ├── minefield/          # no-guess board generator + solver, games API
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -279,7 +300,7 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
-| GET  | `/api/me/achievements` | all 29 achievements with live progress (auth) |
+| GET  | `/api/me/achievements` | all 33 achievements with live progress (auth) |
 | POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
@@ -296,12 +317,17 @@ zero_signal/
 | POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
 | GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
-| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily), `?period=today` keeps today only |
+| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `?period=today` keeps today only |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
 | POST | `/api/games/whack-a-mole/runs` | `{mode, grid}` start a run; returns `run_id` + `seed` (auth) |
 | POST | `/api/games/whack-a-mole/runs/:id/finish` | `{taps:[{t, hole}]}`; server replays and scores, pays rewards (auth) |
+| POST | `/api/games/minefield/games` | `{difficulty}` new game; Daily returns today's board (auth) |
+| GET  | `/api/games/minefield/games/active` | your unfinished game, or null (auth) |
+| POST | `/api/games/minefield/games/:id/reveal` | `{cell}`; the first one builds the board (auth) |
+| POST | `/api/games/minefield/games/:id/chord` | `{cell, flags}` open around a number (auth) |
+| POST | `/api/games/minefield/games/:id/{hint,forfeit}` | open a safe cell (+20 s) / give up (auth) |
 | POST | `/api/games/connect-four/matches` | start an AI series `{difficulty, best_of, skin}` (auth) |
 | GET  | `/api/games/connect-four/matches/active` | resume your unfinished series (auth) |
 | POST | `/api/games/connect-four/matches/:id/move` | `{column}`; server replies with the AI move (auth) |

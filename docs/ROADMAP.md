@@ -68,7 +68,7 @@ Branches, each merged into `main` after tests pass:
 
 ## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
 
-Status: `feat/whack-a-mole` (v1) done and merged; next is `feat/settings-plus`.
+Status: `feat/whack-a-mole` (v1) and `feat/minefield` done and merged; next is `feat/settings-plus`.
 
 Owner said "go with your picks" for the 10 ideas. Branch order:
 `feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
@@ -113,7 +113,7 @@ Owner said "go with your picks" for the 10 ideas. Branch order:
 - Boss mole, power-ups, hammer skins (shop + spin), board themes
   (Garden, Neon, Graveyard, Beach, Space), your character beside the board.
 
-### Minefield (`feat/minefield`, agreed 2026-11-11: "make all ideas you can")
+### Minefield (`feat/minefield`, done; agreed 2026-11-11: "make all ideas you can")
 Owner picked Minefield from the 10 new-game ideas. v1 includes:
 1. **3 sizes + Daily:** Beginner 9×9 / 10 mines, Intermediate 16×16 / 40,
    Expert 16×30 / 99, Daily (Intermediate size, same board for everyone,
