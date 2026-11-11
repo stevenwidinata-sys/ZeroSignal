@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SettingsButton, ThemeToggle } from "../components/QuickControls";
 import QuestList from "../components/QuestList";
+import WeeklyPrizes from "../components/WeeklyPrizes";
 import { GAMES } from "../platform/registry";
 import type { GameModule } from "../platform/types";
 import { useAuth } from "../store/auth";
@@ -94,6 +95,8 @@ export default function Hub() {
           </div>
         </dl>
       </section>
+
+      <WeeklyPrizes />
 
       {user && (
         <section aria-labelledby="quests-heading" className="hub-quests">

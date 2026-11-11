@@ -3428,3 +3428,36 @@ html[data-text="xl"] { font-size: 20px; }
   background: var(--yellow);
   color: var(--on-yellow);
 }
+
+/* ---------- Weekly leaderboards ---------- */
+.board-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0 0 14px;
+}
+.board-period small {
+  color: var(--muted);
+}
+.weekly-prizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin: 0 0 20px;
+  padding: 14px 18px;
+  border-color: var(--yellow-deep);
+}
+.weekly-prizes h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+.weekly-prizes ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}

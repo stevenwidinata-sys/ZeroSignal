@@ -11,6 +11,7 @@ import type {
   Difficulty,
   ItemWheelResponse,
   LeaderboardEntry,
+  LeaderboardPeriod,
   LoadoutDto,
   LoginClaim,
   LoginStatus,
@@ -30,6 +31,8 @@ import type {
   MfDifficulty,
   MfGame,
   WamCollection,
+  WeeklyClaim,
+  WeeklyPrizes,
   WamFinish,
   WamMode,
   WamStart,
@@ -126,6 +129,12 @@ export const api = {
   stats() {
     return request<StatsView>("/api/me/stats");
   },
+  weeklyPrizes() {
+    return request<WeeklyPrizes>("/api/me/weekly-prizes");
+  },
+  claimWeeklyPrizes() {
+    return request<WeeklyClaim>("/api/me/weekly-prizes/claim", { method: "POST" });
+  },
   dailyLogin() {
     return request<LoginStatus>("/api/me/daily-login");
   },
@@ -179,7 +188,7 @@ export const api = {
   },
   // Platform: per-game leaderboards/history. gameId is URL-encoded defensively.
   /** `level` picks one board of a game (e.g. a Whack-a-Mole mode). */
-  leaderboard(gameId: string, filter: { level?: number; period?: "all" | "today" } = {}) {
+  leaderboard(gameId: string, filter: { level?: number; period?: LeaderboardPeriod } = {}) {
     const q = new URLSearchParams();
     if (filter.level !== undefined) q.set("level", String(filter.level));
     if (filter.period) q.set("period", filter.period);

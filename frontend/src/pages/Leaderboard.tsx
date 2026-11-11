@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
-import type { LeaderboardEntry, MyScoresResponse } from "../api/types";
+import WeeklyPrizes from "../components/WeeklyPrizes";
+import { formatCountdown, nextWeekReset } from "../platform/week";
+import type { LeaderboardEntry, LeaderboardPeriod, MyScoresResponse } from "../api/types";
 import Avatar from "../character/Avatar";
 import { normalizeLoadout } from "../character/catalog";
 import TitleBadge from "../components/TitleBadge";
@@ -20,6 +22,9 @@ export default function Leaderboard() {
   const [boardIdx, setBoardIdx] = useState(0);
   const boards = game?.meta.boards;
   const board = boards?.[boardIdx] ?? boards?.[0];
+  const [period, setPeriod] = useState<Exclude<LeaderboardPeriod, "today">>("all");
+  // Daily boards are always "today"; the rest follow the period switch.
+  const effectivePeriod: LeaderboardPeriod = board?.period ?? period;
 
   // Each game starts on its first board.
   useEffect(() => setBoardIdx(0), [gameId]);
@@ -30,7 +35,7 @@ export default function Leaderboard() {
     setEntries(null);
     setError(null);
     api
-      .leaderboard(game.meta.id, board ? { level: board.level, period: board.period } : {})
+      .leaderboard(game.meta.id, { level: board?.level, period: effectivePeriod })
       .then((e) => !cancelled && setEntries(e))
       .catch((e) => {
         if (cancelled) return;
@@ -40,7 +45,7 @@ export default function Leaderboard() {
     return () => {
       cancelled = true;
     };
-  }, [game, board]);
+  }, [game, board, effectivePeriod]);
 
   useEffect(() => {
     if (!game || !user) {
@@ -71,7 +76,7 @@ export default function Leaderboard() {
             ← Arcade
           </Link>
           <h1 style={{ marginTop: 12 }}>🏆 High scores</h1>
-          <p>Top 20 per game. Every score is verified by the server.</p>
+          <p>Top 20 per game, all time or per week. Every score is verified by the server.</p>
         </div>
         {live && (
           <Link to={`/play/${meta.id}`} className="btn btn-green">
@@ -79,6 +84,8 @@ export default function Leaderboard() {
           </Link>
         )}
       </div>
+
+      <WeeklyPrizes />
 
       <nav className="tabs" aria-label="Choose game leaderboard">
         {GAMES.map((g) => (
@@ -106,6 +113,37 @@ export default function Leaderboard() {
               {b.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {!board?.period && (
+        <div className="board-period">
+          <div className="segmented" role="radiogroup" aria-label="Time period">
+            {(
+              [
+                ["all", "All time"],
+                ["week", "This week"],
+                ["last_week", "Last week"],
+              ] as const
+            ).map(([p, label]) => (
+              <button
+                key={p}
+                role="radio"
+                aria-checked={period === p}
+                className={`btn-sm${period === p ? "" : " btn-ghost"}`}
+                onClick={() => setPeriod(p)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {period === "week" && (
+            <small>
+              New week starts in {formatCountdown(nextWeekReset(new Date()).getTime() - Date.now())} (Monday 00:00 WIB). The top 3 win
+              coins.
+            </small>
+          )}
+          {period === "last_week" && <small>Final standings. The top 3 claim their prize from the banner.</small>}
         </div>
       )}
 

@@ -473,3 +473,30 @@ export interface StatsView {
     longest_survival_ms: number | null;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Weekly leaderboards
+// ---------------------------------------------------------------------------
+
+export type LeaderboardPeriod = "all" | "today" | "week" | "last_week";
+
+export interface WeeklyPrize {
+  game_id: string;
+  /** Board within the game; null = the whole game. */
+  level: number | null;
+  rank: 1 | 2 | 3;
+  coins: number;
+  tokens: number;
+  claimed: boolean;
+}
+
+export interface WeeklyPrizes {
+  /** Monday (WIB) the prize week started. */
+  week: string;
+  prizes: WeeklyPrize[];
+}
+
+export interface WeeklyClaim {
+  claimed: WeeklyPrize[];
+  rewards: Granted;
+}
