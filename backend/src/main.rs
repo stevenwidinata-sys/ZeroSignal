@@ -11,6 +11,7 @@ mod db;
 mod economy;
 mod error;
 mod games;
+mod minefield;
 mod physics;
 mod quests;
 mod scores;
