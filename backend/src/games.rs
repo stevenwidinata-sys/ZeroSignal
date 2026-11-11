@@ -20,11 +20,25 @@ pub enum GameStatus {
     ComingSoon,
 }
 
+/// How a game's leaderboard ranks players.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Ranking {
+    /// Best single score.
+    Best,
+    /// Points added up (rows store a running total; `gained` holds each step).
+    Total,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct GameInfo {
     pub id: &'static str,
     pub title: &'static str,
     pub status: GameStatus,
+    pub ranking: Ranking,
+    /// Boards (`scores.level`) that pay weekly prizes; empty = the whole game.
+    #[serde(skip)]
+    pub prize_boards: &'static [i32],
 }
 
 pub const ANGRY_BIRD: &str = "angry-bird";
@@ -34,26 +48,38 @@ pub const GAMES: &[GameInfo] = &[
         id: ANGRY_BIRD,
         title: "Angry Bird",
         status: GameStatus::Live,
+        ranking: Ranking::Best,
+        prize_boards: &[],
     },
     GameInfo {
         id: "connect-four",
         title: "Connect Four",
         status: GameStatus::Live,
+        ranking: Ranking::Total,
+        prize_boards: &[],
     },
     GameInfo {
         id: "tic-tac-toe",
         title: "Tic-Tac-Toe",
         status: GameStatus::Live,
+        ranking: Ranking::Total,
+        prize_boards: &[],
     },
     GameInfo {
         id: "whack-a-mole",
         title: "Whack-a-Mole",
         status: GameStatus::Live,
+        ranking: Ranking::Best,
+        // Classic, Frenzy, Survival (not the Daily board).
+        prize_boards: &[1, 2, 3],
     },
     GameInfo {
         id: "minefield",
         title: "Minefield",
         status: GameStatus::Live,
+        ranking: Ranking::Best,
+        // Beginner, Intermediate, Expert (not the Daily board).
+        prize_boards: &[1, 2, 3],
     },
 ];
 

@@ -226,11 +226,12 @@ async fn reward_series(
     .bind(GAME_ID)
     .fetch_one(&mut **tx)
     .await?;
-    sqlx::query("INSERT INTO scores (user_id, game_id, score, level) VALUES ($1, $2, $3, $4)")
+    sqlx::query("INSERT INTO scores (user_id, game_id, score, level, gained) VALUES ($1, $2, $3, $4, $5)")
         .bind(user_id)
         .bind(GAME_ID)
         .bind(total + m.points)
         .bind(level_of(d))
+        .bind(m.points)
         .execute(&mut **tx)
         .await?;
 

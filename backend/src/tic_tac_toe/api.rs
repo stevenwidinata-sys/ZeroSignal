@@ -279,11 +279,12 @@ async fn settle_series(
             .bind(GAME_ID)
             .fetch_one(&mut **tx)
             .await?;
-    sqlx::query("INSERT INTO scores (user_id, game_id, score, level) VALUES ($1, $2, $3, $4)")
+    sqlx::query("INSERT INTO scores (user_id, game_id, score, level, gained) VALUES ($1, $2, $3, $4, $5)")
         .bind(user_id)
         .bind(GAME_ID)
         .bind(total + p.points)
         .bind(rewards::difficulty_mult(d) as i32)
+        .bind(p.points)
         .execute(&mut **tx)
         .await?;
     let reward = rewards::payout_reward(&p, &mut rand::thread_rng());

@@ -81,8 +81,8 @@ pub async fn submit_angry_bird(
 
     let mut tx = state.pool.begin().await?;
     sqlx::query(
-        r#"INSERT INTO scores (user_id, game_id, score, level, bird_variant)
-           VALUES ($1, $2, $3, $4, $5)"#,
+        r#"INSERT INTO scores (user_id, game_id, score, level, bird_variant, gained)
+           VALUES ($1, $2, $3, $4, $5, $3)"#,
     )
     .bind(user.user_id)
     .bind(ANGRY_BIRD)
@@ -146,7 +146,8 @@ pub struct LeaderboardEntry {
 }
 
 /// Optional leaderboard filters: `level` picks one board of a game (e.g. a
-/// Whack-a-Mole mode) and `period=today` keeps only today's (WIB) scores.
+/// Whack-a-Mole mode); `period` is `all` (default), `today`, `week` (this
+/// WIB week, from Monday 00:00) or `last_week`.
 #[derive(Deserialize, Default)]
 pub struct BoardFilter {
     pub level: Option<i32>,
@@ -160,31 +161,73 @@ pub async fn leaderboard(
 ) -> AppResult<Json<Vec<LeaderboardEntry>>> {
     let game = games::require(&game_id)?;
     let filter = filter.map(|q| q.0).unwrap_or_default();
-    let since = match filter.period.as_deref() {
-        None | Some("all") => chrono::DateTime::<chrono::Utc>::UNIX_EPOCH,
-        Some("today") => crate::daily::today_start(chrono::Utc::now()),
-        Some(_) => return Err(AppError::Validation("period must be all or today".into())),
+    let window = Window::parse(filter.period.as_deref(), chrono::Utc::now())
+        .ok_or_else(|| AppError::Validation("period must be all, today, week or last_week".into()))?;
+    Ok(Json(top(&state.pool, game, filter.level, window, LEADERBOARD_SIZE).await?))
+}
+
+/// A time window for a leaderboard.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Window {
+    pub since: chrono::DateTime<chrono::Utc>,
+    pub until: Option<chrono::DateTime<chrono::Utc>>,
+    /// All time: running-total games rank by their latest total.
+    pub all_time: bool,
+}
+
+impl Window {
+    pub fn parse(period: Option<&str>, now: chrono::DateTime<chrono::Utc>) -> Option<Window> {
+        use crate::daily;
+        let week = daily::week_start(now);
+        let epoch = chrono::DateTime::<chrono::Utc>::UNIX_EPOCH;
+        Some(match period {
+            None | Some("all") => Window { since: epoch, until: None, all_time: true },
+            Some("today") => Window { since: daily::today_start(now), until: None, all_time: false },
+            Some("week") => Window { since: week, until: None, all_time: false },
+            Some("last_week") => Window { since: week - chrono::Duration::days(7), until: Some(week), all_time: false },
+            Some(_) => return None,
+        })
+    }
+}
+
+/// Top players of a board in a window. Best-score games rank by their best
+/// score; running-total games by the points they gained in the window.
+pub async fn top(
+    pool: &sqlx::PgPool,
+    game: &games::GameInfo,
+    level: Option<i32>,
+    window: Window,
+    limit: i64,
+) -> AppResult<Vec<LeaderboardEntry>> {
+    let points = if game.ranking == games::Ranking::Total && !window.all_time {
+        "COALESCE(SUM(COALESCE(s.gained, s.score)), 0)::INT"
+    } else {
+        "MAX(s.score)"
     };
-    let rows: Vec<LeaderboardEntry> = sqlx::query_as(
-        r#"SELECT ROW_NUMBER() OVER (ORDER BY MAX(s.score) DESC, MIN(s.created_at) ASC) AS rank,
+    let sql = format!(
+        r#"SELECT ROW_NUMBER() OVER (ORDER BY {points} DESC, MIN(s.created_at) ASC) AS rank,
                   u.username AS username,
-                  MAX(s.score) AS best_score,
+                  {points} AS best_score,
                   (SELECT a.loadout FROM avatars a WHERE a.user_id = u.id) AS avatar
            FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.game_id = $1
              AND ($3::INT IS NULL OR s.level = $3)
              AND s.created_at >= $4
+             AND ($5::TIMESTAMPTZ IS NULL OR s.created_at < $5)
            GROUP BY u.id, u.username
+           HAVING {points} > 0 OR $6
            ORDER BY rank
-           LIMIT $2"#,
-    )
-    .bind(game.id)
-    .bind(LEADERBOARD_SIZE)
-    .bind(filter.level)
-    .bind(since)
-    .fetch_all(&state.pool)
-    .await?;
-    Ok(Json(rows))
+           LIMIT $2"#
+    );
+    Ok(sqlx::query_as(&sql)
+        .bind(game.id)
+        .bind(limit)
+        .bind(level)
+        .bind(window.since)
+        .bind(window.until)
+        .bind(window.all_time)
+        .fetch_all(pool)
+        .await?)
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -263,6 +306,20 @@ mod tests {
         assert_eq!(score_round_reward(999, &mut r).coins, 0);
         assert_eq!(score_round_reward(4_500, &mut r).coins, 4);
         assert_eq!(score_round_reward(-10, &mut r).coins, 0);
+    }
+
+    #[test]
+    fn windows() {
+        use chrono::TimeZone;
+        // Wednesday 2026-11-11 09:00 UTC; the WIB week began Sunday 17:00 UTC.
+        let now = chrono::Utc.with_ymd_and_hms(2026, 11, 11, 9, 0, 0).unwrap();
+        let monday = chrono::Utc.with_ymd_and_hms(2026, 11, 8, 17, 0, 0).unwrap();
+        let w = Window::parse(Some("week"), now).unwrap();
+        assert_eq!((w.since, w.until, w.all_time), (monday, None, false));
+        let lw = Window::parse(Some("last_week"), now).unwrap();
+        assert_eq!((lw.since, lw.until), (monday - chrono::Duration::days(7), Some(monday)));
+        assert!(Window::parse(None, now).unwrap().all_time);
+        assert!(Window::parse(Some("year"), now).is_none());
     }
 
     #[test]

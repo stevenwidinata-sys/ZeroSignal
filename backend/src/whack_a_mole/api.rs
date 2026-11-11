@@ -178,7 +178,7 @@ pub async fn finish(
     .bind(summary.bosses_beaten as i32)
     .execute(&mut *tx)
     .await?;
-    sqlx::query("INSERT INTO scores (user_id, game_id, score, level) VALUES ($1, $2, $3, $4)")
+    sqlx::query("INSERT INTO scores (user_id, game_id, score, level, gained) VALUES ($1, $2, $3, $4, $3)")
         .bind(user.user_id)
         .bind(GAME_ID)
         .bind(score)

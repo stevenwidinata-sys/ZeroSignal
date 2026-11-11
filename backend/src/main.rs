@@ -18,6 +18,7 @@ mod scores;
 mod state;
 mod stats;
 mod tic_tac_toe;
+mod weekly;
 mod whack_a_mole;
 
 use axum::routing::{get, post, put};
@@ -64,6 +65,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/me", get(auth::handlers::me))
         .route("/api/me/wallet", get(economy::wallet))
         .route("/api/me/stats", get(stats::my_stats))
+        // Weekly prizes for last week's top 3 on each board.
+        .route("/api/me/weekly-prizes", get(weekly::list))
+        .route("/api/me/weekly-prizes/claim", post(weekly::claim))
         // Daily login streak reward.
         .route("/api/me/daily-login", get(daily_login::status))
         .route("/api/me/daily-login/claim", post(daily_login::claim))

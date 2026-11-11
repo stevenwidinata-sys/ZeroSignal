@@ -462,7 +462,7 @@ async fn finish_move(
             row.score = Some(score);
 
             let previous_best = best_score(tx, user.user_id, d).await?;
-            sqlx::query("INSERT INTO scores (user_id, game_id, score, level) VALUES ($1, $2, $3, $4)")
+            sqlx::query("INSERT INTO scores (user_id, game_id, score, level, gained) VALUES ($1, $2, $3, $4, $3)")
                 .bind(user.user_id)
                 .bind(GAME_ID)
                 .bind(score)
