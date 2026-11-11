@@ -113,6 +113,32 @@ Owner said "go with your picks" for the 10 ideas. Branch order:
 - Boss mole, power-ups, hammer skins (shop + spin), board themes
   (Garden, Neon, Graveyard, Beach, Space), your character beside the board.
 
+### Minefield (`feat/minefield`, agreed 2026-11-11: "make all ideas you can")
+Owner picked Minefield from the 10 new-game ideas. v1 includes:
+1. **3 sizes + Daily:** Beginner 9×9 / 10 mines, Intermediate 16×16 / 40,
+   Expert 16×30 / 99, Daily (Intermediate size, same board for everyone,
+   one ranked try per WIB day, timer starts when it opens).
+2. **No-guess boards:** every board can be solved by logic alone. The
+   server only keeps boards its solver can finish from the first click.
+3. **Safe first click:** the first click always opens an area.
+4. **Server holds the mines:** the client only ever sees revealed cells,
+   so peeking is impossible. Mines are shown only after the game ends.
+5. **Chording:** click a number whose flags are all placed to open the rest.
+6. **Flags and ? marks;** on phones a Flag-mode switch and long-press.
+7. **Keyboard play:** arrows move, Space/Enter open, F flag, D chord.
+8. **Hints:** up to 3 per game, each opens a safe cell and adds 20 s.
+9. **Score:** base + speed bonus (Beginner 1,000 + 20/s under 60 s,
+   Intermediate 3,000 + 15/s under 240 s, Expert 8,000 + 12/s under
+   600 s; Daily as Intermediate). Leaderboard tab per size + Today's Daily.
+10. **Results:** time, 3BV, 3BV/s, click efficiency, hints, full board
+    reveal on loss (wrong flags crossed out).
+- **Rewards:** win coins Beginner 5 / Intermediate 20 / Expert 60 /
+  Daily 25; XP win 20 × (1/2/4, Daily 2), loss 5; token 2% / 8% / 25% /
+  Daily 10%. Quests (+3): clear 2 boards; clear Intermediate or harder;
+  clear a board with no hints. Achievements (+4): First Sweep, Expert
+  Sweeper, Speed Sweeper (Beginner under 20 s), Daily Devotee (5 Daily wins).
+- Later (extras): board skins, Blitz mode, lives mode.
+
 ### Website upgrades to schedule after that
 - Stats page, weekly leaderboards, Indonesian language, PWA, cleaner Hub.
 
