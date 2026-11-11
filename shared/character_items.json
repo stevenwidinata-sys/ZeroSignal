@@ -229,6 +229,10 @@
     { "id": "title-high-roller", "slot": "title", "name": "High Roller", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "High Roller", "tier": "mythic", "color": "#a3d633", "icon": "💰", "effect": "coin" } },
     { "id": "title-loyal", "slot": "title", "name": "Loyal", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Loyal", "tier": "mythic", "color": "#ff5c9a", "icon": "💖", "effect": "heartbeat" } },
     { "id": "title-adventurer", "slot": "title", "name": "Adventurer", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Adventurer", "tier": "silver", "color": "#2fbf71", "icon": "🧭" } },
-    { "id": "title-quest-master", "slot": "title", "name": "Quest Master", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Quest Master", "tier": "mythic", "color": "#10b981", "icon": "📜", "effect": "stars" } }
+    { "id": "title-quest-master", "slot": "title", "name": "Quest Master", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Quest Master", "tier": "mythic", "color": "#10b981", "icon": "📜", "effect": "stars" } },
+    { "id": "title-first-bonk", "slot": "title", "name": "First Bonk", "rarity": "common", "unlock": { "kind": "achievement" }, "art": { "text": "First Bonk", "tier": "bronze", "color": "#c97a2e" } },
+    { "id": "title-fever-pitch", "slot": "title", "name": "Fever Pitch", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Fever Pitch", "tier": "silver", "color": "#ff4d6d", "icon": "🔥" } },
+    { "id": "title-mole-master", "slot": "title", "name": "Mole Master", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Mole Master", "tier": "mythic", "color": "#f4b400", "icon": "🔨", "effect": "sparkle" } },
+    { "id": "title-survivor", "slot": "title", "name": "Survivor", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Survivor", "tier": "gold", "color": "#22c55e", "icon": "🛡️", "effect": "glow" } }
   ]
 }

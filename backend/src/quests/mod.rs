@@ -41,6 +41,9 @@ enum Goal {
     AngryBirdSingleScore(i64),
     AngryBirdTotalScore,
     OpenMysteryBox,
+    WhackRounds,
+    WhackSingleScore(i64),
+    WhackGoldenHits,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -79,6 +82,11 @@ impl QuestDef {
                 score.clamp(0, i32::MAX as i64) as i32
             }
             (Goal::OpenMysteryBox, MysteryBox) => 1,
+            (Goal::WhackRounds, WhackRound { .. }) => 1,
+            (Goal::WhackSingleScore(min), WhackRound { score, .. }) => hit(score >= min),
+            (Goal::WhackGoldenHits, WhackRound { golden_hits, .. }) => {
+                golden_hits.clamp(0, i32::MAX as i64) as i32
+            }
             _ => 0,
         }
     }
@@ -90,7 +98,7 @@ const fn q(id: &'static str, title: &'static str, goal: Goal, target: i32, coins
 
 use Game::{ConnectFour as CF, TicTacToe as TTT};
 
-pub const POOL: [QuestDef; 12] = [
+pub const POOL: [QuestDef; 15] = [
     q("cf_play_3", "Play 3 Connect Four games vs the AI", Goal::PlayAi(CF), 3, 20, 30),
     q("cf_win_2_medium", "Win 2 Connect Four games vs Medium or harder",
         Goal::WinAi { game: Some(CF), min_level: 2 }, 2, 40, 60),
@@ -108,6 +116,9 @@ pub const POOL: [QuestDef; 12] = [
         Goal::WinSeries { game: None, min_level: 1, no_undo: true }, 1, 50, 80),
     q("open_box", "Open a mystery box", Goal::OpenMysteryBox, 1, 30, 40),
     q("win_5_any", "Win 5 AI games in any game", Goal::WinAi { game: None, min_level: 1 }, 5, 60, 100),
+    q("wam_play_3", "Play 3 Whack-a-Mole rounds", Goal::WhackRounds, 3, 20, 30),
+    q("wam_score_5000", "Score 5,000 in one Whack-a-Mole round", Goal::WhackSingleScore(5_000), 1, 40, 60),
+    q("wam_golden_5", "Hit 5 golden moles today", Goal::WhackGoldenHits, 5, 40, 60),
 ];
 
 pub fn find(id: &str) -> Option<&'static QuestDef> {
@@ -194,6 +205,17 @@ mod tests {
         assert_eq!(hard.progress(&won(CF, 3, true)), 1);
         assert_eq!(hard.progress(&won(CF, 2, false)), 0);
         assert_eq!(hard.progress(&won(TTT, 3, false)), 0);
+    }
+
+    #[test]
+    fn whack_a_mole_quests() {
+        let round = |score, golden_hits| Event::WhackRound { score, golden_hits };
+        assert_eq!(quest("wam_play_3").progress(&round(0, 0)), 1);
+        assert_eq!(quest("wam_score_5000").progress(&round(4_999, 3)), 0);
+        assert_eq!(quest("wam_score_5000").progress(&round(5_000, 0)), 1);
+        assert_eq!(quest("wam_golden_5").progress(&round(9_000, 2)), 2);
+        assert_eq!(quest("wam_golden_5").progress(&Event::AngryBirdRound { score: 9_000 }), 0);
+        assert_eq!(quest("ab_play_3").progress(&round(100, 0)), 0);
     }
 
     #[test]

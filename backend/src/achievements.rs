@@ -48,6 +48,11 @@ pub struct Stats {
     pub best_login_day: i64,
     pub quests_claimed: i64,
     pub quest_full_days: i64,
+    pub wam_rounds: i64,
+    pub wam_best: i64,
+    pub wam_fever: bool,
+    /// Longest Survival round, ms.
+    pub wam_survival_ms: i64,
 }
 
 pub struct Achievement {
@@ -81,7 +86,7 @@ macro_rules! ach {
     };
 }
 
-pub static ACHIEVEMENTS: [Achievement; 25] = [
+pub static ACHIEVEMENTS: [Achievement; 29] = [
     ach!("cf_first_win", "First Drop", "Win your first Connect Four series", 30, "title-chip-dropper", 1, |s| s.cf_wins),
     ach!("cf_medium", "Thinking Ahead", "Win a Connect Four series vs Medium or harder", 40, "title-four-thinker", 1, |s| s.cf_wins_medium),
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
@@ -109,6 +114,12 @@ pub static ACHIEVEMENTS: [Achievement; 25] = [
     ach!("spend_5000", "Big Spender", "Spend 5,000 coins in total", 150, "title-high-roller", 5_000, |s| s.coins_spent),
     ach!("login_7", "Week Streak", "Reach a 7-day login streak", 100, "title-loyal", 7, |s| s.best_login_day),
     ach!("quests_10", "Quest Starter", "Claim 10 daily quests", 60, "title-adventurer", 10, |s| s.quests_claimed),
+    ach!("wam_first_round", "First Bonk", "Finish your first Whack-a-Mole round", 20, "title-first-bonk", 1, |s| s.wam_rounds),
+    ach!("wam_fever", "Fever Pitch", "Reach FEVER (10 hits in a row) in Whack-a-Mole", 80, "title-fever-pitch", 1,
+        |s| i64::from(s.wam_fever)),
+    ach!("wam_10000", "Mole Master", "Score 10,000 in one Whack-a-Mole round", 150, "title-mole-master", 10_000, |s| s.wam_best),
+    ach!("wam_survivor", "Survivor", "Last 2 minutes in Whack-a-Mole Survival", 150, "title-survivor", 120,
+        |s| s.wam_survival_ms / 1_000),
     ach!("quest_days_7", "Quest Master", "Finish all 3 daily quests in one day, 7 times", 200, "title-quest-master", 7, |s| s.quest_full_days),
 ];
 
@@ -155,6 +166,15 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
                   COUNT(*) FILTER (WHERE reason = 'mystery_box'),
                   SUM(-coins) FILTER (WHERE coins < 0)::BIGINT
            FROM wallet_ledger WHERE user_id = $1"#,
+    )
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+
+    let wam: (i64, Option<i32>, Option<bool>, Option<i32>) = sqlx::query_as(
+        r#"SELECT COUNT(*), MAX(score), BOOL_OR(fever),
+                  MAX(ended_ms) FILTER (WHERE mode = 'survival')
+           FROM wam_runs WHERE user_id = $1 AND finished_at IS NOT NULL"#,
     )
     .bind(user_id)
     .fetch_one(pool)
@@ -220,6 +240,10 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
             user_id,
         )
         .await?,
+        wam_rounds: wam.0,
+        wam_best: wam.1.unwrap_or(0) as i64,
+        wam_fever: wam.2.unwrap_or(false),
+        wam_survival_ms: wam.3.unwrap_or(0) as i64,
     })
 }
 
@@ -377,7 +401,7 @@ mod tests {
         let mut ids: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.id).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 25);
+        assert_eq!(ids.len(), 29);
         assert!(ACHIEVEMENTS.iter().all(|a| a.coins > 0 && a.target > 0 && a.id.len() <= 32));
     }
 
@@ -392,9 +416,9 @@ mod tests {
         let mut titles: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.title).collect();
         titles.sort();
         titles.dedup();
-        assert_eq!(titles.len(), 25);
+        assert_eq!(titles.len(), 29);
         let achievement_items = c.items.iter().filter(|i| i.unlock == Unlock::Achievement).count();
-        assert_eq!(achievement_items, 25, "orphan achievement-only items in catalog");
+        assert_eq!(achievement_items, 29, "orphan achievement-only items in catalog");
     }
 
     #[test]

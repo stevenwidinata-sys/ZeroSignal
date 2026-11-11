@@ -55,7 +55,7 @@ describe("titles", () => {
   });
 
   it("there are 25 achievement-only titles", () => {
-    expect(titles.filter((t) => t.unlock.kind === "achievement")).toHaveLength(25);
+    expect(titles.filter((t) => t.unlock.kind === "achievement")).toHaveLength(29);
   });
 
   it("builds tier and effect classes", () => {
