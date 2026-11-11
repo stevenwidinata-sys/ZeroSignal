@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   BOMB_PENALTY,
+  BOSS_BONUS,
+  BOSS_HP,
+  DOUBLE_MS,
   Game,
   MIN_TAP_GAP_MS,
   MODES,
@@ -19,8 +22,8 @@ function perfectTaps(seed: number, mode: Mode, grid: number): Tap[] {
   const taps: Tap[] = [];
   for (const s of schedule(seed, mode, grid)) {
     if (s.kind === "bomb") continue;
-    taps.push({ t: s.t + 100, hole: s.hole });
-    if (s.kind === "helmet") taps.push({ t: s.t + 140, hole: s.hole });
+    const hits = s.kind === "helmet" ? 2 : s.kind === "boss" ? BOSS_HP : 1;
+    for (let k = 0; k < hits; k++) taps.push({ t: s.t + 100 + k * 40, hole: s.hole });
   }
   taps.sort((a, b) => a.t - b.t);
   const out: Tap[] = [];
@@ -54,7 +57,7 @@ describe("shared test vectors (must match backend engine.rs)", () => {
       { t: 2417, hole: 1, kind: "normal", vis: 1134 },
       { t: 3397, hole: 5, kind: "helmet", vis: 1522 },
     ]);
-    expect(s).toHaveLength(136);
+    expect(s).toHaveLength(SHARED_LEN);
   });
 
   it("replays", () => {
@@ -67,11 +70,12 @@ describe("shared test vectors (must match backend engine.rs)", () => {
   });
 });
 
+const SHARED_LEN = 144;
 const SHARED_REPLAYS: number[][] = [
-  [49075, 107, 0, 0, 107, 9, 66000, 0],
-  [7620, 48, 0, 53, 3, 3, 66000, 0],
+  [59000, 121, 0, 0, 142, 10, 75000, 0],
+  [9000, 46, 0, 50, 6, 5, 69000, 0],
   [100, 1, 0, 3, 1, 0, 5746, 0],
-  [34410, 73, 0, 0, 73, 3, 30000, 0],
+  [67290, 121, 0, 0, 142, 7, 42000, 0],
 ];
 
 describe("engine rules", () => {
@@ -116,6 +120,42 @@ describe("engine rules", () => {
     expect(g2.tap({ t: h.t + 5, hole: h.hole }).type).toBe("cracked");
     expect(g2.tap({ t: h.t + 10, hole: h.hole }).type).toBe("ignored");
     expect(g2.tap({ t: h.t + 5 + MIN_TAP_GAP_MS, hole: h.hole })).toEqual({ type: "hit", kind: "helmet", points: 250 });
+  });
+
+  it("bosses take eight hits and pay a knock-out bonus", () => {
+    const boss = schedule(17, "classic", 3).find((s) => s.kind === "boss")!;
+    expect(boss.t).toBeGreaterThanOrEqual(20_000);
+    const g = new Game(17, "classic", 3);
+    let last = g.tap({ t: boss.t + 10, hole: boss.hole });
+    for (let k = 1; k < BOSS_HP; k++) last = g.tap({ t: boss.t + 10 + k * MIN_TAP_GAP_MS, hole: boss.hole });
+    expect(last.type).toBe("hit");
+    expect(last.type === "hit" && last.points).toBeGreaterThanOrEqual(BOSS_BONUS);
+    expect(g.s.bosses_beaten).toBe(1);
+  });
+
+  it("power-ups: double, shield, slow-mo", () => {
+    const find = (kind: string) => {
+      for (let seed = 1; seed < 400; seed++) {
+        const s = schedule(seed, "classic", 3).find((x) => x.kind === kind);
+        if (s) return { seed, s };
+      }
+      throw new Error(kind);
+    };
+    const d = find("double");
+    const g = new Game(d.seed, "classic", 3);
+    g.tap({ t: d.s.t + 5, hole: d.s.hole });
+    expect(g.doubleUntil).toBe(d.s.t + 5 + DOUBLE_MS);
+    expect(g.pointsAt(100, d.s.t + 10)).toBe(200);
+    const sh = find("shield");
+    const g2 = new Game(sh.seed, "classic", 3);
+    g2.tap({ t: sh.s.t + 5, hole: sh.s.hole });
+    expect([g2.shields, g2.streak]).toEqual([1, 1]);
+    g2.breakStreak();
+    expect([g2.shields, g2.streak]).toEqual([0, 1]);
+    const sl = find("slow_mo");
+    const g3 = new Game(sl.seed, "classic", 3);
+    g3.tap({ t: sl.s.t + 5, hole: sl.s.hole });
+    expect(g3.slowUntil).toBeGreaterThan(sl.s.t);
   });
 
   it("combo steps", () => {

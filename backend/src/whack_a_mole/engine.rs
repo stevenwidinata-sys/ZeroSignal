@@ -87,6 +87,7 @@ impl Mode {
                 gap: (900, 480),
                 visible: (1_150, 750),
                 double_max: 25,
+                boss_every: 20_000,
             },
             Mode::Frenzy => Config {
                 duration: Some(30_000),
@@ -94,6 +95,7 @@ impl Mode {
                 gap: (560, 330),
                 visible: (800, 540),
                 double_max: 45,
+                boss_every: 12_000,
             },
             Mode::Survival => Config {
                 duration: None,
@@ -101,6 +103,7 @@ impl Mode {
                 gap: (1_000, 380),
                 visible: (1_350, 620),
                 double_max: 35,
+                boss_every: 30_000,
             },
         }
     }
@@ -117,6 +120,8 @@ pub struct Config {
     pub visible: (u32, u32),
     /// Max % chance that a spawn brings a second mole.
     pub double_max: u32,
+    /// A boss mole comes up this often (ms).
+    pub boss_every: u32,
 }
 
 /// Survival rounds stop here even if you never lose.
@@ -131,6 +136,14 @@ pub const MIN_TAP_GAP_MS: u32 = 30;
 pub const BOMB_PENALTY: i64 = 300;
 /// The first mole appears this long after the round starts.
 const FIRST_SPAWN_MS: u32 = 600;
+/// Hits a boss mole takes, how long it stays up, and its knock-out bonus.
+pub const BOSS_HP: u8 = 8;
+pub const BOSS_VIS_MS: u32 = 3_500;
+pub const BOSS_BONUS: i64 = 1_000;
+/// Power-up effects (game time).
+pub const DOUBLE_MS: u32 = 6_000;
+pub const SLOW_MS: u32 = 5_000;
+pub const MAX_SHIELDS: u32 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -141,10 +154,29 @@ pub enum Kind {
     Golden,
     Bomb,
     Ice,
+    /// Power-up: ×2 points for a while.
+    Double,
+    /// Power-up: forgives your next combo-breaker.
+    Shield,
+    /// Power-up: the game clock runs at half speed for a while.
+    SlowMo,
+    /// Giant mole that takes several hits.
+    Boss,
 }
 
 impl Kind {
-    pub const ALL: [Kind; 6] = [Kind::Normal, Kind::Ninja, Kind::Helmet, Kind::Golden, Kind::Bomb, Kind::Ice];
+    pub const ALL: [Kind; 10] = [
+        Kind::Normal,
+        Kind::Ninja,
+        Kind::Helmet,
+        Kind::Golden,
+        Kind::Bomb,
+        Kind::Ice,
+        Kind::Double,
+        Kind::Shield,
+        Kind::SlowMo,
+        Kind::Boss,
+    ];
 
     /// Points before combo and grid bonuses.
     pub fn points(self) -> i64 {
@@ -154,7 +186,9 @@ impl Kind {
             Kind::Helmet => 250,
             Kind::Golden => 500,
             Kind::Bomb => 0,
-            Kind::Ice => 50,
+            Kind::Ice | Kind::Double | Kind::Shield | Kind::SlowMo => 50,
+            // Per hit; the knock-out adds BOSS_BONUS.
+            Kind::Boss => 50,
         }
     }
 
@@ -164,6 +198,7 @@ impl Kind {
             Kind::Ninja => 55,
             Kind::Helmet => 135,
             Kind::Golden => 80,
+            Kind::Double | Kind::Shield | Kind::SlowMo => 90,
             _ => 100,
         }
     }
@@ -178,8 +213,9 @@ impl Kind {
     }
 }
 
-/// Chance per 1,000 spawns: normal, ninja, helmet, golden, bomb, ice.
-const KIND_WEIGHTS: [u32; 6] = [640, 100, 100, 40, 90, 30];
+/// Chance per 1,000 spawns, in `Kind::ALL` order (bosses are scheduled, not rolled):
+/// normal, ninja, helmet, golden, bomb, ice, double, shield, slow-mo.
+const KIND_WEIGHTS: [u32; 9] = [610, 100, 100, 40, 90, 30, 10, 10, 10];
 
 fn roll_kind(rng: &mut Rng) -> Kind {
     let mut r = rng.below(1_000);
@@ -233,8 +269,19 @@ pub fn schedule(seed: u32, mode: Mode, grid: u32) -> Vec<Spawn> {
     let mut busy_until = vec![0u32; holes as usize];
     let mut out = Vec::new();
     let mut t = FIRST_SPAWN_MS;
+    let mut next_boss = cfg.boss_every;
 
     while t < end {
+        // A boss takes a free hole once its time has come.
+        if t >= next_boss {
+            next_boss += cfg.boss_every;
+            let free: Vec<u32> = (0..holes).filter(|h| busy_until[*h as usize] <= t).collect();
+            if !free.is_empty() {
+                let hole = free[rng.below(free.len() as u32) as usize];
+                busy_until[hole as usize] = t + BOSS_VIS_MS;
+                out.push(Spawn { t, hole, kind: Kind::Boss, vis: BOSS_VIS_MS });
+            }
+        }
         let doubled = rng.below(100) < lerp((0, cfg.double_max), t, cfg.ramp);
         let count = if doubled { 2 } else { 1 };
         for _ in 0..count {
@@ -275,6 +322,8 @@ pub enum TapOutcome {
     Hit { kind: Kind, points: i64 },
     Cracked,
     Bomb,
+    /// A boss took a hit and is still up.
+    BossHit { points: i64, left: u8 },
 }
 
 /// Combo multiplier in tenths: ×1, ×1.5 from 5 in a row, FEVER ×3 from 10.
@@ -309,7 +358,8 @@ pub struct Summary {
     pub golden_hits: u32,
     pub bombs_hit: u32,
     /// Hits per kind, in `Kind::ALL` order.
-    pub by_kind: [u32; 6],
+    pub by_kind: [u32; 10],
+    pub bosses_beaten: u32,
     pub hole_hits: Vec<u32>,
     pub hole_misses: Vec<u32>,
     pub reaction_total_ms: u64,
@@ -335,13 +385,24 @@ pub struct Game {
     pub streak: u32,
     pub lives: u32,
     pub over: bool,
+    /// Power-up state (game time).
+    pub double_until: u32,
+    pub slow_until: u32,
+    pub shields: u32,
     pub s: Summary,
 }
 
 impl Game {
     pub fn new(seed: u32, mode: Mode, grid: u32) -> Self {
         let spawns = schedule(seed, mode, grid);
-        let left = spawns.iter().map(|s| if s.kind == Kind::Helmet { 2 } else { 1 }).collect();
+        let left = spawns
+            .iter()
+            .map(|s| match s.kind {
+                Kind::Helmet => 2,
+                Kind::Boss => BOSS_HP,
+                _ => 1,
+            })
+            .collect();
         let mut escape_order: Vec<usize> = (0..spawns.len()).collect();
         escape_order.sort_by_key(|i| (spawns[*i].until(), *i));
         let holes = (grid * grid) as usize;
@@ -358,12 +419,41 @@ impl Game {
             streak: 0,
             lives: if mode == Mode::Survival { SURVIVAL_LIVES } else { 0 },
             over: false,
+            double_until: 0,
+            slow_until: 0,
+            shields: 0,
             s: Summary { hole_hits: vec![0; holes], hole_misses: vec![0; holes], ..Default::default() },
         }
     }
 
+    /// End the combo, unless a shield takes the blow.
     fn break_streak(&mut self) {
-        self.streak = 0;
+        if self.streak == 0 {
+            return;
+        }
+        if self.shields > 0 {
+            self.shields -= 1;
+        } else {
+            self.streak = 0;
+        }
+    }
+
+    fn bump_streak(&mut self) {
+        self.streak += 1;
+        self.s.best_streak = self.s.best_streak.max(self.streak);
+        if self.streak >= 10 {
+            self.s.fever = true;
+        }
+    }
+
+    /// Points for a hit at `t`, after combo, grid and Double bonuses.
+    fn points_at(&self, base: i64, t: u32) -> i64 {
+        let p = base * combo_tenths(self.streak) * grid_tenths(self.grid) / 100;
+        if t < self.double_until {
+            p * 2
+        } else {
+            p
+        }
     }
 
     fn lose_life(&mut self, at: u32) {
@@ -453,14 +543,28 @@ impl Game {
                 self.left[i] = 1;
                 TapOutcome::Cracked
             }
+            Kind::Boss if self.left[i] > 1 => {
+                self.left[i] -= 1;
+                self.bump_streak();
+                let points = self.points_at(Kind::Boss.points(), tap.t);
+                self.s.score += points;
+                TapOutcome::BossHit { points, left: self.left[i] }
+            }
             kind => {
                 self.left[i] = 0;
-                self.streak += 1;
-                self.s.best_streak = self.s.best_streak.max(self.streak);
-                if self.streak >= 10 {
-                    self.s.fever = true;
+                self.bump_streak();
+                let mut points = self.points_at(kind.points(), tap.t);
+                if kind == Kind::Boss {
+                    let bonus = BOSS_BONUS * grid_tenths(self.grid) / 10;
+                    points += if tap.t < self.double_until { bonus * 2 } else { bonus };
+                    self.s.bosses_beaten += 1;
                 }
-                let points = kind.points() * combo_tenths(self.streak) * grid_tenths(self.grid) / 100;
+                match kind {
+                    Kind::Double => self.double_until = tap.t + DOUBLE_MS,
+                    Kind::SlowMo => self.slow_until = tap.t + SLOW_MS,
+                    Kind::Shield => self.shields = (self.shields + 1).min(MAX_SHIELDS),
+                    _ => {}
+                }
                 self.s.score += points;
                 self.s.hits += 1;
                 self.s.by_kind[kind.index()] += 1;
@@ -534,9 +638,13 @@ mod tests {
     fn perfect_taps(seed: u32, mode: Mode, grid: u32) -> Vec<Tap> {
         let mut taps: Vec<Tap> = Vec::new();
         for s in schedule(seed, mode, grid).iter().filter(|s| s.kind != Kind::Bomb) {
-            taps.push(Tap { t: s.t + 100, hole: s.hole });
-            if s.kind == Kind::Helmet {
-                taps.push(Tap { t: s.t + 140, hole: s.hole });
+            let hits = match s.kind {
+                Kind::Helmet => 2,
+                Kind::Boss => u32::from(BOSS_HP),
+                _ => 1,
+            };
+            for k in 0..hits {
+                taps.push(Tap { t: s.t + 100 + k * 40, hole: s.hole });
             }
         }
         taps.sort_by_key(|t| t.t);
@@ -568,7 +676,7 @@ mod tests {
         assert_eq!(head, SHARED_HEAD.to_vec(), "{head:?}");
         assert_eq!(s.len(), SHARED_LEN);
     }
-    const SHARED_LEN: usize = 136;
+    const SHARED_LEN: usize = 144;
     const SHARED_HEAD: [(u32, u32, Kind, u32); 4] = [
         (600, 7, Kind::Ninja, 630),
         (1605, 6, Kind::Normal, 1140),
@@ -585,10 +693,10 @@ mod tests {
             [s.score, s.hits as i64, s.misses as i64, s.escapes as i64, s.best_streak as i64,
              s.golden_hits as i64, s.ended_ms as i64, s.lives_left as i64]
         };
-        assert_eq!(fp(5, Mode::Classic, 3, 1), [49075, 107, 0, 0, 107, 9, 66000, 0]);
-        assert_eq!(fp(5, Mode::Classic, 4, 2), [7620, 48, 0, 53, 3, 3, 66000, 0]);
+        assert_eq!(fp(5, Mode::Classic, 3, 1), [59000, 121, 0, 0, 142, 10, 75000, 0]);
+        assert_eq!(fp(5, Mode::Classic, 4, 2), [9000, 46, 0, 50, 6, 5, 69000, 0]);
         assert_eq!(fp(9, Mode::Survival, 3, 3), [100, 1, 0, 3, 1, 0, 5746, 0]);
-        assert_eq!(fp(77, Mode::Frenzy, 4, 1), [34410, 73, 0, 0, 73, 3, 30000, 0]);
+        assert_eq!(fp(77, Mode::Frenzy, 4, 1), [67290, 121, 0, 0, 142, 7, 42000, 0]);
     }
 
     #[test]
@@ -684,6 +792,58 @@ mod tests {
             g.tap(Tap { t: h.t + 5 + MIN_TAP_GAP_MS, hole: h.hole }),
             TapOutcome::Hit { kind: Kind::Helmet, points: 250 }
         ));
+    }
+
+    #[test]
+    fn bosses_take_eight_hits_and_pay_a_bonus() {
+        let sched = schedule(17, Mode::Classic, 3);
+        let boss = *sched.iter().find(|s| s.kind == Kind::Boss).expect("a boss by 20 s");
+        assert!(boss.t >= 20_000 && boss.vis == BOSS_VIS_MS);
+        let mut g = Game::new(17, Mode::Classic, 3);
+        let mut last = TapOutcome::Ignored;
+        for k in 0..u32::from(BOSS_HP) {
+            last = g.tap(Tap { t: boss.t + 10 + k * MIN_TAP_GAP_MS, hole: boss.hole });
+            if k + 1 < u32::from(BOSS_HP) {
+                assert!(matches!(last, TapOutcome::BossHit { .. }), "{last:?}");
+            }
+        }
+        assert!(matches!(last, TapOutcome::Hit { kind: Kind::Boss, points } if points >= BOSS_BONUS));
+        assert_eq!(g.s.bosses_beaten, 1);
+        assert_eq!(g.streak, u32::from(BOSS_HP));
+    }
+
+    #[test]
+    fn power_ups_double_points_shield_the_combo_and_slow_time() {
+        let find = |kind| {
+            (1..400u32)
+                .find_map(|seed| schedule(seed, Mode::Classic, 3).into_iter().find(|s| s.kind == kind).map(|s| (seed, s)))
+                .expect("power-up appears")
+        };
+        let (seed, d) = find(Kind::Double);
+        let mut g = Game::new(seed, Mode::Classic, 3);
+        g.tap(Tap { t: d.t + 5, hole: d.hole });
+        assert_eq!(g.double_until, d.t + 5 + DOUBLE_MS);
+        assert_eq!(g.points_at(100, d.t + 10), 200);
+        assert_eq!(g.points_at(100, d.t + 5 + DOUBLE_MS), 100);
+
+        let (seed, sh) = find(Kind::Shield);
+        let mut g = Game::new(seed, Mode::Classic, 3);
+        g.tap(Tap { t: sh.t + 5, hole: sh.hole });
+        assert_eq!((g.shields, g.streak), (1, 1));
+        g.break_streak();
+        assert_eq!((g.shields, g.streak), (0, 1));
+        g.break_streak();
+        assert_eq!(g.streak, 0);
+
+        let (seed, sl) = find(Kind::SlowMo);
+        let mut g = Game::new(seed, Mode::Classic, 3);
+        g.tap(Tap { t: sl.t + 5, hole: sl.hole });
+        assert_eq!(g.slow_until, sl.t + 5 + SLOW_MS);
+    }
+
+    #[test]
+    fn kind_weights_add_up() {
+        assert_eq!(KIND_WEIGHTS.iter().sum::<u32>(), 1_000);
     }
 
     #[test]

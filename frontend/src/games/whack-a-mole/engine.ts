@@ -45,17 +45,19 @@ interface Config {
   gap: [number, number];
   visible: [number, number];
   doubleMax: number;
+  /** A boss mole comes up this often (ms). */
+  bossEvery: number;
 }
 
 export function config(mode: Mode): Config {
   switch (mode) {
     case "classic":
     case "daily":
-      return { duration: 60_000, ramp: 60_000, gap: [900, 480], visible: [1_150, 750], doubleMax: 25 };
+      return { duration: 60_000, ramp: 60_000, gap: [900, 480], visible: [1_150, 750], doubleMax: 25, bossEvery: 20_000 };
     case "frenzy":
-      return { duration: 30_000, ramp: 30_000, gap: [560, 330], visible: [800, 540], doubleMax: 45 };
+      return { duration: 30_000, ramp: 30_000, gap: [560, 330], visible: [800, 540], doubleMax: 45, bossEvery: 12_000 };
     case "survival":
-      return { duration: null, ramp: 120_000, gap: [1_000, 380], visible: [1_350, 620], doubleMax: 35 };
+      return { duration: null, ramp: 120_000, gap: [1_000, 380], visible: [1_350, 620], doubleMax: 35, bossEvery: 30_000 };
   }
 }
 
@@ -66,13 +68,44 @@ export const ICE_BONUS_MAX_MS = 15_000;
 export const MIN_TAP_GAP_MS = 30;
 export const BOMB_PENALTY = 300;
 const FIRST_SPAWN_MS = 600;
+export const BOSS_HP = 8;
+export const BOSS_VIS_MS = 3_500;
+export const BOSS_BONUS = 1_000;
+export const DOUBLE_MS = 6_000;
+export const SLOW_MS = 5_000;
+export const MAX_SHIELDS = 2;
 
-export type Kind = "normal" | "ninja" | "helmet" | "golden" | "bomb" | "ice";
-export const KINDS: Kind[] = ["normal", "ninja", "helmet", "golden", "bomb", "ice"];
+export type Kind = "normal" | "ninja" | "helmet" | "golden" | "bomb" | "ice" | "double" | "shield" | "slow_mo" | "boss";
+export const KINDS: Kind[] = ["normal", "ninja", "helmet", "golden", "bomb", "ice", "double", "shield", "slow_mo", "boss"];
+export const POWER_UPS: Kind[] = ["double", "shield", "slow_mo"];
 
-export const POINTS: Record<Kind, number> = { normal: 100, ninja: 150, helmet: 250, golden: 500, bomb: 0, ice: 50 };
-const VISIBLE_PCT: Record<Kind, number> = { normal: 100, ninja: 55, helmet: 135, golden: 80, bomb: 100, ice: 100 };
-const KIND_WEIGHTS = [640, 100, 100, 40, 90, 30];
+/** Per hit for a boss (the knock-out adds BOSS_BONUS). */
+export const POINTS: Record<Kind, number> = {
+  normal: 100,
+  ninja: 150,
+  helmet: 250,
+  golden: 500,
+  bomb: 0,
+  ice: 50,
+  double: 50,
+  shield: 50,
+  slow_mo: 50,
+  boss: 50,
+};
+const VISIBLE_PCT: Record<Kind, number> = {
+  normal: 100,
+  ninja: 55,
+  helmet: 135,
+  golden: 80,
+  bomb: 100,
+  ice: 100,
+  double: 90,
+  shield: 90,
+  slow_mo: 90,
+  boss: 100,
+};
+/** Per 1,000 spawns, in KINDS order (bosses are scheduled, not rolled). */
+const KIND_WEIGHTS = [610, 100, 100, 40, 90, 30, 10, 10, 10];
 
 export const escapeHurts = (k: Kind) => k === "normal" || k === "ninja" || k === "helmet";
 
@@ -113,8 +146,20 @@ export function schedule(seed: number, mode: Mode, grid: number): Spawn[] {
   const busyUntil = new Array<number>(holes).fill(0);
   const out: Spawn[] = [];
   let t = FIRST_SPAWN_MS;
+  let nextBoss = cfg.bossEvery;
 
   while (t < end) {
+    // A boss takes a free hole once its time has come.
+    if (t >= nextBoss) {
+      nextBoss += cfg.bossEvery;
+      const free: number[] = [];
+      for (let h = 0; h < holes; h++) if (busyUntil[h] <= t) free.push(h);
+      if (free.length > 0) {
+        const hole = free[rng.below(free.length)];
+        busyUntil[hole] = t + BOSS_VIS_MS;
+        out.push({ t, hole, kind: "boss", vis: BOSS_VIS_MS });
+      }
+    }
     const doubled = rng.below(100) < lerp([0, cfg.doubleMax], t, cfg.ramp);
     const count = doubled ? 2 : 1;
     for (let n = 0; n < count; n++) {
@@ -147,7 +192,8 @@ export type TapOutcome =
   | { type: "empty" }
   | { type: "hit"; kind: Kind; points: number }
   | { type: "cracked" }
-  | { type: "bomb" };
+  | { type: "bomb" }
+  | { type: "boss_hit"; points: number; left: number };
 
 export const comboTenths = (streak: number) => (streak >= 10 ? 30 : streak >= 5 ? 15 : 10);
 export const gridTenths = (grid: number) => (grid === 4 ? 12 : 10);
@@ -163,6 +209,7 @@ export interface Summary {
   bombs_hit: number;
   /** Hits per kind, in KINDS order. */
   by_kind: number[];
+  bosses_beaten: number;
   hole_hits: number[];
   hole_misses: number[];
   reaction_total_ms: number;
@@ -182,6 +229,10 @@ export class Game {
   streak = 0;
   lives: number;
   over = false;
+  /** Power-up state (game time). */
+  doubleUntil = 0;
+  slowUntil = 0;
+  shields = 0;
   s: Summary;
 
   constructor(
@@ -190,7 +241,7 @@ export class Game {
     readonly grid: number,
   ) {
     this.spawns = schedule(seed, mode, grid);
-    this.left = this.spawns.map((s) => (s.kind === "helmet" ? 2 : 1));
+    this.left = this.spawns.map((s) => (s.kind === "helmet" ? 2 : s.kind === "boss" ? BOSS_HP : 1));
     this.escapeOrder = this.spawns.map((_, i) => i);
     this.escapeOrder.sort((a, b) => until(this.spawns[a]) - until(this.spawns[b]) || a - b);
     this.endMs = config(mode).duration ?? SURVIVAL_CAP_MS;
@@ -205,7 +256,8 @@ export class Game {
       fever: false,
       golden_hits: 0,
       bombs_hit: 0,
-      by_kind: [0, 0, 0, 0, 0, 0],
+      by_kind: KINDS.map(() => 0),
+      bosses_beaten: 0,
       hole_hits: new Array<number>(holes).fill(0),
       hole_misses: new Array<number>(holes).fill(0),
       reaction_total_ms: 0,
@@ -213,6 +265,25 @@ export class Game {
       ended_ms: 0,
       lives_left: 0,
     };
+  }
+
+  /** End the combo, unless a shield takes the blow. */
+  breakStreak(): void {
+    if (this.streak === 0) return;
+    if (this.shields > 0) this.shields--;
+    else this.streak = 0;
+  }
+
+  private bumpStreak(): void {
+    this.streak++;
+    this.s.best_streak = Math.max(this.s.best_streak, this.streak);
+    if (this.streak >= 10) this.s.fever = true;
+  }
+
+  /** Points for a hit at `t`, after combo, grid and Double bonuses. */
+  pointsAt(base: number, t: number): number {
+    const p = Math.trunc((base * comboTenths(this.streak) * gridTenths(this.grid)) / 100);
+    return t < this.doubleUntil ? p * 2 : p;
   }
 
   private loseLife(at: number) {
@@ -234,7 +305,7 @@ export class Game {
       this.left[i] = 0;
       if (escapeHurts(sp.kind)) {
         this.s.escapes++;
-        this.streak = 0;
+        this.breakStreak();
         this.loseLife(at);
       }
     }
@@ -277,7 +348,7 @@ export class Game {
     if (i === null) {
       this.s.misses++;
       this.s.hole_misses[h]++;
-      this.streak = 0;
+      this.breakStreak();
       return { type: "empty" };
     }
     const sp = this.spawns[i];
@@ -286,7 +357,7 @@ export class Game {
       this.s.misses++;
       this.s.bombs_hit++;
       this.s.hole_misses[h]++;
-      this.streak = 0;
+      this.breakStreak();
       if (this.mode === "survival") {
         this.loseLife(tap.t);
         if (this.lives === 0) this.over = true;
@@ -299,11 +370,24 @@ export class Game {
       this.left[i] = 1;
       return { type: "cracked" };
     }
+    if (sp.kind === "boss" && this.left[i] > 1) {
+      this.left[i]--;
+      this.bumpStreak();
+      const points = this.pointsAt(POINTS.boss, tap.t);
+      this.s.score += points;
+      return { type: "boss_hit", points, left: this.left[i] };
+    }
     this.left[i] = 0;
-    this.streak++;
-    this.s.best_streak = Math.max(this.s.best_streak, this.streak);
-    if (this.streak >= 10) this.s.fever = true;
-    const points = Math.trunc((POINTS[sp.kind] * comboTenths(this.streak) * gridTenths(this.grid)) / 100);
+    this.bumpStreak();
+    let points = this.pointsAt(POINTS[sp.kind], tap.t);
+    if (sp.kind === "boss") {
+      const bonus = Math.trunc((BOSS_BONUS * gridTenths(this.grid)) / 10);
+      points += tap.t < this.doubleUntil ? bonus * 2 : bonus;
+      this.s.bosses_beaten++;
+    }
+    if (sp.kind === "double") this.doubleUntil = tap.t + DOUBLE_MS;
+    else if (sp.kind === "slow_mo") this.slowUntil = tap.t + SLOW_MS;
+    else if (sp.kind === "shield") this.shields = Math.min(this.shields + 1, MAX_SHIELDS);
     this.s.score += points;
     this.s.hits++;
     this.s.by_kind[KINDS.indexOf(sp.kind)]++;

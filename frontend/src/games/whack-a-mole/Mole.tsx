@@ -7,13 +7,14 @@ import type { Kind } from "./engine";
  */
 export default function Mole({ kind, cracked = false, size = 80 }: { kind: Kind; cracked?: boolean; size?: number }) {
   if (kind === "bomb") return <Bomb size={size} />;
-  const body = kind === "golden" ? "#f4b400" : kind === "ice" ? "#9ad8ff" : "#8a5a3b";
-  const belly = kind === "golden" ? "#ffe17a" : kind === "ice" ? "#e3f5ff" : "#c79a73";
+  // Plain moles take their colors from the board theme (CSS variables).
+  const body = BODY[kind] ?? "var(--mole-body, #8a5a3b)";
+  const belly = BELLY[kind] ?? "var(--mole-belly, #c79a73)";
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" className={`mole-svg mole-${kind}`}>
       {/* head + body */}
-      <ellipse cx="50" cy="66" rx="34" ry="38" fill={body} stroke="#2a1a10" strokeWidth="3" />
-      <ellipse cx="50" cy="80" rx="20" ry="18" fill={belly} />
+      <ellipse cx="50" cy="66" rx="34" ry="38" style={{ fill: body }} stroke="#2a1a10" strokeWidth="3" />
+      <ellipse cx="50" cy="80" rx="20" ry="18" style={{ fill: belly }} />
       {/* eyes */}
       {kind === "ninja" ? (
         <>
@@ -53,6 +54,29 @@ export default function Mole({ kind, cracked = false, size = 80 }: { kind: Kind;
           <path d="M10 20 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 Z M84 34 l2 -5 2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 Z" fill="#fff6c2" stroke="#2a1a10" strokeWidth="1.5" />
         </g>
       )}
+      {kind === "boss" && (
+        <g>
+          {/* horns + angry brows + scar */}
+          <path d="M20 36 L10 6 L34 28 Z M80 36 L90 6 L66 28 Z" fill="#f5f7ff" stroke="#2a1a10" strokeWidth="3" strokeLinejoin="round" />
+          <path d="M28 40 L46 46 M72 40 L54 46" stroke="#2a1a10" strokeWidth="5" strokeLinecap="round" />
+          <path d="M66 56 l8 10 M70 55 l-4 4" stroke="#ff8a8d" strokeWidth="3" strokeLinecap="round" />
+        </g>
+      )}
+      {kind === "double" && (
+        <g>
+          <circle cx="76" cy="28" r="18" fill="#ffd23f" stroke="#2a1a10" strokeWidth="3" />
+          <text x="76" y="35" textAnchor="middle" fontSize="18" fontWeight="900" fill="#2a1a10" fontFamily="monospace">×2</text>
+        </g>
+      )}
+      {kind === "shield" && (
+        <path d="M76 10 L94 17 V32 C94 44 86 51 76 55 C66 51 58 44 58 32 V17 Z" fill="#3a86ff" stroke="#2a1a10" strokeWidth="3" strokeLinejoin="round" />
+      )}
+      {kind === "slow_mo" && (
+        <g>
+          <path d="M64 10 H90 M64 52 H90 M67 10 C67 26 87 26 87 31 C87 36 67 36 67 52 M87 10 C87 26 67 26 67 31 C67 36 87 36 87 52" fill="none" stroke="#2a1a10" strokeWidth="3" strokeLinecap="round" />
+          <path d="M70 47 H84 L77 40 Z" fill="#ffd23f" />
+        </g>
+      )}
       {kind === "ice" && (
         <g>
           <rect x="8" y="24" width="84" height="76" rx="10" fill="rgba(200,235,255,0.35)" stroke="#e3f5ff" strokeWidth="3" strokeDasharray="10 6" />
@@ -87,4 +111,19 @@ export const KIND_LABEL: Record<Kind, string> = {
   golden: "Golden mole",
   bomb: "Bomb",
   ice: "Ice mole",
+  double: "Double-points mole",
+  shield: "Shield mole",
+  slow_mo: "Slow-mo mole",
+  boss: "Boss mole",
+};
+
+const BODY: Partial<Record<Kind, string>> = {
+  golden: "#f4b400",
+  ice: "#9ad8ff",
+  boss: "#7b3fb0",
+};
+const BELLY: Partial<Record<Kind, string>> = {
+  golden: "#ffe17a",
+  ice: "#e3f5ff",
+  boss: "#c9a3ec",
 };
