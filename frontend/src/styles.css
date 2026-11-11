@@ -3007,3 +3007,148 @@ input:focus {
   gap: 8px;
   margin: -6px 0 14px;
 }
+
+/* ---------- Minefield ---------- */
+.mf-wrap {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+.mf-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(100%, 420px);
+  padding: 8px 14px;
+}
+.mf-counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 90px;
+}
+.mf-counter:last-child {
+  justify-content: flex-end;
+}
+.mf-counter strong {
+  font-family: var(--font-pixel);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--red);
+}
+.mf-face {
+  --btn-bg: var(--yellow);
+  --btn-fg: var(--on-yellow);
+  padding: 4px 10px;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.mf-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.mf-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 4px 4px 8px;
+}
+.mf-grid {
+  /* Cells shrink to fit the screen, between 22 and 34 px. */
+  --mf-cell: clamp(22px, calc((100vw - 64px) / var(--mf-cols)), 34px);
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+  box-shadow: var(--shadow-off) var(--shadow-off) 0 var(--line);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.mf-grid.busy {
+  cursor: progress;
+}
+.mf-cell {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--mf-cell);
+  height: var(--mf-cell);
+  border-radius: 3px;
+  font-family: var(--font-pixel);
+  font-size: calc(var(--mf-cell) * 0.42);
+  line-height: 1;
+  cursor: pointer;
+}
+.mf-cell:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: -1px;
+  z-index: 1;
+}
+.mf-cell.hidden {
+  background: linear-gradient(145deg, #6c7bd6, #4453b0);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.35), inset -2px -2px 0 rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: calc(var(--mf-cell) * 0.55);
+}
+.mf-grid:not(.over) .mf-cell.hidden:hover {
+  filter: brightness(1.15);
+}
+.mf-cell.open,
+.mf-cell.mine {
+  background: var(--surface-2);
+  cursor: default;
+}
+.mf-cell.mine {
+  font-family: var(--font-body);
+  font-size: calc(var(--mf-cell) * 0.55);
+}
+.mf-cell.exploded {
+  background: var(--red);
+}
+.mf-cell.wrong {
+  background: var(--error-bg);
+}
+/* Classic number colors, tuned for both themes. Digits carry the meaning. */
+.mf-cell.n1 { color: #3a86ff; }
+.mf-cell.n2 { color: #2fbf71; }
+.mf-cell.n3 { color: #ff5a5f; }
+.mf-cell.n4 { color: #a78bfa; }
+.mf-cell.n5 { color: #f59e0b; }
+.mf-cell.n6 { color: #14b8a6; }
+.mf-cell.n7 { color: var(--ink); }
+.mf-cell.n8 { color: var(--muted); }
+.mf-help {
+  margin: 0;
+  max-width: 640px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.mf-result {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 640px);
+  padding: clamp(14px, 3vw, 22px);
+}
+.mf-result h2 {
+  margin: 0;
+}
+.mf-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.mf-score strong {
+  font-family: var(--font-pixel);
+  font-size: 1.4rem;
+  color: var(--yellow);
+}

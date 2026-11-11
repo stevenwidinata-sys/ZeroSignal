@@ -381,3 +381,36 @@ export interface WamFinish {
   new_best: boolean;
   rewards: Granted;
 }
+
+// ---------------------------------------------------------------------------
+// Minefield
+// ---------------------------------------------------------------------------
+
+export type MfDifficulty = "beginner" | "intermediate" | "expert" | "daily";
+
+export interface MfResult {
+  won: boolean;
+  time_ms: number | null;
+  score: number | null;
+  three_bv: number | null;
+  clicks: number;
+  /** Only in the reply to the move that ended the game. */
+  previous_best: number | null;
+  new_best: boolean | null;
+  rewards: Granted | null;
+}
+
+export interface MfGame {
+  id: string;
+  difficulty: MfDifficulty;
+  rows: number;
+  cols: number;
+  mines: number;
+  status: "new" | "playing" | "won" | "lost";
+  /** -1 hidden, 0-8 opened, 9 mine (after the game), 10 the mine you hit. */
+  cells: number[];
+  elapsed_ms: number;
+  hints_used: number;
+  hints_left: number;
+  result: MfResult | null;
+}

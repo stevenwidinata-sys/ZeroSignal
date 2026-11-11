@@ -26,6 +26,8 @@ import type {
   TttSpin,
   User,
   Wallet,
+  MfDifficulty,
+  MfGame,
   WamFinish,
   WamMode,
   WamStart,
@@ -298,5 +300,29 @@ export const whackAMole = {
   },
   finish(runId: string, taps: WamTap[]) {
     return post<WamFinish>(`${WAM}/runs/${encodeURIComponent(runId)}/finish`, { taps });
+  },
+};
+
+const MF = "/api/games/minefield/games";
+
+/** Minefield: the server keeps the mines; we send cells and get back what's visible. */
+export const minefield = {
+  create(difficulty: MfDifficulty) {
+    return post<MfGame>(MF, { difficulty });
+  },
+  active() {
+    return request<MfGame | null>(`${MF}/active`);
+  },
+  reveal(id: string, cell: number) {
+    return post<MfGame>(`${MF}/${encodeURIComponent(id)}/reveal`, { cell });
+  },
+  chord(id: string, cell: number, flags: number[]) {
+    return post<MfGame>(`${MF}/${encodeURIComponent(id)}/chord`, { cell, flags });
+  },
+  hint(id: string) {
+    return post<MfGame>(`${MF}/${encodeURIComponent(id)}/hint`);
+  },
+  forfeit(id: string) {
+    return post<MfGame | null>(`${MF}/${encodeURIComponent(id)}/forfeit`);
   },
 };
