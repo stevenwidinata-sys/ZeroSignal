@@ -3181,3 +3181,72 @@ html[data-text="xl"] { font-size: 20px; }
   font-size: 1.4rem;
   color: var(--yellow);
 }
+
+/* ---------- Stats page ---------- */
+.stats-page {
+  display: grid;
+  gap: 20px;
+}
+.stats-overview dd small {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  gap: 18px;
+}
+.stats-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: clamp(14px, 3vw, 20px);
+}
+.stats-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.stats-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.stats-card-links {
+  display: flex;
+  gap: 8px;
+}
+.stats-empty {
+  margin: 0;
+  color: var(--muted);
+}
+/* Compact tables so all columns fit inside a card. */
+.stats-table th,
+.stats-table td {
+  padding: 10px 8px;
+}
+.stats-table thead th {
+  white-space: nowrap;
+}
+/* Row headers (difficulty names) look like body text, not the blue header. */
+.stats-table tbody th[scope="row"] {
+  background: transparent;
+  color: var(--ink);
+  border-bottom: 2px solid var(--surface-2);
+  font-size: 0.55rem;
+}
+.stats-rate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+.stats-rate .quest-bar {
+  flex: 1;
+}
+.stats-rate strong {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}

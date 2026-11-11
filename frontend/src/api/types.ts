@@ -414,3 +414,46 @@ export interface MfGame {
   hints_left: number;
   result: MfResult | null;
 }
+
+// ---------------------------------------------------------------------------
+// Stats page
+// ---------------------------------------------------------------------------
+
+export interface StatsSeries {
+  game: "connect-four" | "tic-tac-toe";
+  difficulty: string;
+  played: number;
+  won: number;
+  lost: number;
+  drawn: number;
+}
+
+export interface StatsBoard {
+  game_id: string;
+  level: number;
+  rounds: number;
+  best: number;
+  average: number;
+}
+
+export interface StatsView {
+  joined: string;
+  level: number;
+  xp: number;
+  coins_earned: number;
+  coins_spent: number;
+  tokens_earned: number;
+  best_login_streak: number;
+  quests_claimed: number;
+  achievements_claimed: number;
+  series: StatsSeries[];
+  boards: StatsBoard[];
+  minefield: { difficulty: string; played: number; won: number; best_time_ms: number | null }[];
+  whack: {
+    rounds: number;
+    best_streak: number | null;
+    fever_rounds: number;
+    golden_hits: number | null;
+    longest_survival_ms: number | null;
+  };
+}

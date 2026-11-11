@@ -19,6 +19,7 @@ import type {
   QuestClaim,
   QuestsView,
   ShotInput,
+  StatsView,
   SubmitResponse,
   TttCollection,
   TttDifficulty,
@@ -120,6 +121,9 @@ export const api = {
   },
   wallet() {
     return request<Wallet>("/api/me/wallet");
+  },
+  stats() {
+    return request<StatsView>("/api/me/stats");
   },
   dailyLogin() {
     return request<LoginStatus>("/api/me/daily-login");

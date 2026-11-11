@@ -18,6 +18,7 @@ import PublicProfile from "./pages/PublicProfile";
 import Quests from "./pages/Quests";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
+import Stats from "./pages/Stats";
 import { useAuth } from "./store/auth";
 import { useAchievements } from "./store/achievements";
 import { useCharacter } from "./store/character";
@@ -120,6 +121,11 @@ export default function App() {
             </NavLink>
           )}
           {user && (
+            <NavLink to="/stats" className={navClass}>
+              Stats
+            </NavLink>
+          )}
+          {user && (
             <NavLink to="/quests" className={navClass}>
               Quests
               {questsReady > 0 && (
@@ -176,6 +182,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <Profile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <RequireAuth>
+                <Stats />
               </RequireAuth>
             }
           />
