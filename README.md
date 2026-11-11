@@ -55,12 +55,20 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Golden | 500 | rare |
 | Ice | 50 | +3 s on timed modes (max +15 s), +1 life in Survival |
 | Bomb | −300 | don't hit it; in Survival it costs a life |
+| Double (power-up) | 50 | ×2 points for 6 s |
+| Shield (power-up) | 50 | forgives your next combo-breaker (holds up to 2) |
+| Slow-mo (power-up) | 50 | the game clock runs at half speed for 5 s |
+| **Boss** | 50 per hit + 1,000 | comes up every 20 s (Frenzy 12 s, Survival 30 s), stays 3.5 s, takes 8 hits |
 
 - **Combo:** 5 hits in a row pay ×1.5, 10 in a row start **FEVER ×3** (the board glows). A tap on an empty hole, a bomb, or an escaped mole ends it. In Survival every escaped mole (not golden or ice) costs a life.
 - Every mole kind has its own shape (mask, hard hat, crown, ice block, skull bomb), so color is never needed.
 - **Results:** accuracy, average reaction time, best combo, moles per kind and a heat map of the holes.
 - **Anti-cheat:** `start` gives the client a run id and a seed; client and server build the same mole schedule from it (same 32-bit integer code in `engine.ts` and `engine.rs`, checked by shared test vectors). The client sends only its taps `(ms, hole)`; the server replays them, rejects rounds that finished faster than real time, and computes the score. Each run can be finished once, within 15 minutes.
 - Pausing (or switching tabs) stops the game clock.
+- **Hammers** (cursor, hit sound and spark): Wooden Mallet (free), Squeaky Toy 150, Frying Pan 250, Wet Fish 250, Neon Ban-Hammer 600, Golden Hammer 1,500.
+- **Board themes** (board, holes, mole colors): Garden (free), Neon Arcade 300, Graveyard 400, Sunny Beach 400, Deep Space 1,200. Catalog: `shared/whack_items.json`.
+- Locked items are bought with coins on the setup screen, or **drop by luck**: a round scoring 3,000+ has a 5% chance to give one you don't own. The server checks you own the hammer and theme when a round starts.
+- **Your character** stands beside the board and reacts to FEVER, bombs and boss knock-outs.
 
 ## Minefield
 
@@ -129,7 +137,7 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 
 ## Achievements
 
-The `/achievements` page lists 33 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+The `/achievements` page lists 34 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
 
 | Achievement | Coins | Title |
 |-------------|-------|-------|
@@ -151,6 +159,7 @@ The `/achievements` page lists 33 one-time achievements with progress bars; lock
 | Reach FEVER in Whack-a-Mole | 80 | Fever Pitch |
 | Score 10,000 in one Whack-a-Mole round | 150 | Mole Master |
 | Last 2 minutes in Whack-a-Mole Survival | 150 | Survivor |
+| Knock out a boss mole in Whack-a-Mole | 100 | Boss Breaker |
 | Clear your first Minefield board | 20 | First Sweep |
 | Clear an Expert Minefield board | 150 | Expert Sweeper |
 | Clear a Beginner Minefield board in under 20 seconds | 80 | Speed Sweeper |
@@ -180,7 +189,7 @@ Titles show in the wardrobe, on public profiles and next to names on leaderboard
 
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **191 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **192 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|
@@ -279,7 +288,7 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
-│       ├── achievements.rs     # 33 achievements, live progress, claim + titles
+│       ├── achievements.rs     # 34 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── whack_a_mole/       # seeded mole schedule, tap replay scorer, runs API
@@ -306,7 +315,7 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
-| GET  | `/api/me/achievements` | all 33 achievements with live progress (auth) |
+| GET  | `/api/me/achievements` | all 34 achievements with live progress (auth) |
 | POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
@@ -327,7 +336,9 @@ zero_signal/
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
-| POST | `/api/games/whack-a-mole/runs` | `{mode, grid}` start a run; returns `run_id` + `seed` (auth) |
+| POST | `/api/games/whack-a-mole/runs` | `{mode, grid, hammer?, theme?}` start a run; returns `run_id` + `seed` (auth) |
+| GET  | `/api/games/whack-a-mole/collection` | hammers and themes with prices and what you own (auth) |
+| POST | `/api/games/whack-a-mole/buy` | `{kind: "hammer"\|"theme", id}` buy with coins (auth) |
 | POST | `/api/games/whack-a-mole/runs/:id/finish` | `{taps:[{t, hole}]}`; server replays and scores, pays rewards (auth) |
 | POST | `/api/games/minefield/games` | `{difficulty}` new game; Daily returns today's board (auth) |
 | GET  | `/api/games/minefield/games/active` | your unfinished game, or null (auth) |

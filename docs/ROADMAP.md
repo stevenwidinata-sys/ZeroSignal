@@ -68,7 +68,7 @@ Branches, each merged into `main` after tests pass:
 
 ## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
 
-Status: `feat/whack-a-mole` (v1), `feat/minefield`, `feat/settings-plus` and `feat/stats` done and merged; next is `feat/whack-a-mole-extras`.
+Status: `feat/whack-a-mole` (v1), `feat/minefield`, `feat/settings-plus`, `feat/stats` and `feat/whack-a-mole-extras` done and merged.
 
 Owner said "go with your picks" for the 10 ideas. Branch order:
 `feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
@@ -110,7 +110,7 @@ Owner said "go with your picks" for the 10 ideas. Branch order:
 - Screen shake on/off, reduced motion (separate from light graphics),
   text size (S/M/L), ask before leaving a match, "reset tutorials" button.
 
-### Whack-a-Mole extras (`feat/whack-a-mole-extras`): ideas 4–8
+### Whack-a-Mole extras (`feat/whack-a-mole-extras`, done): ideas 4–8
 Owner said "yes do whack-a-mole extras" (2026-11-11). Details:
 - **Boss mole** (idea 4): a giant mole every 20 s (Frenzy 12 s, Survival
   30 s). It stays up 3.5 s and takes 8 hits; each hit pays 50 (combo and
