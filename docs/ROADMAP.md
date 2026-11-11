@@ -160,6 +160,20 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 ### Website upgrades to schedule after that
 - Stats page (done, `feat/stats`), weekly leaderboards, Indonesian language, PWA, cleaner Hub.
 
+### Weekly leaderboards (`feat/weekly-leaderboards`, agreed 2026-11-11)
+- Weeks run Monday 00:00 → Monday 00:00 WIB. Every leaderboard gets an
+  **All time / This week / Last week** switch (Daily boards stay "today").
+  The page shows when the week resets.
+- Best-score games rank by the best score in the week. Connect Four and
+  Tic-Tac-Toe store running totals, so scores get a `gained` column
+  (points that result added, backfilled for old rows) and weekly boards
+  rank by points gained that week.
+- **Weekly prizes:** top 3 last week on each board (Angry Bird, Connect
+  Four, Tic-Tac-Toe, each Whack-a-Mole mode, each Minefield size; not the
+  Daily boards) win #1 150 coins + 1 token, #2 100, #3 50. Claimed from a
+  banner on the Hub and Leaderboards (once per board per week, not counted
+  toward the daily cap).
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays).
