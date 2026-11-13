@@ -49,6 +49,15 @@ pub struct WhackRow {
     pub longest_survival_ms: Option<i32>,
 }
 
+#[derive(Serialize, sqlx::FromRow, Default)]
+pub struct Row2048 {
+    pub games: i64,
+    pub best_tile: Option<i32>,
+    /// Games that reached a 2048 tile.
+    pub reached_2048: i64,
+    pub moves: Option<i64>,
+}
+
 #[derive(Serialize)]
 pub struct StatsView {
     pub joined: DateTime<Utc>,
@@ -64,6 +73,7 @@ pub struct StatsView {
     pub boards: Vec<BoardRow>,
     pub minefield: Vec<MinefieldRow>,
     pub whack: WhackRow,
+    pub g2048: Row2048,
 }
 
 pub async fn my_stats(State(state): State<AppState>, user: AuthUser) -> AppResult<Json<StatsView>> {
@@ -145,6 +155,16 @@ pub async fn my_stats(State(state): State<AppState>, user: AuthUser) -> AppResul
     .fetch_one(pool)
     .await?;
 
+    let g2048: Row2048 = sqlx::query_as(
+        r#"SELECT COUNT(*) AS games, MAX(max_tile) AS best_tile,
+                  COUNT(*) FILTER (WHERE max_tile >= 2048) AS reached_2048,
+                  SUM(LENGTH(REPLACE(moves, 'Z', '')))::BIGINT AS moves
+           FROM g2048_runs WHERE user_id = $1 AND finished_at IS NOT NULL AND NOT abandoned"#,
+    )
+    .bind(id)
+    .fetch_one(pool)
+    .await?;
+
     Ok(Json(StatsView {
         joined,
         level: level_info(xp).level,
@@ -159,5 +179,6 @@ pub async fn my_stats(State(state): State<AppState>, user: AuthUser) -> AppResul
         boards,
         minefield,
         whack,
+        g2048,
     }))
 }

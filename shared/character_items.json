@@ -238,6 +238,10 @@
     { "id": "title-expert-sweeper", "slot": "title", "name": "Expert Sweeper", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Expert Sweeper", "tier": "mythic", "color": "#ff5a5f", "icon": "💣", "effect": "flicker" } },
     { "id": "title-speed-sweeper", "slot": "title", "name": "Speed Sweeper", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Speed Sweeper", "tier": "gold", "color": "#3a86ff", "icon": "⚡", "effect": "glow" } },
     { "id": "title-boss-breaker", "slot": "title", "name": "Boss Breaker", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Boss Breaker", "tier": "gold", "color": "#9b5de5", "icon": "👑", "effect": "glow" } },
-    { "id": "title-daily-devotee", "slot": "title", "name": "Daily Devotee", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Daily Devotee", "tier": "silver", "color": "#2fbf71", "icon": "📅" } }
+    { "id": "title-daily-devotee", "slot": "title", "name": "Daily Devotee", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "Daily Devotee", "tier": "silver", "color": "#2fbf71", "icon": "📅" } },
+    { "id": "title-first-slide", "slot": "title", "name": "First Slide", "rarity": "common", "unlock": { "kind": "achievement" }, "art": { "text": "First Slide", "tier": "bronze", "color": "#b8860b" } },
+    { "id": "title-2048", "slot": "title", "name": "2048!", "rarity": "rare", "unlock": { "kind": "achievement" }, "art": { "text": "2048!", "tier": "silver", "color": "#e8a33d", "icon": "🔢" } },
+    { "id": "title-pure-skill", "slot": "title", "name": "Pure Skill", "rarity": "epic", "unlock": { "kind": "achievement" }, "art": { "text": "Pure Skill", "tier": "gold", "color": "#f65e3b", "icon": "🎯", "effect": "glow" } },
+    { "id": "title-tile-tycoon", "slot": "title", "name": "Tile Tycoon", "rarity": "legendary", "unlock": { "kind": "achievement" }, "art": { "text": "Tile Tycoon", "tier": "mythic", "color": "#edc22e", "icon": "👑", "effect": "shimmer" } }
   ]
 }

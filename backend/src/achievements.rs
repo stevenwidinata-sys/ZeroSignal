@@ -1,4 +1,4 @@
-//! Achievements: 25 one-time goals. Progress is computed live from data the
+//! Achievements: 38 one-time goals. Progress is computed live from data the
 //! server already verified (matches, scores, ledger, inventory), so older
 //! progress counts too. Claiming pays coins + the same XP once, plus a title.
 
@@ -59,6 +59,10 @@ pub struct Stats {
     /// Fastest Beginner win, ms (0 = none).
     pub mf_best_beginner_ms: i64,
     pub mf_daily_wins: i64,
+    /// Finished 2048 games, biggest tile ever, and 2048 reached without undo.
+    pub g2048_games: i64,
+    pub g2048_best_tile: i64,
+    pub g2048_pure: bool,
 }
 
 pub struct Achievement {
@@ -92,7 +96,7 @@ macro_rules! ach {
     };
 }
 
-pub static ACHIEVEMENTS: [Achievement; 34] = [
+pub static ACHIEVEMENTS: [Achievement; 38] = [
     ach!("cf_first_win", "First Drop", "Win your first Connect Four series", 30, "title-chip-dropper", 1, |s| s.cf_wins),
     ach!("cf_medium", "Thinking Ahead", "Win a Connect Four series vs Medium or harder", 40, "title-four-thinker", 1, |s| s.cf_wins_medium),
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
@@ -132,6 +136,10 @@ pub static ACHIEVEMENTS: [Achievement; 34] = [
     ach!("mf_speed", "Speed Sweeper", "Clear a Beginner Minefield board in under 20 seconds", 80, "title-speed-sweeper", 1,
         |s| i64::from(s.mf_best_beginner_ms > 0 && s.mf_best_beginner_ms < 20_000)),
     ach!("mf_daily_5", "Daily Devotee", "Clear 5 Daily Minefield boards", 100, "title-daily-devotee", 5, |s| s.mf_daily_wins),
+    ach!("g2048_first", "First Slide", "Finish your first game of 2048", 20, "title-first-slide", 1, |s| s.g2048_games),
+    ach!("g2048_2048", "2048!", "Make a 2048 tile", 150, "title-2048", 1, |s| i64::from(s.g2048_best_tile >= 2048)),
+    ach!("g2048_4096", "Tile Tycoon", "Make a 4096 tile", 300, "title-tile-tycoon", 1, |s| i64::from(s.g2048_best_tile >= 4096)),
+    ach!("g2048_pure", "Pure Skill", "Make a 2048 tile without using undo", 200, "title-pure-skill", 1, |s| i64::from(s.g2048_pure)),
     ach!("quest_days_7", "Quest Master", "Finish all 3 daily quests in one day, 7 times", 200, "title-quest-master", 7, |s| s.quest_full_days),
 ];
 
@@ -199,6 +207,14 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
                   MIN(time_ms) FILTER (WHERE difficulty = 'beginner'),
                   COUNT(*) FILTER (WHERE difficulty = 'daily')
            FROM mf_games WHERE user_id = $1 AND status = 'won'"#,
+    )
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+
+    let g2048: (i64, Option<i32>, Option<bool>) = sqlx::query_as(
+        r#"SELECT COUNT(*), MAX(max_tile), BOOL_OR(max_tile >= 2048 AND undos_used = 0)
+           FROM g2048_runs WHERE user_id = $1 AND finished_at IS NOT NULL AND NOT abandoned"#,
     )
     .bind(user_id)
     .fetch_one(pool)
@@ -273,6 +289,9 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
         mf_expert_wins: mf.1,
         mf_best_beginner_ms: mf.2.unwrap_or(0) as i64,
         mf_daily_wins: mf.3,
+        g2048_games: g2048.0,
+        g2048_best_tile: g2048.1.unwrap_or(0) as i64,
+        g2048_pure: g2048.2.unwrap_or(false),
     })
 }
 
@@ -426,11 +445,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn there_are_25_unique_achievements() {
+    fn there_are_38_unique_achievements() {
         let mut ids: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.id).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 34);
+        assert_eq!(ids.len(), 38);
         assert!(ACHIEVEMENTS.iter().all(|a| a.coins > 0 && a.target > 0 && a.id.len() <= 32));
     }
 
@@ -445,9 +464,9 @@ mod tests {
         let mut titles: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.title).collect();
         titles.sort();
         titles.dedup();
-        assert_eq!(titles.len(), 34);
+        assert_eq!(titles.len(), 38);
         let achievement_items = c.items.iter().filter(|i| i.unlock == Unlock::Achievement).count();
-        assert_eq!(achievement_items, 34, "orphan achievement-only items in catalog");
+        assert_eq!(achievement_items, 38, "orphan achievement-only items in catalog");
     }
 
     #[test]
