@@ -2,6 +2,7 @@ import type { WamFinish } from "../../api/types";
 import { KINDS } from "./engine";
 import { itemName } from "./items";
 import Mole, { KIND_LABEL } from "./Mole";
+import { SaveScorePrompt } from "../../components/Guest";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -106,6 +107,8 @@ export default function Results({ result, grid, onAgain, onMenu }: Props) {
           </div>
         </section>
       </div>
+
+      <SaveScorePrompt />
 
       <div className="game-controls">
         <button className="btn-green" onClick={onAgain} autoFocus>

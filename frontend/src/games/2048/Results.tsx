@@ -2,6 +2,7 @@ import type { G2048Finish } from "../../api/types";
 import { TENTHS } from "./engine";
 import { MODE_INFO } from "./modes";
 import { digitsClass, formatPlayTime, tileClass } from "./tiles";
+import { SaveScorePrompt } from "../../components/Guest";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -60,6 +61,7 @@ export default function Results({ result, playMs, onAgain, onMenu }: Props) {
         </div>
       </dl>
       {s.moves < 20 && <p className="wam-hint">Games shorter than 20 moves don't pay rewards or count for quests.</p>}
+      <SaveScorePrompt />
 
       <div className="game-controls">
         {onAgain && (

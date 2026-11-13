@@ -10,6 +10,7 @@ import { type Cells, canPlay, landingRow } from "./logic";
 import Scoreboard from "./Scoreboard";
 import { opponentSkin } from "./skins";
 import { TimerBadge, useTurnTimer } from "../../platform/turnTimer";
+import { SaveScorePrompt } from "../../components/Guest";
 
 export const DIFFICULTY_LABEL: Record<Difficulty, string> = {
   easy: "Easy",
@@ -233,6 +234,7 @@ export default function AiGame({ initial, onExit, onSpin, onRematch }: Props) {
           ← Menu
         </button>
       </div>
+      {!active && <SaveScorePrompt />}
       {active && (
         <p className="hint">
           Every move is checked by the server. Undo: {match.difficulty === "impossible" ? "disabled on Impossible" : "max 3 per game"}

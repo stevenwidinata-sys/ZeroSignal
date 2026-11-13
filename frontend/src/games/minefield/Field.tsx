@@ -4,6 +4,7 @@ import type { MfGame } from "../../api/types";
 import { useGuardWhile } from "../../platform/leaveGuard";
 import { playSfx } from "../../platform/sound";
 import { vibrate } from "../../store/settings";
+import { SaveScorePrompt } from "../../components/Guest";
 import { useWallet } from "../../store/wallet";
 import {
   EXPLODED,
@@ -332,6 +333,7 @@ export default function Field({ initial, onNew, onMenu }: Props) {
             </div>
           </dl>
           {!res.won && <p className="wam-hint">Mines are shown now. ❌ marks a flag that was wrong.</p>}
+          {res.won && <SaveScorePrompt />}
           <div className="game-controls">
             {game.difficulty !== "daily" && (
               <button className="btn-green" onClick={onNew} autoFocus>

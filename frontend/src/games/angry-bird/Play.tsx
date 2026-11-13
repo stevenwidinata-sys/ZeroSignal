@@ -8,6 +8,7 @@ import { useWallet } from "../../store/wallet";
 import { ABILITY_LABEL, FALLBACK_BIRDS } from "./birds";
 import { GameEngine, MAX_SHOTS, type ShotRecord } from "./engine";
 import { LEVEL_ONE } from "./levels";
+import { SaveScorePrompt } from "../../components/Guest";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -157,6 +158,7 @@ export default function Game() {
             )}
             {submitting && <button disabled>Scoring…</button>}
           </div>
+          {roundOver && !submitting && <SaveScorePrompt />}
 
           {error && (
             <div className="error" role="alert">

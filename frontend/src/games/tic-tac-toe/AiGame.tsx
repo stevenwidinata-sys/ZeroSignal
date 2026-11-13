@@ -10,6 +10,7 @@ import Board from "./Board";
 import { opponentFace } from "./items";
 import { type Cells, emptyCells } from "./logic";
 import Scoreboard from "./Scoreboard";
+import { SaveScorePrompt } from "../../components/Guest";
 
 export const DIFFICULTY_LABEL: Record<TttDifficulty, string> = {
   easy: "Easy",
@@ -213,6 +214,7 @@ export default function AiGame({ initial, onExit, onSpin, onRematch }: Props) {
           ← Menu
         </button>
       </div>
+      {!active && <SaveScorePrompt />}
       {active && (
         <p className="hint">
           Every move is checked by the server.{" "}
