@@ -24,6 +24,7 @@ function apply(theme: Theme) {
 interface ThemeState {
   theme: Theme;
   toggle: () => void;
+  set: (theme: Theme) => void;
 }
 
 export const useTheme = create<ThemeState>((set, get) => {
@@ -32,7 +33,10 @@ export const useTheme = create<ThemeState>((set, get) => {
   return {
     theme,
     toggle() {
-      const next: Theme = get().theme === "dark" ? "light" : "dark";
+      get().set(get().theme === "dark" ? "light" : "dark");
+    },
+    set(next) {
+      if (next !== "light" && next !== "dark") return;
       apply(next);
       try {
         localStorage.setItem(KEY, next);

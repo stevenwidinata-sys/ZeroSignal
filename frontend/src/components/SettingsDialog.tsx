@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { resetSeen } from "../platform/tutorial";
 import { TEXT_SIZES, TIMER_OPTIONS, useSettings, type TextSize } from "../store/settings";
 import { useTheme } from "../store/theme";
+import { useSync } from "../platform/settingsSync";
+import { useAuth } from "../store/auth";
 import AccountPanel from "./settings/AccountPanel";
+import PrivacyPanel from "./settings/PrivacyPanel";
 
-type TabId = "display" | "sound" | "gameplay" | "account";
+type TabId = "display" | "sound" | "gameplay" | "privacy" | "account";
 const TABS: { id: TabId; icon: string; label: string }[] = [
   { id: "display", icon: "🖥️", label: "Display" },
   { id: "sound", icon: "🔊", label: "Sound" },
   { id: "gameplay", icon: "🎮", label: "Gameplay" },
+  { id: "privacy", icon: "🔒", label: "Privacy" },
   { id: "account", icon: "👤", label: "Account" },
 ];
 /** The last tab you looked at (until the page reloads). */
@@ -28,6 +32,8 @@ export default function SettingsDialog({ open, onClose }: Props) {
   const theme = useTheme((t) => t.theme);
   const toggleTheme = useTheme((t) => t.toggle);
   const [tutorialsReset, setTutorialsReset] = useState(false);
+  const user = useAuth((a) => a.user);
+  const sync = useSync((x) => x.status);
   const [tab, setTabState] = useState<TabId>(lastTab);
   const setTab = (t: TabId) => {
     lastTab = t;
@@ -174,7 +180,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
                   />
                 </label>
                 <label className="row-label">
-                  <span>Volume · {Math.round(s.volume * 100)}%</span>
+                  <span>Game sounds · {Math.round(s.volume * 100)}%</span>
                   <input
                     type="range"
                     min={0}
@@ -183,6 +189,21 @@ export default function SettingsDialog({ open, onClose }: Props) {
                     value={Math.round(s.volume * 100)}
                     disabled={!s.sound}
                     onChange={(e) => s.update({ volume: Number(e.target.value) / 100 })}
+                  />
+                </label>
+              <label className="row-label">
+                  <span>
+                    Menu sounds · {Math.round(s.uiVolume * 100)}%
+                    <small>Button clicks, separate from game sounds.</small>
+                  </span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={Math.round(s.uiVolume * 100)}
+                    disabled={!s.sound}
+                    onChange={(e) => s.update({ uiVolume: Number(e.target.value) / 100 })}
                   />
                 </label>
               </fieldset>
@@ -284,6 +305,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
               </fieldset>
             </>
           )}
+          {tab === "privacy" && <PrivacyPanel onClose={onClose} />}
           {tab === "account" && <AccountPanel onClose={onClose} />}
         </div>
 
@@ -295,6 +317,11 @@ export default function SettingsDialog({ open, onClose }: Props) {
           ) : (
             <span />
           )}
+          <small className="settings-sync" role="status">
+            {user && !user.is_guest
+              ? { off: "", loading: "Loading your settings…", synced: "☁️ Saved to your account", saving: "☁️ Saving…", error: "⚠️ Couldn't sync; saved in this browser" }[sync]
+              : "Saved in this browser"}
+          </small>
           <button className="btn-green btn-sm" onClick={onClose}>
             Done
           </button>

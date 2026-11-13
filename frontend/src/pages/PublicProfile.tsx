@@ -49,6 +49,24 @@ export default function PublicProfile() {
   const loadout = normalizeLoadout(p.loadout);
   const isMe = me?.username.toLowerCase() === p.username.toLowerCase();
 
+  if (p.private) {
+    return (
+      <div className="pub">
+        <Link to="/leaderboard" className="back-link">
+          ← Leaderboards
+        </Link>
+        <div className="panel notice">
+          <span className="notice-icon" aria-hidden="true">
+            🔒
+          </span>
+          <h2>{p.username}</h2>
+          <p>This player keeps their profile private.</p>
+          {isMe && <p className="wam-hint">That's you. Change it in Settings → Privacy.</p>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pub">
       <Link to="/leaderboard" className="back-link">

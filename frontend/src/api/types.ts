@@ -35,6 +35,17 @@ export interface AccountView {
   next_rename_at: string | null;
 }
 
+export interface Privacy {
+  hide_on_leaderboards: boolean;
+  private_profile: boolean;
+}
+
+/** Settings saved on the account, plus privacy switches. */
+export interface PrefsView {
+  settings: Record<string, unknown> | null;
+  privacy: Privacy;
+}
+
 export interface RenameResponse {
   token: string;
   user: User;
@@ -233,6 +244,8 @@ export interface PublicProfile {
   items_owned: number;
   stats: GameStat[];
   achievements: PublicAchievement[];
+  /** The player chose a private profile: only the name is shown. */
+  private?: boolean;
 }
 
 // ---------------------------------------------------------------------------

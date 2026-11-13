@@ -1,5 +1,7 @@
 import type {
   AccountView,
+  PrefsView,
+  Privacy,
   RenameResponse,
   AchievementClaim,
   AchievementsView,
@@ -146,6 +148,15 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ current_password, confirm_username }),
     });
+  },
+  prefs() {
+    return request<PrefsView>("/api/me/settings");
+  },
+  saveSettings(settings: Record<string, unknown>) {
+    return request<PrefsView>("/api/me/settings", { method: "PUT", body: JSON.stringify({ settings }) });
+  },
+  savePrivacy(patch: Partial<Privacy>) {
+    return request<PrefsView>("/api/me/privacy", { method: "PUT", body: JSON.stringify(patch) });
   },
   /** Start a guest session (play now, register later). */
   guest() {

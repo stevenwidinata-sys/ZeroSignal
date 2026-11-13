@@ -9,6 +9,7 @@ import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
 import WalletChip from "./components/WalletChip";
 import { useLeaveGuardListeners } from "./platform/leaveGuard";
+import { useSettingsSync } from "./platform/settingsSync";
 import Hub from "./pages/Hub";
 import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
@@ -70,6 +71,7 @@ export default function App() {
   const { pathname } = useLocation();
   const member = isMember(user);
   useLeaveGuardListeners();
+  useSettingsSync(member);
 
   useEffect(() => {
     void init();
