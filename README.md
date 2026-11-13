@@ -240,17 +240,20 @@ The server checks every outfit: you can only wear items you own, in the slot the
 
 ## Prerequisites
 
-- Docker + Docker Compose
+- PostgreSQL 16+ (installed locally, or Docker + Docker Compose)
 - Rust (stable) + Cargo
 - Node.js 18+ and npm
 
 ## Quick start (local dev)
 
-1. Start Postgres:
-   ```bash
-   docker compose up -d db
-   ```
-2. Backend:
+1. Make sure Postgres is running on `localhost:5432`, with the user, password and database from `backend/.env.example` (`DATABASE_URL`). Use one of these:
+   - **Local install (Windows, macOS, Linux):** start the PostgreSQL service. On Windows it starts with the computer.
+   - **Docker:**
+     ```bash
+     docker compose up -d db
+     ```
+     Run only one of them: both use port 5432.
+2. Backend (applies database migrations on start):
    ```bash
    cd backend
    cp .env.example .env
