@@ -218,6 +218,31 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
   animations), results screen (score, biggest tile, moves, time, undos,
   new best), Hub card with NEW badge, Stats card.
 
+### Guest play (`feat/guest-play`; agreed 2026-11-13)
+- **Play first, account later:** every game opens without logging in. The
+  first time a visitor opens a game, the site quietly creates a **guest
+  account** (no name/password; kept in that browser, token valid 30 days).
+- Guests earn coins, XP, tokens, quest progress and item drops like anyone,
+  but are **hidden from leaderboards, weekly prizes and profiles**.
+- **Login-only:** Shop and character (wardrobe), the daily login reward,
+  claiming quests and achievements (progress still tracked), public profile,
+  and the Tic-Tac-Toe photo face (personal data). Guests see a "register or
+  log in" screen instead.
+- **Register as a guest:** the guest account becomes the real account,
+  so everything is kept.
+- **Log in to an existing account as a guest:** the guest's scores, games,
+  items and quest days the account doesn't have move over; coins, tokens
+  and XP are paid through the normal reward path (coins count toward the
+  account's 1,000/day cap, so guests can't be farmed). Where both have the
+  same thing (today's quests, an unfinished game, today's Daily) the
+  account's wins. Connect Four / Tic-Tac-Toe running totals are recomputed.
+  Then the guest is deleted.
+- **Clean-up:** guests not seen for 30 days are deleted (at startup, then
+  daily). At most 20 new guests per hour per IP. Guests can't log in with
+  a password; usernames can't start with "guest".
+- **Reminders:** a slim "Playing as a guest" banner and a "Register to save
+  this score" button on every results screen. No pop-ups.
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays) — done.
