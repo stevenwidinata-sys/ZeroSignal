@@ -243,6 +243,28 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 - **Reminders:** a slim "Playing as a guest" banner and a "Register to save
   this score" button on every results screen. No pop-ups.
 
+### Settings upgrade (agreed 2026-11-13: owner picked all 16 ideas)
+The settings dialog gets tabs: Display · Sound · Gameplay · Controls ·
+Account · Privacy. Built in this order, one branch each:
+1. **Account** (`feat/settings-account`): change password; change email
+   (needs password); change username (free, once every 30 days); delete
+   account with a **7-day grace period** (locked and hidden at once, really
+   deleted after 7 days, logging in cancels). Guests see "Register to use".
+2. **Saving and privacy** (`feat/settings-sync`): settings saved to the
+   account and synced across devices (account wins on login; guests stay
+   local); reset to defaults (exists); hide me on leaderboards (no weekly
+   prizes then); private profile (name only); switches for the daily-login
+   pop-up, level-up pop-up and reward toasts; a separate UI-click volume.
+3. **Display and shortcuts** (`feat/settings-display`): high contrast,
+   readable font (replaces the pixel font), FPS counter, fullscreen switch,
+   shortcut keys (M mute, F fullscreen, Esc pause/close), a list of every
+   game's keys.
+4. **Rebind keys** (`feat/settings-keys`): 2048, Whack-a-Mole, Minefield,
+   Connect Four, Tic-Tac-Toe; conflict warning; reset keys.
+5. **Language** (`feat/i18n`): English / Bahasa Indonesia for the whole
+   site, games and server errors. New visitors get their browser's
+   language. Claude translates; the owner reviews the Indonesian.
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays) — done.
