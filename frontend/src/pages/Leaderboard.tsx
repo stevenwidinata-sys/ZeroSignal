@@ -67,6 +67,8 @@ export default function Leaderboard() {
   const { meta } = game;
   const live = meta.status === "live";
   const showBird = mine?.scores.some((s) => s.bird_variant) ?? false;
+  const detail = meta.detailLabel;
+  const cols = detail ? 4 : 3;
 
   return (
     <div className="board-page">
@@ -161,12 +163,13 @@ export default function Leaderboard() {
               <th scope="col">Rank</th>
               <th scope="col">Player</th>
               <th scope="col">{meta.scoreLabel}</th>
+              {detail && <th scope="col">{detail}</th>}
             </tr>
           </thead>
           <tbody>
             {entries === null && (
               <tr>
-                <td colSpan={3} className="empty">
+                <td colSpan={cols} className="empty">
                   Loading…
                 </td>
               </tr>
@@ -190,11 +193,12 @@ export default function Leaderboard() {
                   )}
                 </td>
                 <td className="num">{fmt(e.best_score)}</td>
+                {detail && <td className="num">{e.detail ? fmt(Number(e.detail)) : "–"}</td>}
               </tr>
             ))}
             {entries?.length === 0 && !error && (
               <tr>
-                <td colSpan={3} className="empty">
+                <td colSpan={cols} className="empty">
                   {live
                     ? "No scores yet. Be the first legend."
                     : `${meta.title} is coming soon. Its board opens on launch day.`}
@@ -213,6 +217,7 @@ export default function Leaderboard() {
               <thead>
                 <tr>
                   <th scope="col">Score</th>
+                  {detail && <th scope="col">{detail}</th>}
                   {showBird && <th scope="col">Bird</th>}
                   <th scope="col">{boards ? "Mode" : "Level"}</th>
                   <th scope="col">When</th>
@@ -222,6 +227,7 @@ export default function Leaderboard() {
                 {mine.scores.map((s, i) => (
                   <tr key={i}>
                     <td className="num">{fmt(s.score)}</td>
+                    {detail && <td className="num">{s.detail ? fmt(Number(s.detail)) : "–"}</td>}
                     {showBird && (
                       <td style={{ textTransform: "capitalize" }}>{s.bird_variant ?? "-"}</td>
                     )}
@@ -231,7 +237,7 @@ export default function Leaderboard() {
                 ))}
                 {mine.scores.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="empty">
+                    <td colSpan={5} className="empty">
                       No runs yet. Go play!
                     </td>
                   </tr>

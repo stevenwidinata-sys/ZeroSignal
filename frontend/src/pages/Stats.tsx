@@ -123,11 +123,13 @@ export default function Stats() {
   const ab = sumBoards(s.boards, "angry-bird");
   const wamBoards = s.boards.filter((b) => b.game_id === "whack-a-mole");
   const mfBoards = s.boards.filter((b) => b.game_id === "minefield");
+  const boards2048 = s.boards.filter((b) => b.game_id === "2048");
   const totalGames =
     s.series.reduce((n, r) => n + r.played, 0) +
     ab.rounds +
     s.whack.rounds +
-    s.minefield.reduce((n, r) => n + r.played, 0);
+    s.minefield.reduce((n, r) => n + r.played, 0) +
+    s.g2048.games;
 
   return (
     <div className="stats-page">
@@ -237,6 +239,49 @@ export default function Stats() {
                 {wamBoards.map((b) => (
                   <tr key={b.level}>
                     <th scope="row">{boardLabel("whack-a-mole", b.level)}</th>
+                    <td className="num">{b.rounds}</td>
+                    <td className="num">{fmt(b.best)}</td>
+                    <td className="num">{fmt(b.average)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </GameCard>
+
+        <GameCard id="2048" played={s.g2048.games > 0}>
+          <dl className="wam-stats">
+            <div>
+              <dt>Games</dt>
+              <dd>{fmt(s.g2048.games)}</dd>
+            </div>
+            <div>
+              <dt>Biggest tile</dt>
+              <dd>{s.g2048.best_tile ? fmt(s.g2048.best_tile) : "–"}</dd>
+            </div>
+            <div>
+              <dt>Reached 2048</dt>
+              <dd>{fmt(s.g2048.reached_2048)}</dd>
+            </div>
+            <div>
+              <dt>Total moves</dt>
+              <dd>{fmt(s.g2048.moves ?? 0)}</dd>
+            </div>
+          </dl>
+          <div className="board-table-wrap">
+            <table className="board-table stats-table">
+              <thead>
+                <tr>
+                  <th scope="col">Mode</th>
+                  <th scope="col">Games</th>
+                  <th scope="col">Best</th>
+                  <th scope="col">Average</th>
+                </tr>
+              </thead>
+              <tbody>
+                {boards2048.map((b) => (
+                  <tr key={b.level}>
+                    <th scope="row">{boardLabel("2048", b.level)}</th>
                     <td className="num">{b.rounds}</td>
                     <td className="num">{fmt(b.best)}</td>
                     <td className="num">{fmt(b.average)}</td>
