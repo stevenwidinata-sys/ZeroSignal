@@ -250,7 +250,7 @@ Account · Privacy. Built in this order, one branch each:
    (needs password); change username (free, once every 30 days); delete
    account with a **7-day grace period** (locked and hidden at once, really
    deleted after 7 days, logging in cancels). Guests see "Register to use".
-2. **Saving and privacy** (`feat/settings-sync`): settings saved to the
+2. **Saving and privacy** (`feat/settings-sync`, done): settings saved to the
    account and synced across devices (account wins on login; guests stay
    local); reset to defaults (exists); hide me on leaderboards (no weekly
    prizes then); private profile (name only); switches for the daily-login

@@ -25,9 +25,10 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Per-game leaderboards and personal history, with **All time / This week / Last week** views. Weeks run Monday 00:00 → Monday 00:00 WIB.
 - **Weekly prizes:** the top 3 last week on each board (Angry Bird, Connect Four, Tic-Tac-Toe, each Whack-a-Mole mode, each Minefield size; not the Daily boards) claim 150 coins + 1 token, 100 or 50 coins from a banner on the Hub or Leaderboards. Best-score games rank by the week's best score; Connect Four and Tic-Tac-Toe by points earned that week. Prize coins don't count toward the daily cap.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
-- Dark / light theme and a settings panel with tabs (Display · Sound · Gameplay · Account), saved in the browser:
+- Dark / light theme and a settings panel with tabs (Display · Sound · Gameplay · Privacy · Account). Registered players' settings (and theme) are **saved to the account** and follow them to every device (the account's copy wins on login); guests' stay in the browser. **Reset defaults** puts everything back.
   - **Display:** light graphics, colorblind-friendly, reduced motion (also follows your device setting), screen shake, text size S/M/L/XL.
-  - **Sound and music:** on/off and volume for each.
+  - **Sound and music:** on/off and volume for each, plus a separate **menu sounds** volume for button clicks.
+  - **Privacy:** **hide me on leaderboards** (you still earn everything, but get no weekly prizes) and **private profile** (your page shows only your name). **Pop-ups:** switch off the daily-login pop-up (claim from the 🎁 button on the Hub instead), the level-up pop-up and the reward toasts separately.
   - **Gameplay:** turn timer, **ask before leaving a round** (warns before closing the tab or opening another page mid-round in Whack-a-Mole, Angry Bird and Minefield), vibration on phones.
   - **Help:** reset tutorials so every "how to play" shows again.
   - **Account** (registered players): change username (free, once every 30 days), email and password (both need your current password), and **delete account**: you're signed out and hidden at once, and the account is deleted for good after 7 days unless you log in again before then.
@@ -339,6 +340,8 @@ zero_signal/
 | POST | `/api/auth/login` | returns JWT; with a guest token, the guest's results move in (`merged`) |
 | GET  | `/api/me` | your account (`is_guest`); guests also get a refreshed token; 401 while a deletion is pending |
 | GET  | `/api/me/account` | username, email, join date, next allowed rename (members) |
+| GET/PUT | `/api/me/settings` | your saved settings `{settings}` (a JSON object up to 8 KB) and privacy (members) |
+| PUT  | `/api/me/privacy` | `{hide_on_leaderboards?, private_profile?}` (members) |
 | PUT  | `/api/me/password` | `{current_password, new_password}` (members) |
 | PUT  | `/api/me/email` | `{current_password, email}` (members) |
 | PUT  | `/api/me/username` | `{username}`; once per 30 days; returns a new token (members) |
