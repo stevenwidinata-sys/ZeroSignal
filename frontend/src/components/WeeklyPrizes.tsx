@@ -24,7 +24,7 @@ export default function WeeklyPrizes() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || user.is_guest) {
       setPrizes([]);
       return;
     }

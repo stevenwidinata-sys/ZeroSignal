@@ -7,6 +7,7 @@ export default function Login() {
   const location = useLocation();
   const login = useAuth((s) => s.login);
   const loading = useAuth((s) => s.loading);
+  const guest = useAuth((s) => s.user?.is_guest ?? false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +33,11 @@ export default function Login() {
       <form className="auth-card" onSubmit={onSubmit}>
         <p className="eyebrow">▶ PLAYER 1</p>
         <h2>Welcome back</h2>
-        <p className="auth-sub">Log in to save scores and climb the board.</p>
+        <p className="auth-sub">
+          {guest
+            ? "Your guest scores, games, coins and XP will be added to this account (coins count toward today's 1,000-coin limit)."
+            : "Log in to save scores and climb the board."}
+        </p>
         <label>
           Username
           <input

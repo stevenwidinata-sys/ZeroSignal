@@ -3,6 +3,7 @@ import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-route
 import { SettingsButton, ThemeToggle } from "./components/QuickControls";
 import AvatarChip from "./components/AvatarChip";
 import DailyLoginDialog from "./components/DailyLoginDialog";
+import { AuthNotice, GuestBanner, GuestGate } from "./components/Guest";
 import MusicPlayer from "./components/MusicPlayer";
 import RewardToast from "./components/RewardToast";
 import SettingsDialog from "./components/SettingsDialog";
@@ -19,7 +20,7 @@ import Quests from "./pages/Quests";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import Stats from "./pages/Stats";
-import { useAuth } from "./store/auth";
+import { isMember, useAuth } from "./store/auth";
 import { useAchievements } from "./store/achievements";
 import { useCharacter } from "./store/character";
 import { useDailyLogin } from "./store/dailyLogin";
@@ -35,6 +36,13 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   if (!initialized) return <div className="loading">Loading</div>;
   if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
   return children;
+}
+
+/** Account-only pages: guests see why and how to register instead. */
+function RequireMember({ feature, children }: { feature: string; children: JSX.Element }) {
+  const user = useAuth((s) => s.user);
+  if (user?.is_guest) return <GuestGate feature={feature} />;
+  return <RequireAuth>{children}</RequireAuth>;
 }
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -60,6 +68,7 @@ export default function App() {
   const clearAchievements = useAchievements((s) => s.clear);
   const achievementsReady = useAchievements((s) => s.view?.ready ?? 0);
   const { pathname } = useLocation();
+  const member = isMember(user);
   useLeaveGuardListeners();
 
   useEffect(() => {
@@ -70,7 +79,9 @@ export default function App() {
   useEffect(() => {
     if (user) {
       void refreshWallet();
-      void loadDaily();
+      // The login reward is for accounts only.
+      if (!user.is_guest) void loadDaily();
+      else clearDaily();
     } else {
       clearWallet();
       clearCharacter();
@@ -83,11 +94,11 @@ export default function App() {
 
   // Every server payout refreshes the wallet; quests and achievements may have moved too.
   useEffect(() => {
-    if (user && wallet) {
+    if (member && wallet) {
       void loadQuests();
       void loadAchievements();
     }
-  }, [user, wallet, loadQuests, loadAchievements]);
+  }, [member, wallet, loadQuests, loadAchievements]);
 
   // Scroll to top on page change.
   useEffect(() => {
@@ -115,7 +126,7 @@ export default function App() {
           <NavLink to="/leaderboard" className={navClass}>
             Leaderboards
           </NavLink>
-          {user && (
+          {member && (
             <NavLink to="/shop" className={navClass}>
               Shop
             </NavLink>
@@ -125,7 +136,7 @@ export default function App() {
               Stats
             </NavLink>
           )}
-          {user && (
+          {member && (
             <NavLink to="/quests" className={navClass}>
               Quests
               {questsReady > 0 && (
@@ -135,7 +146,7 @@ export default function App() {
               )}
             </NavLink>
           )}
-          {user && (
+          {member && (
             <NavLink to="/achievements" className={navClass}>
               Achievements
               {achievementsReady > 0 && (
@@ -145,7 +156,20 @@ export default function App() {
               )}
             </NavLink>
           )}
-          {user ? (
+          {user?.is_guest ? (
+            <>
+              <WalletChip />
+              <span className="user-chip guest-chip" title="Playing as a guest">
+                👤 Guest
+              </span>
+              <NavLink to="/register" className="btn btn-green btn-sm">
+                Register
+              </NavLink>
+              <NavLink to="/login" className={navClass}>
+                Log in
+              </NavLink>
+            </>
+          ) : user ? (
             <>
               <WalletChip />
               <AvatarChip username={user.username} />
@@ -164,15 +188,13 @@ export default function App() {
       </header>
 
       <main id="main">
+        <AuthNotice />
+        <GuestBanner />
         <Routes>
           <Route path="/" element={<Hub />} />
           <Route
             path="/play/:gameId"
-            element={
-              <RequireAuth>
-                <PlayGame />
-              </RequireAuth>
-            }
+            element={<PlayGame />}
           />
           <Route path="/leaderboard" element={<Navigate to="/leaderboard/angry-bird" replace />} />
           <Route path="/leaderboard/:gameId" element={<Leaderboard />} />
@@ -180,9 +202,9 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <RequireAuth>
+              <RequireMember feature="Your character">
                 <Profile />
-              </RequireAuth>
+              </RequireMember>
             }
           />
           <Route
@@ -196,25 +218,25 @@ export default function App() {
           <Route
             path="/shop"
             element={
-              <RequireAuth>
+              <RequireMember feature="The shop">
                 <Shop />
-              </RequireAuth>
+              </RequireMember>
             }
           />
           <Route
             path="/quests"
             element={
-              <RequireAuth>
+              <RequireMember feature="Daily quests">
                 <Quests />
-              </RequireAuth>
+              </RequireMember>
             }
           />
           <Route
             path="/achievements"
             element={
-              <RequireAuth>
+              <RequireMember feature="Achievements">
                 <Achievements />
-              </RequireAuth>
+              </RequireMember>
             }
           />
           <Route path="/login" element={<Login />} />

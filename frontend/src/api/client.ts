@@ -123,8 +123,13 @@ export const api = {
       body: JSON.stringify({ username, password }),
     });
   },
+  /** Your account; guests also get a refreshed token. */
   me() {
-    return request<User>("/api/me");
+    return request<User & { token?: string }>("/api/me");
+  },
+  /** Start a guest session (play now, register later). */
+  guest() {
+    return request<AuthResponse>("/api/auth/guest", { method: "POST" });
   },
   wallet() {
     return request<Wallet>("/api/me/wallet");

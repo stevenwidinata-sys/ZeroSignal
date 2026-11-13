@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../store/auth";
 import { usePhoto } from "../../store/photo";
 
 const VIEW = 220; // crop preview size (px)
@@ -15,6 +17,7 @@ interface Props {
  * original full-size picture never leaves your device.
  */
 export default function PhotoCapture({ open, onClose }: Props) {
+  const isGuest = useAuth((st) => st.user?.is_guest ?? false);
   const dialog = useRef<HTMLDialogElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const img = useRef<HTMLImageElement>(null);
@@ -157,6 +160,31 @@ export default function PhotoCapture({ open, onClose }: Props) {
     } finally {
       setBusy(false);
     }
+  }
+
+  // Photos are personal data: only real accounts can store one.
+  if (isGuest) {
+    return (
+      <dialog ref={dialog} className="settings-dialog photo-dialog" aria-labelledby="photo-title" onClose={onClose}>
+        <div className="settings-body">
+          <div className="settings-head">
+            <h2 id="photo-title">📷 My photo face</h2>
+            <button className="icon-btn" onClick={onClose} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <p>A photo face needs an account, because your photo is stored privately on the server. Register (free) to add one.</p>
+          <div className="game-controls">
+            <Link to="/register" className="btn btn-green btn-sm">
+              Register
+            </Link>
+            <Link to="/login" className="btn btn-ghost btn-sm">
+              Log in
+            </Link>
+          </div>
+        </div>
+      </dialog>
+    );
   }
 
   return (

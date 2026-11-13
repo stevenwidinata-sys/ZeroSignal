@@ -6,6 +6,7 @@ export default function Register() {
   const navigate = useNavigate();
   const register = useAuth((s) => s.register);
   const loading = useAuth((s) => s.loading);
+  const guest = useAuth((s) => s.user?.is_guest ?? false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,8 +27,12 @@ export default function Register() {
     <div className="auth-page">
       <form className="auth-card" onSubmit={onSubmit}>
         <p className="eyebrow">▶ NEW PLAYER</p>
-        <h2>Join the arcade</h2>
-        <p className="auth-sub">One account, every game, every leaderboard.</p>
+        <h2>{guest ? "Save your progress" : "Join the arcade"}</h2>
+        <p className="auth-sub">
+          {guest
+            ? "Everything you played as a guest (scores, coins, XP, items) moves into your new account."
+            : "One account, every game, every leaderboard."}
+        </p>
         <label>
           Username
           <input

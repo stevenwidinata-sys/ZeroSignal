@@ -3775,3 +3775,43 @@ html[data-text="xl"] { font-size: 20px; }
   top: auto;
   font-size: calc(72px * var(--fs));
 }
+
+/* ---------- Guest play ---------- */
+.guest-banner,
+.guest-notice,
+.save-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 8px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+}
+.guest-banner {
+  margin: 0 0 14px;
+  background: var(--surface-2);
+}
+.guest-notice {
+  margin: 0 0 14px;
+  background: var(--green);
+  color: var(--on-green);
+}
+.save-score {
+  background: var(--yellow);
+  color: var(--on-yellow);
+}
+.guest-banner-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.guest-gate p {
+  max-width: 52ch;
+  margin-inline: auto;
+}
+.guest-chip {
+  font-weight: 700;
+}

@@ -2,11 +2,26 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  /** A guest plays without an account; registering keeps their progress. */
+  is_guest: boolean;
+}
+
+/** What moved from a guest session into the account you logged in to. */
+export interface MergeSummary {
+  scores: number;
+  games: number;
+  items: number;
+  coins: number;
+  coins_capped: number;
+  tokens: number;
+  xp: number;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
+  merged?: MergeSummary;
+  kept_guest_progress: boolean;
 }
 
 export type Ability =

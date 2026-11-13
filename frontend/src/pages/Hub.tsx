@@ -8,7 +8,7 @@ import WeeklyPrizes from "../components/WeeklyPrizes";
 import { recentGames } from "../platform/recent";
 import { GAMES, LIVE_GAMES, findGame } from "../platform/registry";
 import type { GameModule } from "../platform/types";
-import { useAuth } from "../store/auth";
+import { isMember, useAuth } from "../store/auth";
 import { useCharacter } from "../store/character";
 import { useWallet } from "../store/wallet";
 import { sumBoards } from "./statsLogic";
@@ -183,7 +183,7 @@ export default function Hub() {
 
   return (
     <div className="hub">
-      {user ? (
+      {isMember(user) ? (
         <WelcomeStrip continueId={recent[0]} />
       ) : (
         <section className="hero hero-compact">
@@ -193,17 +193,17 @@ export default function Hub() {
           </h1>
           <p className="hero-sub">
             {LIVE_GAMES.length} arcade games with real leaderboards. Every score is checked by the server, so the top spot actually
-            means something.
+            means something. Jump in now: no account needed until you want to save your scores.
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="btn btn-green">
-              Create account
+            <Link to={`/play/${quickPlay}`} className="btn btn-green">
+              ▶ {user ? "Keep playing" : "Play now"}
+            </Link>
+            <Link to="/register" className="btn btn-ghost">
+              {user ? "Register to save" : "Create account"}
             </Link>
             <Link to="/login" className="btn btn-ghost">
               Log in
-            </Link>
-            <Link to={`/play/${quickPlay}`} className="btn btn-ghost">
-              ▶ Quick play
             </Link>
           </div>
         </section>
@@ -219,11 +219,19 @@ export default function Hub() {
               <h2 id="quests-heading" className="section-title">
                 📜 Today's quests
               </h2>
-              <Link to="/quests" className="btn btn-ghost btn-sm">
-                All quests →
-              </Link>
+              {isMember(user) && (
+                <Link to="/quests" className="btn btn-ghost btn-sm">
+                  All quests →
+                </Link>
+              )}
             </div>
-            <QuestList />
+            {isMember(user) ? (
+              <QuestList />
+            ) : (
+              <p className="stats-empty">
+                Your quest progress is counting. <Link to="/register">Register</Link> to claim the rewards.
+              </p>
+            )}
           </section>
         </div>
       )}
