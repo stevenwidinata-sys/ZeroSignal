@@ -10,6 +10,7 @@ mod daily_login;
 mod db;
 mod economy;
 mod error;
+mod game_2048;
 mod games;
 mod minefield;
 mod physics;
