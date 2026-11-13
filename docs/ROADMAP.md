@@ -255,7 +255,7 @@ Account · Privacy. Built in this order, one branch each:
    local); reset to defaults (exists); hide me on leaderboards (no weekly
    prizes then); private profile (name only); switches for the daily-login
    pop-up, level-up pop-up and reward toasts; a separate UI-click volume.
-3. **Display and shortcuts** (`feat/settings-display`): high contrast,
+3. **Display and shortcuts** (`feat/settings-display`, done): high contrast,
    readable font (replaces the pixel font), FPS counter, fullscreen switch,
    shortcut keys (M mute, F fullscreen, Esc pause/close), a list of every
    game's keys.
