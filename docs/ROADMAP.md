@@ -246,7 +246,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 ### Settings upgrade (agreed 2026-11-13: owner picked all 16 ideas)
 The settings dialog gets tabs: Display · Sound · Gameplay · Controls ·
 Account · Privacy. Built in this order, one branch each:
-1. **Account** (`feat/settings-account`): change password; change email
+1. **Account** (`feat/settings-account`, done): change password; change email
    (needs password); change username (free, once every 30 days); delete
    account with a **7-day grace period** (locked and hidden at once, really
    deleted after 7 days, logging in cancels). Guests see "Register to use".

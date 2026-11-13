@@ -25,11 +25,12 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - Per-game leaderboards and personal history, with **All time / This week / Last week** views. Weeks run Monday 00:00 → Monday 00:00 WIB.
 - **Weekly prizes:** the top 3 last week on each board (Angry Bird, Connect Four, Tic-Tac-Toe, each Whack-a-Mole mode, each Minefield size; not the Daily boards) claim 150 coins + 1 token, 100 or 50 coins from a banner on the Hub or Leaderboards. Best-score games rank by the week's best score; Connect Four and Tic-Tac-Toe by points earned that week. Prize coins don't count toward the daily cap.
 - Anti-cheat by design: clients send only player *inputs*; the server computes every score.
-- Dark / light theme and a settings panel, saved in the browser:
+- Dark / light theme and a settings panel with tabs (Display · Sound · Gameplay · Account), saved in the browser:
   - **Display:** light graphics, colorblind-friendly, reduced motion (also follows your device setting), screen shake, text size S/M/L/XL.
   - **Sound and music:** on/off and volume for each.
   - **Gameplay:** turn timer, **ask before leaving a round** (warns before closing the tab or opening another page mid-round in Whack-a-Mole, Angry Bird and Minefield), vibration on phones.
   - **Help:** reset tutorials so every "how to play" shows again.
+  - **Account** (registered players): change username (free, once every 30 days), email and password (both need your current password), and **delete account**: you're signed out and hidden at once, and the account is deleted for good after 7 days unless you log in again before then.
 - **Stats page** (`/stats`): your level, coins earned and spent, tokens, login streak, quests and achievements, plus a card per game: AI series win rates per level, best and average scores per mode or size, Minefield best times, Whack-a-Mole best combo and FEVER rounds, 2048 biggest tile and games that reached 2048. Only server-verified results count.
 - **Colorblind-friendly** switch (Settings → Display): pieces switch to the Okabe-Ito palette, which people with common color vision deficiencies can tell apart, and get shapes so no game relies on color alone. In Connect Four, player 1's chips carry a circle and player 2's a cross. In Tic-Tac-Toe, X and O get safe colors and other faces get an X or O badge. Winning lines also get a dashed outline.
 - **Tutorials:** each live game shows a short 4-step "how to play" the first time you open it. The **?** button (bottom-left) shows it again. Seen tutorials are remembered in the browser.
@@ -336,7 +337,12 @@ zero_signal/
 | POST | `/api/auth/guest` | start a guest session; returns a guest JWT (20 per hour per IP) |
 | POST | `/api/auth/register` | create account; with a guest token, the guest becomes the account (`kept_guest_progress`) |
 | POST | `/api/auth/login` | returns JWT; with a guest token, the guest's results move in (`merged`) |
-| GET  | `/api/me` | your account (`is_guest`); guests also get a refreshed token |
+| GET  | `/api/me` | your account (`is_guest`); guests also get a refreshed token; 401 while a deletion is pending |
+| GET  | `/api/me/account` | username, email, join date, next allowed rename (members) |
+| PUT  | `/api/me/password` | `{current_password, new_password}` (members) |
+| PUT  | `/api/me/email` | `{current_password, email}` (members) |
+| PUT  | `/api/me/username` | `{username}`; once per 30 days; returns a new token (members) |
+| POST | `/api/me/delete` | `{current_password, confirm_username}`; deleted after 7 days, logging in cancels (members) |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
 | GET  | `/api/me/stats` | your records in every game, for the Stats page (auth) |
 | GET  | `/api/me/weekly-prizes` | your top-3 places last week and whether they're claimed (auth) |
