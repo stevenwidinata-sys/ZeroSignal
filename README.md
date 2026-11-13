@@ -15,6 +15,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
 | Whack-a-Mole | Live        | 4 modes, 6 kinds of moles, combos and FEVER; the server replays every tap |
 | Minefield    | Live        | No-guess boards in 3 sizes + a Daily; the server keeps the mines |
+| 2048         | Live        | Classic 4×4, Big 5×5, Tiny 3×3 + a Daily; saved as you play; the server replays every move |
 
 ## Features
 
@@ -28,7 +29,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
   - **Sound and music:** on/off and volume for each.
   - **Gameplay:** turn timer, **ask before leaving a round** (warns before closing the tab or opening another page mid-round in Whack-a-Mole, Angry Bird and Minefield), vibration on phones.
   - **Help:** reset tutorials so every "how to play" shows again.
-- **Stats page** (`/stats`): your level, coins earned and spent, tokens, login streak, quests and achievements, plus a card per game: AI series win rates per level, best and average scores per mode or size, Minefield best times, Whack-a-Mole best combo and FEVER rounds. Only server-verified results count.
+- **Stats page** (`/stats`): your level, coins earned and spent, tokens, login streak, quests and achievements, plus a card per game: AI series win rates per level, best and average scores per mode or size, Minefield best times, Whack-a-Mole best combo and FEVER rounds, 2048 biggest tile and games that reached 2048. Only server-verified results count.
 - **Colorblind-friendly** switch (Settings → Display): pieces switch to the Okabe-Ito palette, which people with common color vision deficiencies can tell apart, and get shapes so no game relies on color alone. In Connect Four, player 1's chips carry a circle and player 2's a cross. In Tic-Tac-Toe, X and O get safe colors and other faces get an X or O badge. Winning lines also get a dashed outline.
 - **Tutorials:** each live game shows a short 4-step "how to play" the first time you open it. The **?** button (bottom-left) shows it again. Seen tutorials are remembered in the browser.
 - Background music: 3 chiptune tracks made in code with Web Audio (no music files). "Insert Coin" plays on the hub and menus, "Quiet Board" in Connect Four and Tic-Tac-Toe, and "Slingshot Rush" in Angry Bird. Music has its own on/off switch and volume (default on at 40%). It starts after your first click or key press, because browsers block autoplay, and it pauses while the tab is hidden.
@@ -83,6 +84,17 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - **Results:** time, 3BV (fewest clicks that clear the board), 3BV/s, click efficiency, hints. A loss shows every mine and crosses out wrong flags.
 - **Rewards:** win Beginner 5 / Intermediate 20 / Expert 60 / Daily 25 coins; XP 20 × (1 / 2 / 4 / 2); token 2% / 8% / 25% / 10%. A loss gives 5 XP.
 
+## 2048
+
+- **Play:** arrow keys, WASD or swipe slide every tile. Two equal tiles that touch merge into one (each tile merges once per move), and a new 2 (90%) or 4 (10%) drops on an empty cell. The game ends when no move changes the board; you can keep going past 2048.
+- **Modes:** Classic 4×4, **Big** 5×5 (points ×0.8), **Tiny** 3×3 (points ×2), and the **Daily** (Classic rules, the same tile drops for everyone that WIB day, one ranked try, no undo). One leaderboard per mode plus Today's Daily; each shows the player's biggest tile.
+- **Score:** every merge adds the new tile's value, times the mode's multiplier.
+- **Undo:** up to 3 per game (press Z), going back up to 3 moves. Undo games still rank, but don't count for the Pure Skill achievement.
+- **Saved as you play:** moves go to the server every 10 moves and when you leave the tab. One unfinished game per player, kept for 24 hours after your last move; continue it on any device, or end it early and get it scored.
+- **Anti-cheat:** the server picks the seed, and the browser and server drop tiles with the same random number generator (shared test vectors keep the Rust and TypeScript copies identical). The client sends only the move string (`U D L R`, `Z` = undo); the server replays it to get the score and the biggest tile. Saves must extend the saved moves, a move that changes nothing is rejected, and at most 25 moves per second are accepted.
+- **Rewards:** same as Angry Bird for the points (1 coin per 1,000, 10–100 XP, token 3% → 15%), plus **+30 coins for a 2048 tile** and **+80 more and a 50% token chance for 4096**. Games shorter than 20 moves pay nothing and don't count for quests.
+- Slide and merge animations (off with Light graphics), merge sounds, colorblind tile colors (numbers are always shown), and a results screen with points, biggest tile, moves, undos and time.
+
 ## Coins, tokens and levels
 
 Only the server pays rewards, and only for results it verified itself, inside the same database transaction that records the result. Local 2-player games pay nothing.
@@ -91,6 +103,7 @@ Only the server pays rewards, and only for results it verified itself, inside th
 |------|-------|----|------------|
 | Angry Bird, Whack-a-Mole | 1 per 1,000 points | 10 + up to 90 for big scores | 3% → 15% (bigger score, better chance) |
 | Minefield win | Beginner 5 / Intermediate 20 / Expert 60 / Daily 25 | 20 × (1 / 2 / 4 / 2); loss 5 | 2% / 8% / 25% / 10% |
+| 2048 (20+ moves) | 1 per 1,000 points; +30 for a 2048 tile, +80 more for 4096 | 10 + up to 90 for big scores | 3% → 15%; +50% for 4096 |
 | Connect Four, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–4) | none |
 | Connect Four, series win | Easy 10 / Medium 25 / Hard 50 / Impossible 120 (×2 for best of 5) | bonus 25 × difficulty | 10% / 20% / 35% / 60% |
 | Tic-Tac-Toe, each AI game | none | win 20 / draw 10 / loss 5, × difficulty (1–3) | none |
@@ -110,7 +123,7 @@ A pop-up offers the reward when you open the site. Claim once per day (days star
 
 ### Daily quests
 
-Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on the **Quests** page (`/quests`). The nav shows a badge when one is ready to claim. Only results the server verified count: AI games, Angry Bird rounds and mystery boxes. Local 2-player games don't count.
+Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on the **Quests** page (`/quests`). The nav shows a badge when one is ready to claim. Only results the server verified count: AI games, Angry Bird, Whack-a-Mole, Minefield and 2048 results, and mystery boxes. Local 2-player games don't count.
 
 - Press **Claim** on a finished quest to get its coins + XP. Claiming all 3 pays a bonus **1 token**.
 - **Reroll:** once per day, swap one unfinished quest for a new random one.
@@ -136,10 +149,13 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 | Clear 2 Minefield boards | 20 | 30 |
 | Clear an Intermediate or harder Minefield board | 40 | 60 |
 | Clear a Minefield board without hints | 30 | 40 |
+| Play 3 games of 2048 | 20 | 30 |
+| Make a 512 tile in 2048 | 40 | 60 |
+| Score 10,000 in one game of 2048 | 40 | 60 |
 
 ## Achievements
 
-The `/achievements` page lists 34 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+The `/achievements` page lists 38 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
 
 | Achievement | Coins | Title |
 |-------------|-------|-------|
@@ -166,6 +182,10 @@ The `/achievements` page lists 34 one-time achievements with progress bars; lock
 | Clear an Expert Minefield board | 150 | Expert Sweeper |
 | Clear a Beginner Minefield board in under 20 seconds | 80 | Speed Sweeper |
 | Clear 5 Daily Minefield boards | 100 | Daily Devotee |
+| Finish your first game of 2048 | 20 | First Slide |
+| Make a 2048 tile | 150 | 2048! |
+| Make a 4096 tile | 300 | Tile Tycoon |
+| Make a 2048 tile without using undo | 200 | Pure Skill |
 | Reach level 5 / 10 / 25 | 50 / 150 / 400 | Rising Star / Veteran / Living Legend |
 | Spin the token wheel | 30 | Wheel Spinner |
 | Open 10 mystery boxes | 100 | Box Hunter |
@@ -191,7 +211,7 @@ Titles show in the wardrobe, on public profiles and next to names on leaderboard
 
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **192 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **196 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|
@@ -293,11 +313,12 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
-│       ├── achievements.rs     # 34 achievements, live progress, claim + titles
+│       ├── achievements.rs     # 38 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── whack_a_mole/       # seeded mole schedule, tap replay scorer, runs API
 │       ├── minefield/          # no-guess board generator + solver, games API
+│       ├── game_2048/          # board, seeded tile drops, undo, move replay scorer, runs API
 │       ├── connect_four/       # rules (bitboard), AI, skins/spins, match API
 │       └── physics/            # rapier2d authoritative simulation
 └── frontend/                   # React + TS
@@ -322,7 +343,7 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
-| GET  | `/api/me/achievements` | all 34 achievements with live progress (auth) |
+| GET  | `/api/me/achievements` | all 38 achievements with live progress (auth) |
 | POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
@@ -339,7 +360,7 @@ zero_signal/
 | POST | `/api/games/tic-tac-toe/spins` | spend a reward spin (auth) |
 | GET/PUT/DELETE | `/api/me/photo` | your private photo face (raw image body) (auth) |
 | GET  | `/api/games` | catalog |
-| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?period=` `all`, `today`, `week` or `last_week`; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily), `period=today` keeps today only |
+| GET  | `/api/games/:id/leaderboard` | top 20 for that game; `?period=` `all`, `today`, `week` or `last_week`; `?level=` picks one board (Whack-a-Mole: 1 Classic, 2 Frenzy, 3 Survival, 4 Daily; Minefield: 1 Beginner, 2 Intermediate, 3 Expert, 4 Daily; 2048: 1 Classic, 2 Big, 3 Tiny, 4 Daily), `period=today` keeps today only; entries may carry a `detail` (2048: biggest tile) |
 | GET  | `/api/games/:id/scores/me` | your history (auth) |
 | POST | `/api/games/angry-bird/scores` | shot inputs only; server computes score (auth) |
 | GET  | `/api/games/angry-bird/birds` | bird catalog + unlocks |
@@ -352,6 +373,10 @@ zero_signal/
 | POST | `/api/games/minefield/games/:id/reveal` | `{cell}`; the first one builds the board (auth) |
 | POST | `/api/games/minefield/games/:id/chord` | `{cell, flags}` open around a number (auth) |
 | POST | `/api/games/minefield/games/:id/{hint,forfeit}` | open a safe cell (+20 s) / give up (auth) |
+| POST | `/api/games/2048/runs` | `{mode}` start a game; returns `run_id`, `seed`, `size`, `undos` (Daily: continues today's if open) (auth) |
+| GET  | `/api/games/2048/runs/active` | your unfinished game with its saved moves, or null (auth) |
+| POST | `/api/games/2048/runs/:id/save` | `{moves}` save progress; must extend the saved moves (auth) |
+| POST | `/api/games/2048/runs/:id/finish` | `{moves}`; server replays and scores, pays rewards (auth) |
 | POST | `/api/games/connect-four/matches` | start an AI series `{difficulty, best_of, skin}` (auth) |
 | GET  | `/api/games/connect-four/matches/active` | resume your unfinished series (auth) |
 | POST | `/api/games/connect-four/matches/:id/move` | `{column}`; server replies with the AI move (auth) |

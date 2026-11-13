@@ -68,7 +68,7 @@ Branches, each merged into `main` after tests pass:
 
 ## Phase 3: Whack-a-Mole + settings (agreed 2026-11-11, in progress)
 
-Status: `feat/whack-a-mole` (v1), `feat/minefield`, `feat/settings-plus`, `feat/stats` and `feat/whack-a-mole-extras` done and merged.
+Status: `feat/whack-a-mole` (v1), `feat/minefield`, `feat/settings-plus`, `feat/stats`, `feat/whack-a-mole-extras` and `feat/2048` done and merged.
 
 Owner said "go with your picks" for the 10 ideas. Branch order:
 `feat/whack-a-mole` → `feat/settings-plus` → `feat/whack-a-mole-extras`.
@@ -185,7 +185,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 - Game grid fits all games on one row on desktop; cards show your best
   score (or points) and a NEW badge on the newest games.
 
-### 2048 (`feat/2048`; agreed 2026-11-13: "go with your picks")
+### 2048 (`feat/2048`, done; agreed 2026-11-13: "go with your picks")
 - **Play:** arrows / WASD / swipe slide every tile; equal tiles merge and a
   2 (90%) or 4 (10%) appears after each move. The game ends when no move
   changes the board. You can keep going past 2048.
