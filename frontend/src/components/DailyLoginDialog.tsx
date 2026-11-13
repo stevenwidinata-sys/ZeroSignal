@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import { shouldPrompt, useDailyLogin } from "../store/dailyLogin";
+import { useSettings } from "../store/settings";
 
 /** Pop-up with the 7-day login streak and a Claim button. */
 export default function DailyLoginDialog() {
   const ref = useRef<HTMLDialogElement>(null);
-  const { status, dismissed, claiming, error, claim, dismiss } = useDailyLogin();
-  const open = shouldPrompt(status, dismissed);
+  const { status, dismissed, requested, claiming, error, claim, dismiss } = useDailyLogin();
+  const enabled = useSettings((s) => s.dailyLoginPopup);
+  const open = shouldPrompt(status, dismissed, enabled, requested);
 
   useEffect(() => {
     const d = ref.current;

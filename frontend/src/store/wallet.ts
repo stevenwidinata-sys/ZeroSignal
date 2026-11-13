@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { api } from "../api/client";
 import type { Granted, Wallet } from "../api/types";
 import { playSfx } from "../platform/sound";
+import { useSettings } from "./settings";
 
 interface WalletState {
   wallet: Wallet | null;
@@ -12,6 +13,21 @@ interface WalletState {
   celebrate: (g: Granted | null | undefined) => void;
   dismiss: () => void;
   clear: () => void;
+}
+
+/**
+ * What the reward pop-up should show, given the pop-up settings: level-ups
+ * follow "level-up pop-up", everything else "reward toasts". Null = nothing.
+ */
+export function toastFor(
+  g: Granted,
+  s: { levelUpPopup: boolean; rewardToasts: boolean },
+): Granted | null {
+  const leveled = g.level_after > g.level_before;
+  if (leveled && s.levelUpPopup) return g;
+  if (!s.rewardToasts) return null;
+  // Level-up pop-up off: show it as a plain reward toast.
+  return leveled ? { ...g, level_after: g.level_before } : g;
 }
 
 /** True when a grant paid or withheld anything worth showing. */
@@ -33,9 +49,11 @@ export const useWallet = create<WalletState>((set, get) => ({
 
   celebrate(g) {
     if (!isWorthShowing(g)) return;
-    set({ toast: g });
-    window.setTimeout(() => playSfx(g.level_after > g.level_before ? "reward" : "click"), 250);
     void get().refresh();
+    const shown = toastFor(g, useSettings.getState());
+    if (!shown) return;
+    set({ toast: shown });
+    window.setTimeout(() => playSfx(shown.level_after > shown.level_before ? "reward" : "click"), 250);
   },
 
   dismiss() {

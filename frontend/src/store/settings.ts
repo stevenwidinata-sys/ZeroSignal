@@ -30,6 +30,12 @@ export interface Settings {
   confirmLeave: boolean;
   /** Short vibrations on phones (hits, flags). */
   vibration: boolean;
+  /** 0..1: menu clicks, separate from game sound effects. */
+  uiVolume: number;
+  /** Pop-ups: daily login reward, level-up celebration, reward toasts. */
+  dailyLoginPopup: boolean;
+  levelUpPopup: boolean;
+  rewardToasts: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -45,6 +51,10 @@ export const DEFAULT_SETTINGS: Settings = {
   textSize: "m",
   confirmLeave: true,
   vibration: true,
+  uiVolume: 0.5,
+  dailyLoginPopup: true,
+  levelUpPopup: true,
+  rewardToasts: true,
 };
 
 const KEY = "zerosignal_settings";
@@ -75,30 +85,21 @@ export function parseSettings(raw: string | null): Settings {
       textSize: TEXT_SIZES.includes(v.textSize as TextSize) ? (v.textSize as TextSize) : DEFAULT_SETTINGS.textSize,
       confirmLeave: bool(v.confirmLeave, DEFAULT_SETTINGS.confirmLeave),
       vibration: bool(v.vibration, DEFAULT_SETTINGS.vibration),
+      uiVolume: unit(v.uiVolume, DEFAULT_SETTINGS.uiVolume),
+      dailyLoginPopup: bool(v.dailyLoginPopup, DEFAULT_SETTINGS.dailyLoginPopup),
+      levelUpPopup: bool(v.levelUpPopup, DEFAULT_SETTINGS.levelUpPopup),
+      rewardToasts: bool(v.rewardToasts, DEFAULT_SETTINGS.rewardToasts),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
 }
 
-/** Only the saved fields, in a fixed order. */
-function pick(s: Settings): Settings {
-  const { sound, volume, music, musicVolume, lightGraphics, colorblind, turnTimer } = s;
-  const { screenShake, reducedMotion, textSize, confirmLeave, vibration } = s;
-  return {
-    sound,
-    volume,
-    music,
-    musicVolume,
-    lightGraphics,
-    colorblind,
-    turnTimer,
-    screenShake,
-    reducedMotion,
-    textSize,
-    confirmLeave,
-    vibration,
-  };
+/** Only the saved fields, in a fixed order (drops the store's functions). */
+export function pick(s: Settings): Settings {
+  const out = {} as Record<keyof Settings, unknown>;
+  for (const k of Object.keys(DEFAULT_SETTINGS) as (keyof Settings)[]) out[k] = s[k];
+  return out as unknown as Settings;
 }
 
 function load(): Settings {
@@ -122,6 +123,8 @@ function applyGraphics(s: Settings) {
 interface SettingsState extends Settings {
   update: (patch: Partial<Settings>) => void;
   reset: () => void;
+  /** Replace everything (settings loaded from your account). */
+  replace: (raw: unknown) => void;
 }
 
 export const useSettings = create<SettingsState>((set, get) => {
@@ -149,6 +152,11 @@ export const useSettings = create<SettingsState>((set, get) => {
     reset() {
       persist(DEFAULT_SETTINGS);
       set({ ...DEFAULT_SETTINGS });
+    },
+    replace(raw) {
+      const next = parseSettings(JSON.stringify(raw ?? {}));
+      persist(next);
+      set(next);
     },
   };
 });

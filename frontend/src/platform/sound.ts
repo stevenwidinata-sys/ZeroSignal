@@ -127,9 +127,18 @@ export function audio(): AudioContext | null {
   return ctx;
 }
 
+/** Menu sounds: they follow the UI volume instead of the game volume. */
+export const UI_SFX: ReadonlySet<Sfx> = new Set<Sfx>(["click"]);
+
+/** Volume for one effect (0 = silent). */
+export function sfxVolume(name: Sfx, s: { sound: boolean; volume: number; uiVolume: number }): number {
+  if (!s.sound) return 0;
+  return UI_SFX.has(name) ? s.uiVolume : s.volume;
+}
+
 export function playSfx(name: Sfx): void {
-  const { sound, volume } = useSettings.getState();
-  if (!sound || volume <= 0) return;
+  const volume = sfxVolume(name, useSettings.getState());
+  if (volume <= 0) return;
   const ac = audio();
   if (!ac) return;
 

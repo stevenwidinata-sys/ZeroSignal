@@ -9,6 +9,7 @@ import { recentGames } from "../platform/recent";
 import { GAMES, LIVE_GAMES, findGame } from "../platform/registry";
 import type { GameModule } from "../platform/types";
 import { isMember, useAuth } from "../store/auth";
+import { rewardWaiting, useDailyLogin } from "../store/dailyLogin";
 import { useCharacter } from "../store/character";
 import { useWallet } from "../store/wallet";
 import { sumBoards } from "./statsLogic";
@@ -76,6 +77,8 @@ function WelcomeStrip({ continueId }: { continueId: string | undefined }) {
     if (!loadout) void loadCharacter();
   }, [loadout, loadCharacter]);
   const next = continueId ? findGame(continueId) : undefined;
+  const dailyStatus = useDailyLogin((s) => s.status);
+  const openDaily = useDailyLogin((s) => s.open);
   const pct = wallet?.xp_for_next ? Math.min(100, (wallet.xp_into_level / wallet.xp_for_next) * 100) : 0;
 
   return (
@@ -113,6 +116,11 @@ function WelcomeStrip({ continueId }: { continueId: string | undefined }) {
           <a href="#games" className="btn btn-green">
             ▶ Pick a game
           </a>
+        )}
+        {rewardWaiting(dailyStatus) && (
+          <button className="btn-sm" onClick={openDaily}>
+            🎁 Daily reward
+          </button>
         )}
         <Link to="/stats" className="btn btn-ghost btn-sm">
           📊 Stats

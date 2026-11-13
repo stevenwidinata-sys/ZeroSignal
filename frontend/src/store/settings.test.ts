@@ -21,6 +21,10 @@ describe("parseSettings", () => {
       textSize: "xl",
       confirmLeave: false,
       vibration: false,
+      uiVolume: 0.25,
+      dailyLoginPopup: false,
+      levelUpPopup: false,
+      rewardToasts: false,
     };
     expect(parseSettings(JSON.stringify(stored))).toEqual(stored);
   });
