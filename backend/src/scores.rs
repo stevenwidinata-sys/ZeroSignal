@@ -141,6 +141,8 @@ pub struct LeaderboardEntry {
     pub rank: i64,
     pub username: String,
     pub best_score: i32,
+    /// Extra shown next to the score, from the best row (2048: biggest tile).
+    pub detail: Option<String>,
     /// The player's saved outfit (validated when it was saved), if any.
     pub avatar: Option<serde_json::Value>,
 }
@@ -208,6 +210,7 @@ pub async fn top(
         r#"SELECT ROW_NUMBER() OVER (ORDER BY {points} DESC, MIN(s.created_at) ASC) AS rank,
                   u.username AS username,
                   {points} AS best_score,
+                  (ARRAY_AGG(s.detail ORDER BY s.score DESC))[1] AS detail,
                   (SELECT a.loadout FROM avatars a WHERE a.user_id = u.id) AS avatar
            FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.game_id = $1
@@ -235,6 +238,7 @@ pub struct MyScore {
     pub score: i32,
     pub level: i32,
     pub bird_variant: Option<String>,
+    pub detail: Option<String>,
     pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
@@ -253,7 +257,7 @@ pub async fn my_scores(
     let game = games::require(&game_id)?;
     let best = fetch_best_score(&state, game.id, user.user_id).await?;
     let scores: Vec<MyScore> = sqlx::query_as(
-        r#"SELECT score, level, bird_variant, created_at
+        r#"SELECT score, level, bird_variant, detail, created_at
            FROM scores WHERE user_id = $1 AND game_id = $2
            ORDER BY created_at DESC LIMIT $3"#,
     )

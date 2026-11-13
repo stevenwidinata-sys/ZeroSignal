@@ -81,6 +81,14 @@ pub const GAMES: &[GameInfo] = &[
         // Beginner, Intermediate, Expert (not the Daily board).
         prize_boards: &[1, 2, 3],
     },
+    GameInfo {
+        id: "2048",
+        title: "2048",
+        status: GameStatus::Live,
+        ranking: Ranking::Best,
+        // Classic, Big, Tiny (not the Daily board).
+        prize_boards: &[1, 2, 3],
+    },
 ];
 
 pub fn find(id: &str) -> Option<&'static GameInfo> {
@@ -119,6 +127,7 @@ mod tests {
         assert!(require("tic-tac-toe").is_ok());
         assert!(require("whack-a-mole").is_ok());
         assert!(require("minefield").is_ok());
+        assert!(require("2048").is_ok());
         assert!(require("../etc").is_err());
         assert!(require("").is_err());
     }

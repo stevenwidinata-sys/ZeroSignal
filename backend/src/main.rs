@@ -129,6 +129,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/games/minefield/games/:id/chord", post(minefield::api::chord))
         .route("/api/games/minefield/games/:id/hint", post(minefield::api::hint))
         .route("/api/games/minefield/games/:id/forfeit", post(minefield::api::forfeit))
+        // 2048: seeded runs, saved as you play, scored by replaying the moves.
+        .route("/api/games/2048/runs", post(game_2048::api::start))
+        .route("/api/games/2048/runs/active", get(game_2048::api::active))
+        .route("/api/games/2048/runs/:id/save", post(game_2048::api::save))
+        .route("/api/games/2048/runs/:id/finish", post(game_2048::api::finish))
         .route("/api/games/connect-four/skins", get(cf::list_skins))
         .route("/api/games/connect-four/spins", post(cf::spin))
         // Legacy aliases (Angry Bird) for older clients.

@@ -30,6 +30,8 @@ pub enum Event {
     WhackRound { score: i64, golden_hits: i64 },
     /// `level`: 1 Beginner, 2 Intermediate/Daily, 3 Expert.
     MinefieldWin { level: i64, hints: i64 },
+    /// A finished 2048 game (20+ moves): leaderboard points, biggest tile.
+    Game2048 { points: i64, max_tile: i64 },
     MysteryBox,
 }
 
@@ -47,6 +49,9 @@ enum Goal {
     WhackSingleScore(i64),
     WhackGoldenHits,
     MinefieldWins { min_level: i64, no_hints: bool },
+    Games2048,
+    Tile2048(i64),
+    Score2048(i64),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -93,6 +98,9 @@ impl QuestDef {
             (Goal::MinefieldWins { min_level, no_hints }, MinefieldWin { level, hints }) => {
                 hit(level >= min_level && !(no_hints && hints > 0))
             }
+            (Goal::Games2048, Game2048 { .. }) => 1,
+            (Goal::Tile2048(min), Game2048 { max_tile, .. }) => hit(max_tile >= min),
+            (Goal::Score2048(min), Game2048 { points, .. }) => hit(points >= min),
             _ => 0,
         }
     }
@@ -104,7 +112,7 @@ const fn q(id: &'static str, title: &'static str, goal: Goal, target: i32, coins
 
 use Game::{ConnectFour as CF, TicTacToe as TTT};
 
-pub const POOL: [QuestDef; 18] = [
+pub const POOL: [QuestDef; 21] = [
     q("cf_play_3", "Play 3 Connect Four games vs the AI", Goal::PlayAi(CF), 3, 20, 30),
     q("cf_win_2_medium", "Win 2 Connect Four games vs Medium or harder",
         Goal::WinAi { game: Some(CF), min_level: 2 }, 2, 40, 60),
@@ -130,6 +138,9 @@ pub const POOL: [QuestDef; 18] = [
         Goal::MinefieldWins { min_level: 2, no_hints: false }, 1, 40, 60),
     q("mf_no_hints", "Clear a Minefield board without hints",
         Goal::MinefieldWins { min_level: 1, no_hints: true }, 1, 30, 40),
+    q("g2048_play_3", "Play 3 games of 2048", Goal::Games2048, 3, 20, 30),
+    q("g2048_tile_512", "Make a 512 tile in 2048", Goal::Tile2048(512), 1, 40, 60),
+    q("g2048_score_10000", "Score 10,000 in one game of 2048", Goal::Score2048(10_000), 1, 40, 60),
 ];
 
 pub fn find(id: &str) -> Option<&'static QuestDef> {
@@ -238,6 +249,17 @@ mod tests {
         assert_eq!(quest("mf_no_hints").progress(&win(2, 1)), 0);
         assert_eq!(quest("mf_no_hints").progress(&win(1, 0)), 1);
         assert_eq!(quest("wam_play_3").progress(&win(1, 0)), 0);
+    }
+
+    #[test]
+    fn quests_2048() {
+        let game = |points, max_tile| Event::Game2048 { points, max_tile };
+        assert_eq!(quest("g2048_play_3").progress(&game(0, 8)), 1);
+        assert_eq!(quest("g2048_tile_512").progress(&game(9_000, 256)), 0);
+        assert_eq!(quest("g2048_tile_512").progress(&game(3_000, 1024)), 1);
+        assert_eq!(quest("g2048_score_10000").progress(&game(9_999, 2048)), 0);
+        assert_eq!(quest("g2048_score_10000").progress(&game(10_000, 512)), 1);
+        assert_eq!(quest("wam_play_3").progress(&game(10_000, 512)), 0);
     }
 
     #[test]
