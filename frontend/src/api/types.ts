@@ -22,6 +22,23 @@ export interface AuthResponse {
   user: User;
   merged?: MergeSummary;
   kept_guest_progress: boolean;
+  /** Logging in cancelled a pending account deletion. */
+  deletion_cancelled?: boolean;
+}
+
+/** Account settings view (registered players). */
+export interface AccountView {
+  username: string;
+  email: string;
+  joined: string;
+  /** When the next rename is allowed; null = now. */
+  next_rename_at: string | null;
+}
+
+export interface RenameResponse {
+  token: string;
+  user: User;
+  account: AccountView;
 }
 
 export type Ability =

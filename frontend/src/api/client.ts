@@ -1,4 +1,6 @@
 import type {
+  AccountView,
+  RenameResponse,
   AchievementClaim,
   AchievementsView,
   AuthResponse,
@@ -126,6 +128,24 @@ export const api = {
   /** Your account; guests also get a refreshed token. */
   me() {
     return request<User & { token?: string }>("/api/me");
+  },
+  account() {
+    return request<AccountView>("/api/me/account");
+  },
+  changePassword(current_password: string, new_password: string) {
+    return request<AccountView>("/api/me/password", { method: "PUT", body: JSON.stringify({ current_password, new_password }) });
+  },
+  changeEmail(current_password: string, email: string) {
+    return request<AccountView>("/api/me/email", { method: "PUT", body: JSON.stringify({ current_password, email }) });
+  },
+  changeUsername(username: string) {
+    return request<RenameResponse>("/api/me/username", { method: "PUT", body: JSON.stringify({ username }) });
+  },
+  deleteAccount(current_password: string, confirm_username: string) {
+    return request<{ delete_at: string }>("/api/me/delete", {
+      method: "POST",
+      body: JSON.stringify({ current_password, confirm_username }),
+    });
   },
   /** Start a guest session (play now, register later). */
   guest() {

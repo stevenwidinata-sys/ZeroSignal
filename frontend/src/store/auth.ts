@@ -15,6 +15,10 @@ interface AuthState {
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   clearNotice: () => void;
+  /** After a rename: new token (it carries the name) and user. */
+  renamed: (token: string, user: User) => void;
+  /** After requesting deletion: sign out and say when it happens. */
+  deleted: (deleteAt: string) => void;
 }
 
 /** True for a real (registered) account. */
@@ -81,7 +85,11 @@ export const useAuth = create<AuthState>((set, get) => ({
     try {
       const res = await api.login(username, password);
       finish(res);
-      set({ notice: res.merged ? mergeNotice(res.merged) : null });
+      const notes = [
+        res.deletion_cancelled ? "Welcome back! Your account deletion was cancelled." : null,
+        res.merged ? mergeNotice(res.merged) : null,
+      ].filter(Boolean);
+      set({ notice: notes.length ? notes.join(" ") : null });
     } finally {
       set({ loading: false });
     }
@@ -107,6 +115,20 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   clearNotice() {
     set({ notice: null });
+  },
+
+  renamed(token, user) {
+    setToken(token);
+    set({ user });
+  },
+
+  deleted(deleteAt) {
+    setToken(null);
+    const day = new Date(deleteAt).toLocaleDateString(undefined, { dateStyle: "long" });
+    set({
+      user: null,
+      notice: `Your account will be deleted on ${day}. Changed your mind? Just log in before then to cancel.`,
+    });
   },
 }));
 

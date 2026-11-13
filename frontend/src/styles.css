@@ -3815,3 +3815,66 @@ html[data-text="xl"] { font-size: 20px; }
 .guest-chip {
   font-weight: 700;
 }
+
+/* ---------- Settings tabs + Account ---------- */
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.settings-tab {
+  --btn-bg: var(--surface-2);
+  --btn-fg: var(--ink);
+  padding: 6px 10px;
+  font-size: 0.6rem;
+  box-shadow: 2px 2px 0 var(--line);
+}
+.settings-tab.active {
+  --btn-bg: var(--yellow);
+  --btn-fg: var(--on-yellow);
+}
+.settings-panel {
+  display: grid;
+  gap: 12px;
+  min-height: 220px;
+}
+.account-panel {
+  display: grid;
+  gap: 14px;
+}
+.account-section {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.account-section h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.account-section.danger {
+  border-color: var(--red);
+}
+.account-section > button {
+  justify-self: start;
+}
+.account-field {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+.account-done {
+  margin: 0;
+  color: var(--green);
+  font-weight: 700;
+}
+.account-empty {
+  padding: 8px 0;
+}
+.btn-danger {
+  --btn-bg: var(--red);
+  --btn-fg: #fff;
+}
