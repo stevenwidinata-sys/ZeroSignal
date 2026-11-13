@@ -19,7 +19,8 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 
 ## Features
 
-- Register / login (Argon2 password hashing + JWT auth). Browsing the hub and leaderboards is open; playing requires an account.
+- Register / login (Argon2 password hashing + JWT auth). **Anyone can play without an account** (see Guest play below); an account is needed to get on the leaderboards and to use the shop, wardrobe, daily login reward and quest/achievement claims.
+- **Guest play:** opening a game without an account quietly starts a **guest account** in the background (kept in that browser; deleted after 30 days without a visit). Guests earn coins, XP, tokens, quest progress and items like anyone, but are hidden from leaderboards, weekly prizes and profiles. A slim banner and a "Register to save this score" button on every results screen remind them. **Registering** turns the guest into the real account, so everything is kept. **Logging in** to an existing account moves the guest's scores, games, items and earlier quest days into it, and pays the guest's coins, tokens and XP as a normal reward (coins count toward the 1,000-a-day cap); where both have something (today's quests, an unfinished game, today's Daily) the account's wins. At most 20 new guests per hour per IP; guests can't log in with a password, and usernames can't start with "guest".
 - **Hub:** logged out, a short intro with Create account / Log in / Quick play. Logged in, a welcome strip (your character, level and XP bar, coins, **Continue** your last game, Stats and Achievements shortcuts), **Recently played** (last 3 games, remembered in this browser) beside **Today's quests**, then every game on one row with your best score and NEW badges on the newest games.
 - Per-game leaderboards and personal history, with **All time / This week / Last week** views. Weeks run Monday 00:00 → Monday 00:00 WIB.
 - **Weekly prizes:** the top 3 last week on each board (Angry Bird, Connect Four, Tic-Tac-Toe, each Whack-a-Mole mode, each Minefield size; not the Daily boards) claim 150 coins + 1 token, 100 or 50 coins from a banner on the Hub or Leaderboards. Best-score games rank by the week's best score; Connect Four and Tic-Tac-Toe by points earned that week. Prize coins don't count toward the daily cap.
@@ -332,8 +333,10 @@ zero_signal/
 
 | Method | Path | Notes |
 |--------|------|-------|
-| POST | `/api/auth/register` | create account |
-| POST | `/api/auth/login` | returns JWT |
+| POST | `/api/auth/guest` | start a guest session; returns a guest JWT (20 per hour per IP) |
+| POST | `/api/auth/register` | create account; with a guest token, the guest becomes the account (`kept_guest_progress`) |
+| POST | `/api/auth/login` | returns JWT; with a guest token, the guest's results move in (`merged`) |
+| GET  | `/api/me` | your account (`is_guest`); guests also get a refreshed token |
 | GET  | `/api/me/wallet` | coins, tokens, XP, level, coins earned today (auth) |
 | GET  | `/api/me/stats` | your records in every game, for the Stats page (auth) |
 | GET  | `/api/me/weekly-prizes` | your top-3 places last week and whether they're claimed (auth) |
@@ -385,6 +388,8 @@ zero_signal/
 | POST | `/api/games/connect-four/matches/:id/forfeit` | give up the series (auth) |
 | GET  | `/api/games/connect-four/skins` | skin collection + unspent spins (auth) |
 | POST | `/api/games/connect-four/spins` | spend a spin; server rolls the result (auth) |
+
+Guests (`is_guest`) get **403** from account-only endpoints: wardrobe and presets, shop, mystery box, item wheel, daily login claim, quest claim/reroll, achievement claim, weekly prize claim and the photo upload.
 
 ## Adding a game
 

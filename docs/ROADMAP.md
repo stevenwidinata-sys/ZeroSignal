@@ -218,7 +218,7 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
   animations), results screen (score, biggest tile, moves, time, undos,
   new best), Hub card with NEW badge, Stats card.
 
-### Guest play (`feat/guest-play`; agreed 2026-11-13)
+### Guest play (`feat/guest-play`, done; agreed 2026-11-13)
 - **Play first, account later:** every game opens without logging in. The
   first time a visitor opens a game, the site quietly creates a **guest
   account** (no name/password; kept in that browser, token valid 30 days).
