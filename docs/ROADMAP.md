@@ -185,6 +185,39 @@ Owner picked Minefield from the 10 new-game ideas. v1 includes:
 - Game grid fits all games on one row on desktop; cards show your best
   score (or points) and a NEW badge on the newest games.
 
+### 2048 (`feat/2048`; agreed 2026-11-13: "go with your picks")
+- **Play:** arrows / WASD / swipe slide every tile; equal tiles merge and a
+  2 (90%) or 4 (10%) appears after each move. The game ends when no move
+  changes the board. You can keep going past 2048.
+- **Modes:** Classic 4×4 (×1), Big 5×5 (×0.8), Tiny 3×3 (×2), Daily
+  (Classic rules, same tile drops for everyone that WIB day, one ranked try,
+  its own "today" board). Boards: 1 Classic, 2 Big, 3 Tiny, 4 Daily.
+- **Undo:** up to 3 per game (Daily: none); undo can go back up to 3 moves.
+  Undo games still rank, but don't count for "Pure Skill".
+- **Anti-cheat:** `POST start` gives a run id + seed; tile drops come from
+  the same mulberry32 PRNG in Rust and TS. The client sends only the move
+  string (`U D L R`, `Z` = undo); the server replays it and computes score
+  and biggest tile. A move that changes nothing is rejected. At most 25
+  moves per second of real time.
+- **Saving:** the client saves its moves to the server every few moves and
+  when the tab is hidden (append-only: a save must extend the stored moves).
+  One unfinished game per player; it is kept 24 h after the last save, can
+  be continued on any device, and can be finished early ("End game").
+- **Score:** sum of merged tile values × the mode multiplier. Leaderboards
+  show the score and the player's biggest tile; weekly boards and prizes on
+  Classic, Big and Tiny.
+- **Rewards:** Angry Bird formula on the score (1 coin / 1,000, 10–100 XP,
+  token 3% → 15%), +30 coins for a 2048 tile, +80 more and a 50% token
+  chance for 4096. All count toward the daily cap.
+- **Quests (+3):** play 3 games (20/30), make a 512 tile (40/60), score
+  10,000 in one game (40/60).
+- **Achievements (+4, each with a title):** First Slide (finish a game),
+  2048! (reach 2048), Tile Tycoon (reach 4096), Pure Skill (2048 without undo).
+- Slide/merge animations, merge sounds, "Quiet Board" music, tutorial,
+  colorblind (numbers always shown, safe palette), light graphics (no
+  animations), results screen (score, biggest tile, moves, time, undos,
+  new best), Hub card with NEW badge, Stats card.
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays) — done.
