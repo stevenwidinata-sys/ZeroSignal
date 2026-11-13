@@ -293,6 +293,8 @@ pub struct PublicProfile {
     pub items_owned: usize,
     pub stats: Vec<GameStat>,
     pub achievements: Vec<crate::achievements::PublicAchievement>,
+    /// The player chose a private profile: only the name is shown.
+    pub private: bool,
 }
 
 /// `GET /api/users/:username/profile` — public. Never includes email,
@@ -301,12 +303,25 @@ pub async fn public_profile(
     State(state): State<AppState>,
     Path(username): Path<String>,
 ) -> AppResult<Json<PublicProfile>> {
-    let (user_id, username, joined): (Uuid, String, chrono::DateTime<chrono::Utc>) =
-        sqlx::query_as("SELECT id, username, created_at FROM users WHERE lower(username) = lower($1) AND NOT is_guest AND delete_requested_at IS NULL")
+    let (user_id, username, joined, private): (Uuid, String, chrono::DateTime<chrono::Utc>, bool) =
+        sqlx::query_as("SELECT id, username, created_at, private_profile FROM users WHERE lower(username) = lower($1) AND NOT is_guest AND delete_requested_at IS NULL")
             .bind(username.trim())
             .fetch_optional(&state.pool)
             .await?
             .ok_or(AppError::NotFound)?;
+    if private {
+        // Name only: no level, outfit, stats or achievements.
+        return Ok(Json(PublicProfile {
+            username,
+            level: 0,
+            loadout: Loadout::default(),
+            joined,
+            items_owned: 0,
+            stats: Vec::new(),
+            achievements: Vec::new(),
+            private: true,
+        }));
+    }
     let level = level_of(&state.pool, user_id).await?;
     let inv = inventory(&state.pool, user_id).await?;
     let loadout = catalog().sanitize(&stored_loadout(&state.pool, user_id).await?, level, &inv);
@@ -325,6 +340,7 @@ pub async fn public_profile(
         items_owned: owned_ids(level, &inv).len(),
         stats,
         achievements: crate::achievements::public_list(&state.pool, user_id).await?,
+        private: false,
     }))
 }
 

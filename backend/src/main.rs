@@ -75,6 +75,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/me/email", put(auth::account::change_email))
         .route("/api/me/username", put(auth::account::change_username))
         .route("/api/me/delete", post(auth::account::request_delete))
+        // Settings synced to the account, and privacy switches.
+        .route("/api/me/settings", get(auth::prefs::get_prefs).put(auth::prefs::put_settings))
+        .route("/api/me/privacy", put(auth::prefs::put_privacy))
         .route("/api/me/wallet", get(economy::wallet))
         .route("/api/me/stats", get(stats::my_stats))
         // Weekly prizes for last week's top 3 on each board.
