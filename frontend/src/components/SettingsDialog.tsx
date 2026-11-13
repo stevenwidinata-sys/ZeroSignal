@@ -6,12 +6,15 @@ import { useSync } from "../platform/settingsSync";
 import { useAuth } from "../store/auth";
 import AccountPanel from "./settings/AccountPanel";
 import PrivacyPanel from "./settings/PrivacyPanel";
+import ControlsPanel from "./settings/ControlsPanel";
+import { canFullscreen, toggleFullscreen, useFullscreen } from "../platform/display";
 
-type TabId = "display" | "sound" | "gameplay" | "privacy" | "account";
+type TabId = "display" | "sound" | "gameplay" | "controls" | "privacy" | "account";
 const TABS: { id: TabId; icon: string; label: string }[] = [
   { id: "display", icon: "🖥️", label: "Display" },
   { id: "sound", icon: "🔊", label: "Sound" },
   { id: "gameplay", icon: "🎮", label: "Gameplay" },
+  { id: "controls", icon: "⌨️", label: "Controls" },
   { id: "privacy", icon: "🔒", label: "Privacy" },
   { id: "account", icon: "👤", label: "Account" },
 ];
@@ -34,6 +37,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
   const [tutorialsReset, setTutorialsReset] = useState(false);
   const user = useAuth((a) => a.user);
   const sync = useSync((x) => x.status);
+  const fullscreen = useFullscreen();
   const [tab, setTabState] = useState<TabId>(lastTab);
   const setTab = (t: TabId) => {
     lastTab = t;
@@ -93,6 +97,51 @@ export default function SettingsDialog({ open, onClose }: Props) {
                     className="switch"
                     checked={theme === "dark"}
                     onChange={toggleTheme}
+                  />
+                </label>
+                <label className="row-label">
+                  <span>
+                    High contrast
+                    <small>Plain black and white with bright borders. Easier in sunlight or with low vision.</small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="switch"
+                    checked={s.highContrast}
+                    onChange={(e) => s.update({ highContrast: e.target.checked })}
+                  />
+                </label>
+                <label className="row-label">
+                  <span>
+                    Readable font
+                    <small>Swap the pixel-art font for a plain one that's easier to read.</small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="switch"
+                    checked={s.readableFont}
+                    onChange={(e) => s.update({ readableFont: e.target.checked })}
+                  />
+                </label>
+                {canFullscreen() && (
+                  <label className="row-label">
+                    <span>
+                      Fullscreen
+                      <small>Hide the browser bars. Shortcut: F. Esc leaves.</small>
+                    </span>
+                    <input type="checkbox" className="switch" checked={fullscreen} onChange={() => void toggleFullscreen()} />
+                  </label>
+                )}
+                <label className="row-label">
+                  <span>
+                    Show FPS
+                    <small>Frames per second in the bottom-right corner.</small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="switch"
+                    checked={s.showFps}
+                    onChange={(e) => s.update({ showFps: e.target.checked })}
                   />
                 </label>
                 <label className="row-label">
@@ -305,6 +354,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
               </fieldset>
             </>
           )}
+          {tab === "controls" && <ControlsPanel />}
           {tab === "privacy" && <PrivacyPanel onClose={onClose} />}
           {tab === "account" && <AccountPanel onClose={onClose} />}
         </div>
