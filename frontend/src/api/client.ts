@@ -28,6 +28,9 @@ import type {
   TttSpin,
   User,
   Wallet,
+  G2048Finish,
+  G2048Mode,
+  G2048Run,
   MfDifficulty,
   MfGame,
   WamCollection,
@@ -320,6 +323,34 @@ export const whackAMole = {
   },
   finish(runId: string, taps: WamTap[]) {
     return post<WamFinish>(`${WAM}/runs/${encodeURIComponent(runId)}/finish`, { taps });
+  },
+};
+
+const G2048 = "/api/games/2048/runs";
+
+/** 2048: the server gives a seed, keeps your moves and scores them itself. */
+export const game2048 = {
+  start(mode: G2048Mode) {
+    return post<G2048Run>(G2048, { mode });
+  },
+  active() {
+    return request<G2048Run | null>(`${G2048}/active`);
+  },
+  save(runId: string, moves: string) {
+    return post<{ saved: number }>(`${G2048}/${encodeURIComponent(runId)}/save`, { moves });
+  },
+  /** Best-effort save while the page closes (keeps going after unload). */
+  saveOnLeave(runId: string, moves: string) {
+    const token = getToken();
+    void fetch(`${BASE_URL}${G2048}/${encodeURIComponent(runId)}/save`, {
+      method: "POST",
+      keepalive: true,
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ moves }),
+    }).catch(() => undefined);
+  },
+  finish(runId: string, moves: string) {
+    return post<G2048Finish>(`${G2048}/${encodeURIComponent(runId)}/finish`, { moves });
   },
 };
 

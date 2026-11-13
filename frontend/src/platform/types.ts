@@ -24,6 +24,8 @@ export interface GameMeta {
   status: GameStatus;
   /** Label for the score column on the leaderboard. */
   scoreLabel: string;
+  /** Label for the extra leaderboard column (the score's `detail`), if any. */
+  detailLabel?: string;
   /** 3-4 steps shown the first time the game is opened (live games). */
   tutorial?: TutorialStep[];
   /** Show a NEW badge on the hub card. */

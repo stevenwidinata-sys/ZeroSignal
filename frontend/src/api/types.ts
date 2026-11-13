@@ -75,6 +75,8 @@ export interface LeaderboardEntry {
   rank: number;
   username: string;
   best_score: number;
+  /** Extra shown next to the score (2048: biggest tile). */
+  detail?: string | null;
   /** Saved outfit (slot -> item id), null if never customized. */
   avatar: Record<string, string> | null;
 }
@@ -83,6 +85,7 @@ export interface MyScore {
   score: number;
   level: number;
   bird_variant: string | null;
+  detail?: string | null;
   created_at: string;
 }
 
@@ -472,6 +475,42 @@ export interface StatsView {
     golden_hits: number | null;
     longest_survival_ms: number | null;
   };
+  g2048: { games: number; best_tile: number | null; reached_2048: number; moves: number | null };
+}
+
+// ---------------------------------------------------------------------------
+// 2048
+// ---------------------------------------------------------------------------
+
+export type G2048Mode = "classic" | "big" | "tiny" | "daily";
+
+export interface G2048Run {
+  run_id: string;
+  seed: number;
+  mode: G2048Mode;
+  size: number;
+  /** Undos allowed in this game. */
+  undos: number;
+  /** Moves saved so far: U D L R, Z = undo. */
+  moves: string;
+}
+
+/** The server's replay of a game. */
+export interface G2048Summary {
+  score: number;
+  points: number;
+  max_tile: number;
+  moves: number;
+  undos_used: number;
+  game_over: boolean;
+}
+
+export interface G2048Finish {
+  mode: G2048Mode;
+  summary: G2048Summary;
+  previous_best: number;
+  new_best: boolean;
+  rewards: Granted;
 }
 
 // ---------------------------------------------------------------------------

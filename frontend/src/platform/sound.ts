@@ -24,7 +24,9 @@ export type Sfx =
   | "clang"
   | "splash"
   | "zap"
-  | "chime";
+  | "chime"
+  | "slide"
+  | "merge";
 
 interface Note {
   /** Hz at start (and optional end, for slides). */
@@ -91,6 +93,12 @@ export const RECIPES: Record<Sfx, Note[]> = {
   chime: [
     { freq: 1319, at: 0, dur: 0.12, type: "triangle", gain: 0.25 },
     { freq: 1976, at: 0.05, dur: 0.16, type: "triangle", gain: 0.2 },
+  ],
+  // 2048
+  slide: [{ freq: 300, to: 240, at: 0, dur: 0.05, type: "triangle", gain: 0.12 }],
+  merge: [
+    { freq: 520, to: 780, at: 0, dur: 0.07, type: "square", gain: 0.18 },
+    { freq: 1040, at: 0.05, dur: 0.06, type: "triangle", gain: 0.14 },
   ],
   fever: [
     { freq: 523, to: 1047, at: 0, dur: 0.25, type: "sawtooth", gain: 0.2 },
