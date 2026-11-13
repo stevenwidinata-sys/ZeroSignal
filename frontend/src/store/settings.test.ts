@@ -29,6 +29,7 @@ describe("parseSettings", () => {
       readableFont: true,
       showFps: true,
       shortcuts: false,
+      keys: { "2048.up": ["KeyI"] },
     };
     expect(parseSettings(JSON.stringify(stored))).toEqual(stored);
   });

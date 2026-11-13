@@ -44,6 +44,8 @@ export interface Settings {
   showFps: boolean;
   /** Global shortcut keys: M mute, F fullscreen. */
   shortcuts: boolean;
+  /** Changed game keys: "gameId.actionId" → KeyboardEvent.code list. */
+  keys: Record<string, string[]>;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -67,6 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   readableFont: false,
   showFps: false,
   shortcuts: true,
+  keys: {},
 };
 
 const KEY = "zerosignal_settings";
@@ -75,6 +78,18 @@ const bool = (v: unknown, fallback: boolean) => (typeof v === "boolean" ? v : fa
 
 const unit = (v: unknown, fallback: number) =>
   typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : fallback;
+
+/** Changed keys: keep only well-formed "game.action" → up to 4 key codes. */
+export function parseKeys(v: unknown): Record<string, string[]> {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+  const out: Record<string, string[]> = {};
+  for (const [id, keys] of Object.entries(v as Record<string, unknown>).slice(0, 200)) {
+    if (!/^[a-z0-9-]{1,32}\.[a-z0-9]{1,16}$/.test(id) || !Array.isArray(keys)) continue;
+    const codes = keys.filter((k): k is string => typeof k === "string" && /^[A-Za-z0-9]{1,24}$/.test(k));
+    out[id] = [...new Set(codes)].slice(0, 4);
+  }
+  return out;
+}
 
 /** Parse stored JSON defensively: unknown/invalid fields fall back to defaults. */
 export function parseSettings(raw: string | null): Settings {
@@ -105,6 +120,7 @@ export function parseSettings(raw: string | null): Settings {
       readableFont: bool(v.readableFont, DEFAULT_SETTINGS.readableFont),
       showFps: bool(v.showFps, DEFAULT_SETTINGS.showFps),
       shortcuts: bool(v.shortcuts, DEFAULT_SETTINGS.shortcuts),
+      keys: parseKeys(v.keys),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
