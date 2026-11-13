@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use super::catalog::{catalog, Loadout};
 use super::shop::{self, BoxResult, MYSTERY_BOX_PRICE, WHEEL_TOKEN_COST};
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::economy::{self, Reward, WalletView};
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
@@ -117,7 +117,7 @@ async fn validated(state: &AppState, user_id: Uuid, l: &Loadout) -> AppResult<Lo
 /// `PUT /api/me/character/loadout`
 pub async fn put_loadout(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Json(req): Json<LoadoutRequest>,
 ) -> AppResult<Json<CharacterView>> {
     let l = validated(&state, user.user_id, &req.loadout).await?;
@@ -142,7 +142,7 @@ pub struct PresetRequest {
 /// `PUT /api/me/character/presets/:slot_no` (1..=3)
 pub async fn put_preset(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Path(slot_no): Path<i16>,
     Json(req): Json<PresetRequest>,
 ) -> AppResult<Json<CharacterView>> {
@@ -181,7 +181,7 @@ pub struct BuyRequest {
 /// `POST /api/shop/buy` — buy one coin-shop item.
 pub async fn buy(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Json(req): Json<BuyRequest>,
 ) -> AppResult<Json<CharacterView>> {
     let item = catalog()
@@ -219,7 +219,7 @@ pub struct BoxResponse {
 /// `POST /api/shop/mystery-box` — random coin-shop item; duplicates refund 50%.
 pub async fn mystery_box(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
 ) -> AppResult<Json<BoxResponse>> {
     let mut tx = state.pool.begin().await?;
     // Quest progress first: the quest day row is always locked before the wallet.
@@ -251,7 +251,7 @@ pub struct WheelResponse {
 /// `POST /api/shop/wheel` — spend a token on a wheel-exclusive item.
 pub async fn wheel(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
 ) -> AppResult<Json<WheelResponse>> {
     let mut tx = state.pool.begin().await?;
     economy::spend(&mut tx, user.user_id, 0, WHEEL_TOKEN_COST, "token_wheel").await?;
@@ -302,7 +302,7 @@ pub async fn public_profile(
     Path(username): Path<String>,
 ) -> AppResult<Json<PublicProfile>> {
     let (user_id, username, joined): (Uuid, String, chrono::DateTime<chrono::Utc>) =
-        sqlx::query_as("SELECT id, username, created_at FROM users WHERE lower(username) = lower($1)")
+        sqlx::query_as("SELECT id, username, created_at FROM users WHERE lower(username) = lower($1) AND NOT is_guest")
             .bind(username.trim())
             .fetch_optional(&state.pool)
             .await?

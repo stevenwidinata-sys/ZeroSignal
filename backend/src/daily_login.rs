@@ -11,7 +11,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::daily;
 use crate::economy::{self, Granted, Reward};
 use crate::error::{AppError, AppResult};
@@ -107,7 +107,7 @@ pub async fn status(State(state): State<AppState>, user: AuthUser) -> AppResult<
 }
 
 /// `POST /api/me/daily-login/claim`
-pub async fn claim(State(state): State<AppState>, user: AuthUser) -> AppResult<Json<ClaimResponse>> {
+pub async fn claim(State(state): State<AppState>, user: Member) -> AppResult<Json<ClaimResponse>> {
     let now = Utc::now();
     let today = daily::wib_date(now);
     let mut tx = state.pool.begin().await?;

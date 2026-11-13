@@ -11,7 +11,7 @@ use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
 use super::{find, pick, Event, BONUS_TOKENS, QUESTS_PER_DAY};
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::daily;
 use crate::economy::{self, Granted, Reward};
 use crate::error::{AppError, AppResult};
@@ -207,7 +207,7 @@ pub async fn get_quests(State(state): State<AppState>, user: AuthUser) -> AppRes
 /// token once all 3 are claimed). Quest coins don't count toward the cap.
 pub async fn claim(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Path(slot): Path<i16>,
 ) -> AppResult<Json<ClaimResponse>> {
     let today = daily::wib_date(Utc::now());
@@ -252,7 +252,7 @@ pub async fn claim(
 /// random one (not already in today's list). Once per day.
 pub async fn reroll(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Path(slot): Path<i16>,
 ) -> AppResult<Json<QuestsView>> {
     let today = daily::wib_date(Utc::now());

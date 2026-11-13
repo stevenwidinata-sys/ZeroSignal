@@ -7,7 +7,7 @@ use axum::Json;
 use chrono::{NaiveDate, Utc};
 use serde::Serialize;
 
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::daily;
 use crate::economy::{self, Granted, Reward};
 use crate::error::{AppError, AppResult};
@@ -92,7 +92,7 @@ pub struct ClaimView {
 }
 
 /// Claim every unclaimed prize from last week at once.
-pub async fn claim(State(state): State<AppState>, user: AuthUser) -> AppResult<Json<ClaimView>> {
+pub async fn claim(State(state): State<AppState>, user: Member) -> AppResult<Json<ClaimView>> {
     let (week, prizes) = my_prizes(&state, &user).await?;
     let open: Vec<PrizeView> = prizes.into_iter().filter(|p| !p.claimed).collect();
     if open.is_empty() {

@@ -214,6 +214,7 @@ pub async fn top(
                   (SELECT a.loadout FROM avatars a WHERE a.user_id = u.id) AS avatar
            FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.game_id = $1
+             AND NOT u.is_guest
              AND ($3::INT IS NULL OR s.level = $3)
              AND s.created_at >= $4
              AND ($5::TIMESTAMPTZ IS NULL OR s.created_at < $5)

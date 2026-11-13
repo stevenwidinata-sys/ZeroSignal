@@ -10,7 +10,7 @@ use axum::extract::State;
 use axum::http::{header, HeaderValue, StatusCode};
 use axum::response::{IntoResponse, Response};
 
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 
@@ -40,7 +40,7 @@ pub fn validate(data: &[u8]) -> Result<&'static str, String> {
 }
 
 /// `PUT /api/me/photo` — raw image bytes in the body.
-pub async fn put_photo(State(state): State<AppState>, user: AuthUser, body: Bytes) -> AppResult<StatusCode> {
+pub async fn put_photo(State(state): State<AppState>, user: Member, body: Bytes) -> AppResult<StatusCode> {
     let mime = validate(&body).map_err(AppError::Validation)?;
     sqlx::query(
         r#"INSERT INTO user_photos (user_id, mime, data) VALUES ($1, $2, $3)

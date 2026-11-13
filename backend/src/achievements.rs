@@ -8,7 +8,7 @@ use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::auth::jwt::AuthUser;
+use crate::auth::jwt::{AuthUser, Member};
 use crate::birds;
 use crate::character::api::{inventory, level_of, stored_loadout};
 use crate::character::catalog::{catalog, Unlock};
@@ -381,7 +381,7 @@ pub struct ClaimResponse {
 /// the title. Achievement coins don't count toward the daily cap.
 pub async fn claim(
     State(state): State<AppState>,
-    user: AuthUser,
+    user: Member,
     Path(id): Path<String>,
 ) -> AppResult<Json<ClaimResponse>> {
     let a = find(&id).ok_or(AppError::NotFound)?;
