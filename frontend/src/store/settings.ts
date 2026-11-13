@@ -36,6 +36,14 @@ export interface Settings {
   dailyLoginPopup: boolean;
   levelUpPopup: boolean;
   rewardToasts: boolean;
+  /** Stronger contrast: plain black/white surfaces and bright borders. */
+  highContrast: boolean;
+  /** Replace the pixel font with a plain, easy-to-read one. */
+  readableFont: boolean;
+  /** Frames-per-second counter in the corner. */
+  showFps: boolean;
+  /** Global shortcut keys: M mute, F fullscreen. */
+  shortcuts: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -55,6 +63,10 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyLoginPopup: true,
   levelUpPopup: true,
   rewardToasts: true,
+  highContrast: false,
+  readableFont: false,
+  showFps: false,
+  shortcuts: true,
 };
 
 const KEY = "zerosignal_settings";
@@ -89,6 +101,10 @@ export function parseSettings(raw: string | null): Settings {
       dailyLoginPopup: bool(v.dailyLoginPopup, DEFAULT_SETTINGS.dailyLoginPopup),
       levelUpPopup: bool(v.levelUpPopup, DEFAULT_SETTINGS.levelUpPopup),
       rewardToasts: bool(v.rewardToasts, DEFAULT_SETTINGS.rewardToasts),
+      highContrast: bool(v.highContrast, DEFAULT_SETTINGS.highContrast),
+      readableFont: bool(v.readableFont, DEFAULT_SETTINGS.readableFont),
+      showFps: bool(v.showFps, DEFAULT_SETTINGS.showFps),
+      shortcuts: bool(v.shortcuts, DEFAULT_SETTINGS.shortcuts),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -117,6 +133,8 @@ function applyGraphics(s: Settings) {
     document.documentElement.dataset.shake = s.screenShake ? "on" : "off";
     document.documentElement.dataset.motion = s.reducedMotion ? "reduced" : "full";
     document.documentElement.dataset.text = s.textSize;
+    document.documentElement.dataset.contrast = s.highContrast ? "high" : "normal";
+    document.documentElement.dataset.font = s.readableFont ? "readable" : "pixel";
   }
 }
 

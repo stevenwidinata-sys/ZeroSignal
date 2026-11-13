@@ -3883,3 +3883,117 @@ html[data-text="xl"] { font-size: 20px; }
   margin-left: 8px;
   color: var(--muted);
 }
+
+/* ---------- Display: high contrast, readable font, FPS, shortcuts ---------- */
+[data-contrast="high"][data-theme="dark"] {
+  --bg: #000;
+  --bg-2: #000;
+  --surface: #000;
+  --surface-2: #111;
+  --ink: #fff;
+  --muted: #fff;
+  --line: #fff;
+  --grid: transparent;
+  --scan: transparent;
+}
+[data-contrast="high"][data-theme="light"] {
+  --bg: #fff;
+  --bg-2: #fff;
+  --surface: #fff;
+  --surface-2: #f2f2f2;
+  --ink: #000;
+  --muted: #000;
+  --line: #000;
+  --grid: transparent;
+}
+[data-contrast="high"] {
+  --bw: 3px;
+}
+[data-contrast="high"] :focus-visible {
+  outline: 4px solid var(--yellow) !important;
+  outline-offset: 2px;
+}
+[data-contrast="high"] a {
+  text-decoration: underline;
+}
+/* Readable font: the pixel font becomes the plain body font everywhere. */
+[data-font="readable"] {
+  --font-pixel: var(--font-body);
+}
+[data-font="readable"] h1,
+[data-font="readable"] h2,
+[data-font="readable"] button,
+[data-font="readable"] .btn,
+[data-font="readable"] .tag {
+  letter-spacing: 0;
+}
+.fps-counter {
+  position: fixed;
+  right: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #7cff9b;
+  font: 700 12px/1.4 ui-monospace, monospace;
+  pointer-events: none;
+}
+.shortcut-flash {
+  position: fixed;
+  left: 50%;
+  top: calc(70px + env(safe-area-inset-top, 0px));
+  z-index: 1000;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+.shortcut-flash.show {
+  opacity: 1;
+}
+.controls-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.controls-list > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--surface-2);
+}
+.controls-list dt {
+  font-size: 0.9rem;
+}
+.controls-list dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+}
+kbd.key {
+  display: inline-block;
+  min-width: 1.8em;
+  padding: 1px 6px;
+  border: 2px solid var(--line);
+  border-bottom-width: 3px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 0.8rem/1.4 var(--font-body);
+  text-align: center;
+}
+.controls-game h4 {
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+}

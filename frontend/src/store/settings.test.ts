@@ -25,6 +25,10 @@ describe("parseSettings", () => {
       dailyLoginPopup: false,
       levelUpPopup: false,
       rewardToasts: false,
+      highContrast: true,
+      readableFont: true,
+      showFps: true,
+      shortcuts: false,
     };
     expect(parseSettings(JSON.stringify(stored))).toEqual(stored);
   });
