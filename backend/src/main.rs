@@ -54,15 +54,20 @@ async fn main() -> anyhow::Result<()> {
         .allow_methods(Any)
         .allow_headers(Any);
 
+    // Delete guests nobody has used for 30 days (now, then daily).
+    auth::guest::spawn_cleanup(pool.clone());
+
     let state = AppState {
         pool,
         config: Arc::new(config.clone()),
+        guests: Arc::new(auth::guest::GuestLimiter::default()),
     };
 
     let app = Router::new()
         .route("/health", get(health))
         .route("/api/auth/register", post(auth::handlers::register))
         .route("/api/auth/login", post(auth::handlers::login))
+        .route("/api/auth/guest", post(auth::guest::create))
         .route("/api/me", get(auth::handlers::me))
         .route("/api/me/wallet", get(economy::wallet))
         .route("/api/me/stats", get(stats::my_stats))
@@ -147,7 +152,8 @@ async fn main() -> anyhow::Result<()> {
 
     let listener = tokio::net::TcpListener::bind(&config.server_addr).await?;
     tracing::info!("listening on {}", config.server_addr);
-    axum::serve(listener, app).await?;
+    // Connect info gives the client's IP to the guest rate limit.
+    axum::serve(listener, app.into_make_service_with_connect_info::<std::net::SocketAddr>()).await?;
     Ok(())
 }
 

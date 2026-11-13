@@ -11,6 +11,9 @@ pub enum AppError {
     Unauthorized,
     #[error("not found")]
     NotFound,
+    /// Signed in, but not allowed (e.g. a guest using an account-only feature).
+    #[error("forbidden: {0}")]
+    Forbidden(String),
     #[error("conflict: {0}")]
     Conflict(String),
     #[error("internal error")]
@@ -25,6 +28,7 @@ impl IntoResponse for AppError {
             AppError::Validation(m) => (StatusCode::BAD_REQUEST, m.clone()),
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "unauthorized".to_string()),
             AppError::NotFound => (StatusCode::NOT_FOUND, "not found".to_string()),
+            AppError::Forbidden(m) => (StatusCode::FORBIDDEN, m.clone()),
             AppError::Conflict(m) => (StatusCode::CONFLICT, m.clone()),
             AppError::Database(e) => {
                 tracing::error!("database error: {e:?}");

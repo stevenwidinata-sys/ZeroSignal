@@ -12,6 +12,9 @@ use crate::state::AppState;
 pub struct Claims {
     pub sub: Uuid,       // user id
     pub username: String,
+    /// Guest account (plays, but no shop, claims or leaderboards).
+    #[serde(default)]
+    pub guest: bool,
     pub exp: usize,      // expiry (unix seconds)
     pub iat: usize,      // issued at
 }
@@ -19,6 +22,7 @@ pub struct Claims {
 pub fn issue_token(
     user_id: Uuid,
     username: &str,
+    guest: bool,
     secret: &str,
     expiry_hours: i64,
 ) -> anyhow::Result<String> {
@@ -27,6 +31,7 @@ pub fn issue_token(
     let claims = Claims {
         sub: user_id,
         username: username.to_string(),
+        guest,
         exp,
         iat: now.timestamp() as usize,
     };
@@ -52,6 +57,7 @@ pub fn verify_token(token: &str, secret: &str) -> Result<Claims, AppError> {
 pub struct AuthUser {
     pub user_id: Uuid,
     pub username: String,
+    pub is_guest: bool,
 }
 
 #[async_trait::async_trait]
@@ -76,6 +82,31 @@ impl FromRequestParts<AppState> for AuthUser {
         Ok(AuthUser {
             user_id: claims.sub,
             username: claims.username,
+            is_guest: claims.guest,
         })
+    }
+}
+
+/// A signed-in user with a real account (not a guest). Use it for features
+/// guests can't use: the shop, wardrobe, claims, the photo face.
+pub struct Member(pub AuthUser);
+
+impl std::ops::Deref for Member {
+    type Target = AuthUser;
+    fn deref(&self) -> &AuthUser {
+        &self.0
+    }
+}
+
+#[async_trait::async_trait]
+impl FromRequestParts<AppState> for Member {
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        let user = AuthUser::from_request_parts(parts, state).await?;
+        if user.is_guest {
+            return Err(AppError::Forbidden("register or log in to use this".into()));
+        }
+        Ok(Member(user))
     }
 }
