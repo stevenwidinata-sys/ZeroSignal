@@ -69,6 +69,12 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/auth/guest", post(auth::guest::create))
         .route("/api/me", get(auth::handlers::me))
+        // Account settings (registered players only).
+        .route("/api/me/account", get(auth::account::get_account))
+        .route("/api/me/password", put(auth::account::change_password))
+        .route("/api/me/email", put(auth::account::change_email))
+        .route("/api/me/username", put(auth::account::change_username))
+        .route("/api/me/delete", post(auth::account::request_delete))
         .route("/api/me/wallet", get(economy::wallet))
         .route("/api/me/stats", get(stats::my_stats))
         // Weekly prizes for last week's top 3 on each board.

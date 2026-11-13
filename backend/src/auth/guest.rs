@@ -92,7 +92,7 @@ pub async fn create(
     .fetch_one(&state.pool)
     .await?;
     let token = guest_token(&state, &user)?;
-    Ok(Json(AuthResponse { token, user, merged: None, kept_guest_progress: false }))
+    Ok(Json(AuthResponse { token, user, merged: None, kept_guest_progress: false, deletion_cancelled: false }))
 }
 
 pub fn guest_token(state: &AppState, user: &UserDto) -> AppResult<String> {
@@ -271,7 +271,7 @@ pub async fn cleanup(pool: &sqlx::PgPool) -> AppResult<u64> {
         .rows_affected())
 }
 
-/// Run `cleanup` now and then once a day, forever.
+/// Run `cleanup` (and the deleted-account purge) now and then once a day.
 pub fn spawn_cleanup(pool: sqlx::PgPool) {
     tokio::spawn(async move {
         loop {
@@ -279,6 +279,11 @@ pub fn spawn_cleanup(pool: sqlx::PgPool) {
                 Ok(0) => {}
                 Ok(n) => tracing::info!("deleted {n} old guest accounts"),
                 Err(e) => tracing::warn!("guest clean-up failed: {e}"),
+            }
+            match super::account::purge_deleted(&pool).await {
+                Ok(0) => {}
+                Ok(n) => tracing::info!("deleted {n} accounts after their 7-day grace period"),
+                Err(e) => tracing::warn!("account purge failed: {e}"),
             }
             tokio::time::sleep(Duration::from_secs(24 * 3600)).await;
         }

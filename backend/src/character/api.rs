@@ -302,7 +302,7 @@ pub async fn public_profile(
     Path(username): Path<String>,
 ) -> AppResult<Json<PublicProfile>> {
     let (user_id, username, joined): (Uuid, String, chrono::DateTime<chrono::Utc>) =
-        sqlx::query_as("SELECT id, username, created_at FROM users WHERE lower(username) = lower($1) AND NOT is_guest")
+        sqlx::query_as("SELECT id, username, created_at FROM users WHERE lower(username) = lower($1) AND NOT is_guest AND delete_requested_at IS NULL")
             .bind(username.trim())
             .fetch_optional(&state.pool)
             .await?
