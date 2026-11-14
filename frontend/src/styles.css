@@ -3997,3 +3997,51 @@ kbd.key {
   margin: 8px 0 4px;
   font-size: 0.9rem;
 }
+.controls-game-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.key-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.key-remove {
+  --btn-bg: transparent;
+  --btn-fg: var(--muted);
+  min-width: 0;
+  padding: 0 4px;
+  border: 0;
+  box-shadow: none;
+  font-size: 0.75rem;
+}
+.key-remove:hover {
+  --btn-fg: var(--red);
+}
+.key-add {
+  padding: 2px 8px;
+  font-size: 0.55rem;
+}
+.key-add.listening {
+  --btn-bg: var(--yellow);
+  --btn-fg: var(--on-yellow);
+  animation: key-pulse 1s ease-in-out infinite;
+}
+@keyframes key-pulse {
+  50% { opacity: 0.6; }
+}
+.controls-list > .listening {
+  background: var(--surface-2);
+}
+.key-none {
+  color: var(--muted);
+}
+.key-clash {
+  margin: 4px 0;
+  padding: 4px 8px;
+  border-left: 3px solid var(--red);
+  background: var(--surface-2);
+  font-size: 0.85rem;
+}
