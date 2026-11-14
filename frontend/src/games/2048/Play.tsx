@@ -5,7 +5,17 @@ import type { G2048Finish, G2048Mode, G2048Run } from "../../api/types";
 import { playSfx } from "../../platform/sound";
 import { useWallet } from "../../store/wallet";
 import { Game, replay } from "./engine";
-import { MODE_INFO, clearPlayTime, loadMode, loadPlayTime, saveMode } from "./modes";
+import {
+  MODE_INFO,
+  TILE_STYLES,
+  clearPlayTime,
+  loadMode,
+  loadPlayTime,
+  loadTileStyle,
+  saveMode,
+  saveTileStyle,
+  type TileStyle,
+} from "./modes";
 import Results from "./Results";
 import Round from "./Round";
 import BackButton from "../../components/BackButton";
@@ -30,6 +40,7 @@ function rebuild(run: G2048Run): Game | null {
 export default function Play() {
   const [screen, setScreen] = useState<Screen>({ kind: "setup" });
   const [mode, setMode] = useState<G2048Mode>(loadMode);
+  const [tileStyle, setTileStyle] = useState<TileStyle>(loadTileStyle);
   const [active, setActive] = useState<G2048Run | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
@@ -193,6 +204,30 @@ export default function Play() {
                 </span>
                 <strong>{MODE_INFO[m].name}</strong>
                 <small>{MODE_INFO[m].blurb}</small>
+              </button>
+            ))}
+          </fieldset>
+
+          <fieldset className="wam-items">
+            <legend>Tile style (free)</legend>
+            {TILE_STYLES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`wam-item${tileStyle === t.id ? " selected" : ""}`}
+                aria-pressed={tileStyle === t.id}
+                onClick={() => {
+                  playSfx("click");
+                  setTileStyle(t.id);
+                  saveTileStyle(t.id);
+                }}
+              >
+                <span className="wam-item-art g2048-swatch" aria-hidden="true">
+                  {t.swatch.map((c) => (
+                    <i key={c} style={{ background: c }} />
+                  ))}
+                </span>
+                <small>{t.name}</small>
               </button>
             ))}
           </fieldset>

@@ -4168,3 +4168,50 @@ kbd.key {
   color: var(--tp-ink);
   font-weight: 700;
 }
+
+/* 2048 tile styles. :where() keeps them weaker than colorblind mode. */
+.g2048-style-pastel :where(.g2048-t1) { --tile-bg: #e3f2fd; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t2) { --tile-bg: #fce4ec; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t3) { --tile-bg: #f8bbd0; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t4) { --tile-bg: #e1bee7; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t5) { --tile-bg: #c5cae9; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t6) { --tile-bg: #b3e5fc; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t7) { --tile-bg: #b2dfdb; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t8) { --tile-bg: #c5e1a5; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t9) { --tile-bg: #fff59d; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t10) { --tile-bg: #ffcc80; --tile-fg: #34495e; }
+.g2048-style-pastel :where(.g2048-t11, .g2048-t-super) { --tile-bg: #ff8a80; --tile-fg: #ffffff; }
+.g2048-style-neon :where(.g2048-tile) { box-shadow: 0 0 10px var(--tile-bg); }
+.g2048-style-neon :where(.g2048-t1) { --tile-bg: #1b1f3b; --tile-fg: #00e5ff; }
+.g2048-style-neon :where(.g2048-t2) { --tile-bg: #22104a; --tile-fg: #ff2a6d; }
+.g2048-style-neon :where(.g2048-t3) { --tile-bg: #00e5ff; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t4) { --tile-bg: #05ffa1; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t5) { --tile-bg: #f9f002; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t6) { --tile-bg: #ff2a6d; --tile-fg: #ffffff; }
+.g2048-style-neon :where(.g2048-t7) { --tile-bg: #b967ff; --tile-fg: #ffffff; }
+.g2048-style-neon :where(.g2048-t8) { --tile-bg: #01cdfe; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t9) { --tile-bg: #ff71ce; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t10) { --tile-bg: #fffb96; --tile-fg: #0a0614; }
+.g2048-style-neon :where(.g2048-t11, .g2048-t-super) { --tile-bg: #ffffff; --tile-fg: #ff2a6d; }
+.g2048-style-mono :where(.g2048-t1) { --tile-bg: #f2f2f2; --tile-fg: #1a1a1a; }
+.g2048-style-mono :where(.g2048-t2) { --tile-bg: #e0e0e0; --tile-fg: #1a1a1a; }
+.g2048-style-mono :where(.g2048-t3) { --tile-bg: #c8c8c8; --tile-fg: #1a1a1a; }
+.g2048-style-mono :where(.g2048-t4) { --tile-bg: #b0b0b0; --tile-fg: #1a1a1a; }
+.g2048-style-mono :where(.g2048-t5) { --tile-bg: #989898; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t6) { --tile-bg: #7f7f7f; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t7) { --tile-bg: #666666; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t8) { --tile-bg: #4d4d4d; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t9) { --tile-bg: #363636; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t10) { --tile-bg: #222222; --tile-fg: #ffffff; }
+.g2048-style-mono :where(.g2048-t11, .g2048-t-super) { --tile-bg: #000000; --tile-fg: #ffd23f; }
+.g2048-swatch {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+.g2048-swatch i {
+  width: 12px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}

@@ -9,10 +9,12 @@ interface Props {
   /** Shown on top of the board (game over, 2048 reached). */
   overlay?: React.ReactNode;
   light: boolean;
+  /** Tile look (classic, pastel, neon, mono). */
+  tileStyle?: string;
 }
 
 /** The board: empty cells underneath, sliding tiles on top. Swipe to move. */
-export default function Board({ size, tiles, onMove, overlay, light }: Props) {
+export default function Board({ size, tiles, onMove, overlay, light, tileStyle = "classic" }: Props) {
   const start = useRef<{ x: number; y: number } | null>(null);
   const label = tiles
     .filter((t) => t.state !== "ghost")
@@ -22,7 +24,7 @@ export default function Board({ size, tiles, onMove, overlay, light }: Props) {
 
   return (
     <div
-      className={`g2048-board${light ? " g2048-light" : ""}`}
+      className={`g2048-board g2048-style-${tileStyle}${light ? " g2048-light" : ""}`}
       style={{ "--n": size } as CSSProperties}
       role="application"
       aria-label={`2048 board, ${size} by ${size}. Use the arrow keys or swipe. Tiles: ${label || "none"}`}

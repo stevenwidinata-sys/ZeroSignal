@@ -52,3 +52,31 @@ export function clearPlayTime(runId: string) {
     /* ignore */
   }
 }
+
+/** Tile looks (all free, cosmetic only). */
+export const TILE_STYLES = [
+  { id: "classic", name: "Classic", swatch: ["#eee4da", "#f59563", "#edc22e"] },
+  { id: "pastel", name: "Pastel", swatch: ["#e3f2fd", "#f8bbd0", "#c5e1a5"] },
+  { id: "neon", name: "Neon", swatch: ["#00e5ff", "#ff2a6d", "#f9f002"] },
+  { id: "mono", name: "Mono", swatch: ["#f2f2f2", "#8a8a8a", "#1a1a1a"] },
+] as const;
+export type TileStyle = (typeof TILE_STYLES)[number]["id"];
+
+const STYLE_KEY = "zerosignal_2048_tiles";
+
+export function loadTileStyle(): TileStyle {
+  try {
+    const v = localStorage.getItem(STYLE_KEY);
+    return TILE_STYLES.some((t) => t.id === v) ? (v as TileStyle) : "classic";
+  } catch {
+    return "classic";
+  }
+}
+
+export function saveTileStyle(id: TileStyle) {
+  try {
+    localStorage.setItem(STYLE_KEY, id);
+  } catch {
+    /* storage may be blocked */
+  }
+}

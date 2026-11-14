@@ -5,7 +5,7 @@ import { playSfx } from "../../platform/sound";
 import { useSettings, vibrate } from "../../store/settings";
 import Board from "./Board";
 import type { Dir, Game } from "./engine";
-import { MODE_INFO, loadPlayTime, savePlayTime } from "./modes";
+import { MODE_INFO, loadPlayTime, loadTileStyle, savePlayTime } from "./modes";
 import { freshTiles, keyToMove, tilesAfter, type Tile } from "./tiles";
 
 /** Save the moves to the server after this many new ones. */
@@ -22,6 +22,7 @@ interface Props {
 /** One game in progress: board, score, undo, saving and finishing. */
 export default function Round({ run, game, onDone, onMenu }: Props) {
   const light = useSettings((s) => s.lightGraphics);
+  const [tileStyle] = useState(loadTileStyle);
   const [tiles, setTiles] = useState<Tile[]>(() => freshTiles(game.cells));
   const [, setVersion] = useState(0);
   const [over, setOver] = useState(() => !game.canMove());
@@ -191,7 +192,7 @@ export default function Round({ run, game, onDone, onMenu }: Props) {
         {cheer}
       </div>
 
-      <Board size={game.size} tiles={tiles} onMove={act} overlay={overlay} light={light} />
+      <Board size={game.size} tiles={tiles} onMove={act} overlay={overlay} light={light} tileStyle={tileStyle} />
 
       {error && (
         <div className="error" role="alert">
