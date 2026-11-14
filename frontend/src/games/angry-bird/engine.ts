@@ -1,7 +1,7 @@
 import Matter from "matter-js";
 import type { Bird } from "../../api/types";
 import { hasActiveAbility } from "./birds";
-import type { Level } from "./levels";
+import { MATERIAL_COLOR, findWorld, type Level, type Material } from "./levels";
 import { currentAction } from "../../platform/keymap";
 import {
   PHYS,
@@ -44,6 +44,8 @@ interface Target {
   isPig: boolean;
   massWorld: number;
   destroyed: boolean;
+  /** Block material (colors); pigs have none. */
+  material?: Material;
 }
 
 interface Particle {
@@ -70,6 +72,14 @@ interface Palette {
   cloud: string;
   stars: boolean;
   ring: string;
+}
+
+/** The theme's palette; by day each world has its own sky and ground. */
+function paletteFor(theme: CanvasTheme, worldId: number): Palette {
+  const base = PALETTES[theme];
+  const w = findWorld(worldId);
+  if (theme === "dark") return { ...base, grass: w.ground };
+  return { ...base, skyTop: w.sky[0], skyBottom: w.sky[1], grass: w.ground, hillFront: w.ground };
 }
 
 const PALETTES: Record<CanvasTheme, Palette> = {
@@ -150,7 +160,7 @@ export class GameEngine {
     private callbacks: EngineCallbacks,
     theme: CanvasTheme = "dark",
   ) {
-    this.palette = PALETTES[theme];
+    this.palette = paletteFor(theme, this.level.world);
     canvas.width = level.width * SCALE;
     canvas.height = level.height * SCALE;
     const ctx = canvas.getContext("2d");
@@ -204,7 +214,7 @@ export class GameEngine {
         frictionAir: 0,
         label: "block",
       });
-      this.addTarget(body, b.hp, false, b.w * b.h * 1.0);
+      this.addTarget(body, b.hp, false, b.w * b.h * 1.0, b.m);
     }
     for (const p of this.level.pigs) {
       const c = this.toPx(p.x, p.y);
@@ -218,9 +228,9 @@ export class GameEngine {
     }
   }
 
-  private addTarget(body: Matter.Body, hp: number, isPig: boolean, massWorld: number) {
+  private addTarget(body: Matter.Body, hp: number, isPig: boolean, massWorld: number, material?: Material) {
     Matter.Composite.add(this.engine.world, body);
-    this.targets.push({ body, hp, isPig, massWorld, destroyed: false });
+    this.targets.push({ body, hp, isPig, massWorld, destroyed: false, material });
   }
 
   // ---------- main loop ----------
@@ -280,7 +290,7 @@ export class GameEngine {
   private destroyTarget(t: Target) {
     t.destroyed = true;
     Matter.Composite.remove(this.engine.world, t.body);
-    const color = t.isPig ? "#7bd389" : "#c8925a";
+    const color = t.isPig ? "#7bd389" : MATERIAL_COLOR[t.material ?? "wood"][0];
     for (let i = 0; i < 14; i++) {
       const a = Math.random() * Math.PI * 2;
       const s = 1 + Math.random() * 3;
@@ -535,7 +545,7 @@ export class GameEngine {
   }
 
   setTheme(theme: CanvasTheme) {
-    this.palette = PALETTES[theme];
+    this.palette = paletteFor(theme, this.level.world);
     this.bg = null; // re-render background lazily
   }
 
@@ -560,7 +570,10 @@ export class GameEngine {
     for (const t of this.targets) {
       if (t.destroyed) continue;
       if (t.isPig) this.drawPig(t.body);
-      else this.drawPoly(t.body, "#b08968", "#7f5539");
+      else {
+        const [fill, edge] = MATERIAL_COLOR[t.material ?? "wood"];
+        this.drawPoly(t.body, fill, edge);
+      }
     }
 
     this.drawSlingshot();

@@ -7,13 +7,37 @@ import { useTheme } from "../../store/theme";
 import { useWallet } from "../../store/wallet";
 import { ABILITY_LABEL, FALLBACK_BIRDS } from "./birds";
 import { GameEngine, MAX_SHOTS, type ShotRecord } from "./engine";
-import { LEVEL_ONE } from "./levels";
+import { LEVELS, findLevel, findWorld, type Level } from "./levels";
+import LevelSelect, { Stars } from "./LevelSelect";
 import { SaveScorePrompt } from "../../components/Guest";
 import BackButton from "../../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 
-export default function Game() {
+/** Pick a level, then play it. */
+export default function Play() {
+  const [levelId, setLevelId] = useState<number | null>(null);
+  if (levelId === null) {
+    return (
+      <>
+        <div className="page-head">
+          <div>
+            <BackButton />
+            <h1 style={{ marginTop: 12 }}>Angry Bird</h1>
+            <p>Smash the fort. Pop the pigs. Clear all 12 levels.</p>
+          </div>
+          <Link to="/leaderboard/angry-bird" className="btn btn-blue btn-sm">
+            🏆 Leaderboard
+          </Link>
+        </div>
+        <LevelSelect onPlay={setLevelId} />
+      </>
+    );
+  }
+  return <Game key={levelId} level={findLevel(levelId)} onLevels={() => setLevelId(null)} onPlay={setLevelId} />;
+}
+
+function Game({ level, onLevels, onPlay }: { level: Level; onLevels: () => void; onPlay: (id: number) => void }) {
   // The canvas has a dark and a light sky; every theme picks one.
   const theme = useTheme((s) => s.scheme);
   const themeRef = useRef(theme);
@@ -46,7 +70,7 @@ export default function Game() {
     engineRef.current?.destroy();
     const engine = new GameEngine(
       canvasRef.current,
-      LEVEL_ONE,
+      level,
       selectedRef.current,
       {
         onStatus: (s) => {
@@ -86,7 +110,7 @@ export default function Game() {
     setError(null);
     setStatus("Round over! Server is verifying your shots…");
     try {
-      const res = await api.submitScore(LEVEL_ONE.id, shots);
+      const res = await api.submitScore(level.id, shots);
       setResult(res);
       setStatus(`Round over! Server scored ${fmt(res.score)} points.`);
       useWallet.getState().celebrate(res.rewards);
@@ -122,9 +146,12 @@ export default function Game() {
         <div>
           <BackButton />
           <h1 style={{ marginTop: 12 }}>
-            Angry Bird <span className="tag tag-yellow">Level 1</span>
+            Angry Bird{" "}
+            <span className="tag tag-yellow">
+              {findWorld(level.world).icon} Level {level.id}: {level.name}
+            </span>
           </h1>
-          <p>Smash the fort. Pop the pigs. Climb the board.</p>
+          <p>Destroy every pig to clear the level. Smash blocks for more stars.</p>
         </div>
         <Link to="/leaderboard/angry-bird" className="btn btn-blue btn-sm">
           🏆 Leaderboard
@@ -152,10 +179,18 @@ export default function Game() {
               </button>
             )}
             {roundOver && !submitting && (
-              <button className="btn-green" onClick={playAgain}>
-                ↻ Play again
+              <button className={result?.cleared ? "btn-ghost" : "btn-green"} onClick={playAgain}>
+                ↻ Retry level
               </button>
             )}
+            {roundOver && !submitting && result && result.unlocked_up_to > level.id && level.id < LEVELS.length && (
+              <button className="btn-green" onClick={() => onPlay(level.id + 1)}>
+                ▶ Next level
+              </button>
+            )}
+            <button className="btn-ghost" onClick={onLevels} disabled={submitting}>
+              ☰ Levels
+            </button>
             {submitting && <button disabled>Scoring…</button>}
           </div>
           {roundOver && !submitting && <SaveScorePrompt />}
@@ -168,8 +203,14 @@ export default function Game() {
 
           {result && (
             <div className="result-card">
-              <h3>{isBest ? "★ New personal best!" : "Round complete"}</h3>
+              <h3>
+                {result.cleared ? (result.first_clear ? "🎉 Level cleared!" : "Level cleared!") : "Some pigs survived"}
+                {isBest && " · ★ New best"}
+              </h3>
+              <Stars n={result.stars} />
               <div className="score-big">{fmt(result.score)}</div>
+              {!result.cleared && <p className="wam-hint">Destroy every pig to clear the level and unlock the next one.</p>}
+              {result.first_clear && <p className="unlock">+50 XP for your first clear of this level.</p>}
               <div className="stat-row">
                 <div className="stat">
                   <small>Pigs popped</small>
@@ -180,7 +221,7 @@ export default function Game() {
                   <strong>{result.blocks_destroyed}</strong>
                 </div>
                 <div className="stat">
-                  <small>Your best</small>
+                  <small>Level best</small>
                   <strong>{fmt(result.best_score)}</strong>
                 </div>
               </div>
@@ -208,14 +249,14 @@ export default function Game() {
                 onClick={() => b.unlocked && setSelected(b)}
                 disabled={!b.unlocked}
                 aria-pressed={selected.id === b.id}
-                title={b.unlocked ? b.description : `Unlock at ${fmt(b.unlock_score)} pts`}
+                title={b.unlocked ? b.description : `Unlocks at a ${fmt(b.unlock_score)} campaign score`}
               >
                 <span className="swatch" style={{ background: b.color }} />
                 <span className="bird-info">
                   <strong>{b.name}</strong>
                   <small>{ABILITY_LABEL[b.ability]}</small>
                   {!b.unlocked && (
-                    <small className="lock">🔒 {fmt(b.unlock_score)} pts</small>
+                    <small className="lock">🔒 {fmt(b.unlock_score)} campaign</small>
                   )}
                 </span>
               </button>

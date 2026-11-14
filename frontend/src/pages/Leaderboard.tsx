@@ -105,7 +105,7 @@ export default function Leaderboard() {
         <div className="board-subtabs segmented" role="radiogroup" aria-label={`${meta.title} boards`}>
           {boards.map((b, i) => (
             <button
-              key={b.level}
+              key={b.level ?? "all"}
               role="radio"
               aria-checked={board === b}
               className={`btn-sm${board === b ? "" : " btn-ghost"}`}

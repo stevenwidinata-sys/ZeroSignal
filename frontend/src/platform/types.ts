@@ -35,7 +35,8 @@ export interface GameMeta {
 }
 
 export interface GameBoard {
-  level: number;
+  /** Leaderboard board (`scores.level`); none = every board together. */
+  level?: number;
   label: string;
   /** "today" = only scores from the current WIB day. */
   period?: "today";

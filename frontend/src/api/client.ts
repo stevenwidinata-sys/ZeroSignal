@@ -1,5 +1,6 @@
 import type {
   AccountView,
+  AbProgress,
   PrefsView,
   Privacy,
   RenameResponse,
@@ -253,6 +254,10 @@ export const api = {
   // Angry Bird specific.
   birds() {
     return request<Bird[]>("/api/games/angry-bird/birds");
+  },
+  /** Angry Bird levels with your best, stars and unlocks. */
+  angryBirdLevels() {
+    return request<AbProgress>("/api/games/angry-bird/levels");
   },
   submitScore(level: number, shots: ShotInput[]) {
     return request<SubmitResponse>("/api/games/angry-bird/scores", {

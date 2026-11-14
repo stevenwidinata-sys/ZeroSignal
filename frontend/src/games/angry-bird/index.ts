@@ -1,16 +1,21 @@
 import { lazy } from "react";
 import type { GameModule } from "../../platform/types";
+import { LEVELS, findWorld } from "./levels";
 
 const angryBird: GameModule = {
   meta: {
     id: "angry-bird",
     title: "Angry Bird",
     tagline: "Fling birds, smash forts, pop every pig.",
-    tags: ["Physics", "Solo", "6 birds"],
+    tags: ["Physics", "Solo", "12 levels"],
     accent: "yellow",
     icon: "🐦",
     status: "live",
     scoreLabel: "Best score",
+    boards: [
+      { label: "🏆 All levels" },
+      ...LEVELS.map((l) => ({ level: l.id, label: `${findWorld(l.world).icon} ${l.id}. ${l.name}` })),
+    ],
     tutorial: [
       {
         icon: "🎯",
@@ -30,7 +35,7 @@ const angryBird: GameModule = {
       {
         icon: "🐷",
         title: "Score big",
-        text: "Pop every pig and smash blocks with as few birds as you can. Bigger scores unlock new birds and pay more coins.",
+        text: "Pop every pig to clear a level (1 ★) and unlock the next of 12. Smash blocks for 2 ★ and 3 ★. Your campaign score unlocks new birds.",
       },
     ],
   },

@@ -4215,3 +4215,79 @@ kbd.key {
   border: 1px solid var(--line);
   border-radius: 2px;
 }
+
+/* ---------- Angry Bird levels ---------- */
+.ab-levels {
+  display: grid;
+  gap: 18px;
+}
+.ab-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.ab-summary small {
+  color: var(--muted);
+}
+.ab-world .section-title {
+  margin-bottom: 10px;
+}
+.ab-level-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 760px) {
+  .ab-level-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.ab-level {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--ink);
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-body);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--world-a) 35%, var(--surface)), var(--surface) 70%);
+}
+.ab-level strong {
+  font-size: 0.9rem;
+}
+.ab-level small {
+  color: var(--muted);
+}
+.ab-level-num {
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--line);
+}
+.ab-level.cleared {
+  border-color: var(--green);
+}
+.ab-level.locked {
+  filter: grayscale(0.8);
+}
+.ab-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.ab-stars span {
+  color: var(--surface-2);
+  -webkit-text-stroke: 1px var(--line);
+}
+.ab-stars span.on {
+  color: var(--yellow);
+}
+.result-card .ab-stars {
+  font-size: 1.8rem;
+}

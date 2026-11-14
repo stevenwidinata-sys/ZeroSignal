@@ -11,7 +11,8 @@ describe("stats helpers", () => {
   it("board labels come from the game registry", () => {
     expect(boardLabel("whack-a-mole", 2)).toContain("Frenzy");
     expect(boardLabel("minefield", 3)).toContain("Expert");
-    expect(boardLabel("angry-bird", 1)).toBe("Level 1");
+    expect(boardLabel("angry-bird", 1)).toContain("First Flight");
+    expect(boardLabel("angry-bird", 99)).toBe("Level 99");
   });
 
   it("sums a game's boards with a weighted average", () => {

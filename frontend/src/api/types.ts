@@ -83,9 +83,33 @@ export interface SubmitResponse {
   score: number;
   pigs_destroyed: number;
   blocks_destroyed: number;
+  /** Best score on this level. */
   best_score: number;
+  cleared: boolean;
+  stars: number;
+  first_clear: boolean;
+  unlocked_up_to: number;
+  campaign_score: number;
   newly_unlocked: string[];
   rewards: Granted;
+}
+
+export interface AbLevelView {
+  id: number;
+  world: number;
+  name: string;
+  stars_at: [number, number, number];
+  best: number;
+  cleared: boolean;
+  stars: number;
+  unlocked: boolean;
+}
+
+export interface AbProgress {
+  campaign_score: number;
+  levels_cleared: number;
+  unlocked_up_to: number;
+  levels: AbLevelView[];
 }
 
 // ---------------------------------------------------------------------------
