@@ -293,6 +293,28 @@ The server checks every outfit: you can only wear items you own, in the slot the
    ```
    App served on `http://localhost:5173`.
 
+## Deploy (free, always reachable)
+
+| Part | Host | Notes |
+|------|------|-------|
+| Website | **Vercel** (Hobby, free) | project root `frontend`, env `VITE_API_BASE_URL=https://<api>.onrender.com`; `frontend/vercel.json` sends every path to the app |
+| API | **Render** web service (free) | `render.yaml` blueprint, built from `backend/Dockerfile` (context = repo root) |
+| Database | **Neon** Postgres (free, 1 GB) | pauses after 5 idle minutes and wakes by itself on the next query |
+| Keep-awake | **cron-job.org** (free) | requests `https://<api>.onrender.com/health` every 10 minutes so the free API never sleeps |
+
+API environment (set in the Render dashboard; never commit secrets):
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Neon connection string (with `sslmode=require`) |
+| `CORS_ORIGIN` | the website, e.g. `https://zerosignal.vercel.app` (comma-separate several; `*` = any) |
+| `JWT_SECRET` | long random string (the blueprint generates one) |
+| `TRUST_PROXY` | `true` on Render, so the guest limit sees each visitor's real IP |
+| `DB_MAX_CONNECTIONS` | `5` |
+| `PORT` | set by Render; the server listens on it (else `SERVER_ADDR`, default `0.0.0.0:8080`) |
+
+Migrations run automatically when the API starts. Pushing to `main` redeploys both the API (Render) and the website (Vercel).
+
 ## Tests
 
 ```bash
