@@ -45,12 +45,12 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let config = Config::from_env()?;
-    let pool = db::connect(&config.database_url).await?;
+    let pool = db::connect(&config.database_url, config.db_max_connections).await?;
     db::run_migrations(&pool).await?;
     tracing::info!("migrations applied");
 
     let cors = CorsLayer::new()
-        .allow_origin(Any)
+        .allow_origin(config::cors_origins(&config.cors_origin))
         .allow_methods(Any)
         .allow_headers(Any);
 

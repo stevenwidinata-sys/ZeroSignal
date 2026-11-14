@@ -63,6 +63,19 @@ impl GuestLimiter {
 // Create
 // ---------------------------------------------------------------------------
 
+/// The visitor's IP. Behind a trusted proxy it's the first address in
+/// `X-Forwarded-For` (the proxy adds the real client there); otherwise the
+/// connection's own address, so the header can't be faked.
+pub fn client_ip(peer: IpAddr, forwarded: Option<&str>, trust_proxy: bool) -> IpAddr {
+    if !trust_proxy {
+        return peer;
+    }
+    forwarded
+        .and_then(|f| f.split(',').next())
+        .and_then(|first| first.trim().parse().ok())
+        .unwrap_or(peer)
+}
+
 /// Usernames starting with this are reserved for guests.
 pub const GUEST_PREFIX: &str = "guest";
 
@@ -74,8 +87,11 @@ pub fn is_reserved_name(name: &str) -> bool {
 pub async fn create(
     State(state): State<AppState>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    headers: axum::http::HeaderMap,
 ) -> AppResult<Json<AuthResponse>> {
-    if !state.guests.allow(addr.ip(), Instant::now(), GUESTS_PER_HOUR, Duration::from_secs(3600)) {
+    let forwarded = headers.get("x-forwarded-for").and_then(|v| v.to_str().ok());
+    let ip = client_ip(addr.ip(), forwarded, state.config.trust_proxy);
+    if !state.guests.allow(ip, Instant::now(), GUESTS_PER_HOUR, Duration::from_secs(3600)) {
         return Err(AppError::Validation("too many guest sessions from your network. Try again later or register.".into()));
     }
     let id = Uuid::new_v4();
@@ -307,6 +323,16 @@ mod tests {
         assert!(!l.allow(a, t0, 3, hour));
         assert!(l.allow(b, t0, 3, hour), "other IPs are not affected");
         assert!(l.allow(a, t0 + hour, 3, hour), "the window slides");
+    }
+
+    #[test]
+    fn client_ip_trusts_the_proxy_header_only_when_told() {
+        let peer: IpAddr = "10.0.0.9".parse().unwrap();
+        let fwd = Some("203.0.113.7, 10.0.0.1");
+        assert_eq!(client_ip(peer, fwd, true), "203.0.113.7".parse::<IpAddr>().unwrap());
+        assert_eq!(client_ip(peer, fwd, false), peer);
+        assert_eq!(client_ip(peer, None, true), peer);
+        assert_eq!(client_ip(peer, Some("junk"), true), peer);
     }
 
     #[test]
