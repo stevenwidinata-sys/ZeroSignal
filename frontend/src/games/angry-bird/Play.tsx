@@ -14,7 +14,8 @@ import BackButton from "../../components/BackButton";
 const fmt = (n: number) => n.toLocaleString();
 
 export default function Game() {
-  const theme = useTheme((s) => s.theme);
+  // The canvas has a dark and a light sky; every theme picks one.
+  const theme = useTheme((s) => s.scheme);
   const themeRef = useRef(theme);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GameEngine | null>(null);

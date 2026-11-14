@@ -5,6 +5,7 @@ import { useTheme } from "../store/theme";
 import { useSync } from "../platform/settingsSync";
 import { useAuth } from "../store/auth";
 import AccountPanel from "./settings/AccountPanel";
+import ThemePicker from "./settings/ThemePicker";
 import PrivacyPanel from "./settings/PrivacyPanel";
 import ControlsPanel from "./settings/ControlsPanel";
 import { canFullscreen, toggleFullscreen, useFullscreen } from "../platform/display";
@@ -32,7 +33,7 @@ const TEXT_SIZE_NAME: Record<TextSize, string> = { s: "Small", m: "Medium", l: "
 export default function SettingsDialog({ open, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const s = useSettings();
-  const theme = useTheme((t) => t.theme);
+  const scheme = useTheme((t) => t.scheme);
   const toggleTheme = useTheme((t) => t.toggle);
   const [tutorialsReset, setTutorialsReset] = useState(false);
   const user = useAuth((a) => a.user);
@@ -90,14 +91,19 @@ export default function SettingsDialog({ open, onClose }: Props) {
             <>
               <fieldset>
                 <legend>Display</legend>
+                <div className="row-label row-stack">
+                  <span>
+                    Theme
+                    <small>Pick one for your mood. It follows you to every device when you're logged in.</small>
+                  </span>
+                  <ThemePicker />
+                </div>
                 <label className="row-label">
-                  <span>Dark mode</span>
-                  <input
-                    type="checkbox"
-                    className="switch"
-                    checked={theme === "dark"}
-                    onChange={toggleTheme}
-                  />
+                  <span>
+                    Dark version
+                    <small>Switch to this mood's {scheme === "dark" ? "light" : "dark"} partner (also the 🌙/☀️ button).</small>
+                  </span>
+                  <input type="checkbox" className="switch" checked={scheme === "dark"} onChange={toggleTheme} />
                 </label>
                 <label className="row-label">
                   <span>

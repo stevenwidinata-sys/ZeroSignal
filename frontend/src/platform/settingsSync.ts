@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import type { Privacy } from "../api/types";
 import { pick, useSettings } from "../store/settings";
 import { useTheme, type Theme } from "../store/theme";
+import { findTheme } from "./themes";
 
 /**
  * Settings follow a registered player to every device: on login the
@@ -22,7 +23,7 @@ export function snapshot(): Record<string, unknown> {
 export function applyRemote(remote: Record<string, unknown>) {
   useSettings.getState().replace(remote);
   const theme = remote.theme;
-  if (theme === "light" || theme === "dark") useTheme.getState().set(theme as Theme);
+  if (findTheme(theme)) useTheme.getState().set(theme as Theme);
 }
 
 interface SyncState {

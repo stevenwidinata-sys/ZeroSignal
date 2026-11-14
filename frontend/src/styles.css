@@ -509,7 +509,7 @@ input:focus {
   color: var(--yellow);
   text-shadow: 3px 3px 0 var(--line);
 }
-[data-theme="light"] .score-big {
+[data-scheme="light"] .score-big {
   color: var(--blue);
 }
 
@@ -767,10 +767,10 @@ input:focus {
 .hero-title span {
   color: var(--blue);
 }
-[data-theme="light"] .hero-title {
+[data-scheme="light"] .hero-title {
   color: var(--blue);
 }
-[data-theme="light"] .hero-title span {
+[data-scheme="light"] .hero-title span {
   color: var(--green-deep);
 }
 .hero-sub {
@@ -3936,7 +3936,7 @@ html[data-text="xl"] { font-size: 20px; }
 }
 
 /* ---------- Display: high contrast, readable font, FPS, shortcuts ---------- */
-[data-contrast="high"][data-theme="dark"] {
+[data-contrast="high"][data-scheme="dark"] {
   --bg: #000;
   --bg-2: #000;
   --surface: #000;
@@ -3947,7 +3947,7 @@ html[data-text="xl"] { font-size: 20px; }
   --grid: transparent;
   --scan: transparent;
 }
-[data-contrast="high"][data-theme="light"] {
+[data-contrast="high"][data-scheme="light"] {
   --bg: #fff;
   --bg-2: #fff;
   --surface: #fff;
@@ -4095,4 +4095,76 @@ kbd.key {
   border-left: 3px solid var(--red);
   background: var(--surface-2);
   font-size: 0.85rem;
+}
+
+/* ---------- Theme picker ---------- */
+.row-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+.theme-card {
+  --btn-bg: var(--tp-bg);
+  --btn-fg: var(--tp-ink);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 8px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-body);
+  border-color: var(--tp-line);
+  box-shadow: 2px 2px 0 var(--line);
+}
+.theme-card strong {
+  font-size: 0.85rem;
+}
+.theme-card small {
+  color: var(--tp-muted);
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+.theme-card.selected {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+.theme-preview {
+  position: relative;
+  display: block;
+  height: 38px;
+  border: 2px solid var(--tp-line);
+  border-radius: 4px;
+  background: var(--tp-surface);
+  overflow: hidden;
+}
+.tp-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 10px;
+  background: var(--tp-yellow);
+}
+.tp-dots {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  display: flex;
+  gap: 4px;
+}
+.tp-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--tp-line);
+}
+.tp-text {
+  position: absolute;
+  right: 6px;
+  bottom: 3px;
+  color: var(--tp-ink);
+  font-weight: 700;
 }
