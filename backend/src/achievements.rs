@@ -1,4 +1,4 @@
-//! Achievements: 38 one-time goals. Progress is computed live from data the
+//! Achievements: 40 one-time goals. Progress is computed live from data the
 //! server already verified (matches, scores, ledger, inventory), so older
 //! progress counts too. Claiming pays coins + the same XP once, plus a title.
 
@@ -36,7 +36,10 @@ pub struct Stats {
     pub ttt_items_total: i64,
     pub has_photo: bool,
     pub ab_rounds: i64,
+    /// Angry Bird campaign score: best of every level added up.
     pub ab_best: i64,
+    pub ab_levels_cleared: i64,
+    pub ab_three_star_levels: i64,
     pub level: i64,
     pub wheel_spins: i64,
     pub boxes_opened: i64,
@@ -96,7 +99,7 @@ macro_rules! ach {
     };
 }
 
-pub static ACHIEVEMENTS: [Achievement; 38] = [
+pub static ACHIEVEMENTS: [Achievement; 40] = [
     ach!("cf_first_win", "First Drop", "Win your first Connect Four series", 30, "title-chip-dropper", 1, |s| s.cf_wins),
     ach!("cf_medium", "Thinking Ahead", "Win a Connect Four series vs Medium or harder", 40, "title-four-thinker", 1, |s| s.cf_wins_medium),
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
@@ -110,8 +113,10 @@ pub static ACHIEVEMENTS: [Achievement; 38] = [
         |s| i64::from(s.ttt_items_total > 0 && s.ttt_items_owned >= s.ttt_items_total)),
     ach!("photo_face", "Say Cheese", "Add a photo face", 20, "title-say-cheese", 1, |s| i64::from(s.has_photo)),
     ach!("ab_first_round", "First Flight", "Finish your first Angry Bird round", 20, "title-fledgling", 1, |s| s.ab_rounds),
-    ach!("ab_10000", "Big Score", "Score 10,000 in one Angry Bird round", 80, "title-sharpshooter", 10_000, |s| s.ab_best),
-    ach!("ab_25000", "Pig Slayer", "Score 25,000 in one Angry Bird round", 200, "title-pig-slayer", 25_000, |s| s.ab_best),
+    ach!("ab_10000", "Big Score", "Reach a 10,000 Angry Bird campaign score (best of each level added up)", 80, "title-sharpshooter", 10_000, |s| s.ab_best),
+    ach!("ab_25000", "Pig Slayer", "Reach a 25,000 Angry Bird campaign score", 200, "title-pig-slayer", 25_000, |s| s.ab_best),
+    ach!("ab_world_tour", "World Tour", "Clear all 12 Angry Bird levels", 250, "title-world-tour", 12, |s| s.ab_levels_cleared),
+    ach!("ab_three_star", "Three-Star General", "Get 3 stars on 6 Angry Bird levels", 200, "title-three-star", 6, |s| s.ab_three_star_levels),
     ach!("ab_all_birds", "Full Flock", "Unlock every bird", 150, "title-flock-leader", 1,
         |s| i64::from(s.ab_best >= all_birds_score())),
     ach!("level_5", "Level 5", "Reach level 5", 50, "title-rising-star", 5, |s| s.level),
@@ -181,6 +186,7 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
     .bind(user_id)
     .fetch_one(pool)
     .await?;
+    let campaign = crate::angry_bird::campaign(&crate::angry_bird::level_bests(pool, user_id).await?);
     let ledger: (i64, i64, Option<i64>) = sqlx::query_as(
         r#"SELECT COUNT(*) FILTER (WHERE reason = 'token_wheel'),
                   COUNT(*) FILTER (WHERE reason = 'mystery_box'),
@@ -255,7 +261,9 @@ pub async fn load_stats(pool: &sqlx::PgPool, user_id: Uuid) -> AppResult<Stats> 
         ttt_items_total: t.all().count() as i64,
         has_photo: count(pool, "SELECT COUNT(*) FROM user_photos WHERE user_id = $1", user_id).await? > 0,
         ab_rounds: ab.0,
-        ab_best: ab.1.unwrap_or(0) as i64,
+        ab_best: campaign.score.max(i64::from(ab.1.unwrap_or(0))),
+        ab_levels_cleared: campaign.levels_cleared,
+        ab_three_star_levels: campaign.three_star_levels,
         level: level as i64,
         wheel_spins: ledger.0,
         boxes_opened: ledger.1,
@@ -445,11 +453,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn there_are_38_unique_achievements() {
+    fn there_are_40_unique_achievements() {
         let mut ids: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.id).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 38);
+        assert_eq!(ids.len(), 40);
         assert!(ACHIEVEMENTS.iter().all(|a| a.coins > 0 && a.target > 0 && a.id.len() <= 32));
     }
 
@@ -464,9 +472,9 @@ mod tests {
         let mut titles: Vec<_> = ACHIEVEMENTS.iter().map(|a| a.title).collect();
         titles.sort();
         titles.dedup();
-        assert_eq!(titles.len(), 38);
+        assert_eq!(titles.len(), 40);
         let achievement_items = c.items.iter().filter(|i| i.unlock == Unlock::Achievement).count();
-        assert_eq!(achievement_items, 38, "orphan achievement-only items in catalog");
+        assert_eq!(achievement_items, 40, "orphan achievement-only items in catalog");
     }
 
     #[test]

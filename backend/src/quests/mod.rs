@@ -26,7 +26,8 @@ pub enum Game {
 pub enum Event {
     AiGame { game: Game, level: i64, result: GameResult },
     SeriesWon { game: Game, level: i64, used_undo: bool },
-    AngryBirdRound { score: i64 },
+    /// `cleared`: every pig in the level destroyed.
+    AngryBirdRound { score: i64, cleared: bool },
     WhackRound { score: i64, golden_hits: i64 },
     /// `level`: 1 Beginner, 2 Intermediate/Daily, 3 Expert.
     MinefieldWin { level: i64, hints: i64 },
@@ -42,6 +43,7 @@ enum Goal {
     WinOrDrawAi { game: Game, min_level: i64 },
     WinSeries { game: Option<Game>, min_level: i64, no_undo: bool },
     AngryBirdRounds,
+    AngryBirdClears,
     AngryBirdSingleScore(i64),
     AngryBirdTotalScore,
     OpenMysteryBox,
@@ -85,8 +87,9 @@ impl QuestDef {
                 hit(g.map_or(true, |g| g == game) && level >= min_level && !(no_undo && used_undo))
             }
             (Goal::AngryBirdRounds, AngryBirdRound { .. }) => 1,
-            (Goal::AngryBirdSingleScore(min), AngryBirdRound { score }) => hit(score >= min),
-            (Goal::AngryBirdTotalScore, AngryBirdRound { score }) => {
+            (Goal::AngryBirdClears, AngryBirdRound { cleared, .. }) => hit(cleared),
+            (Goal::AngryBirdSingleScore(min), AngryBirdRound { score, .. }) => hit(score >= min),
+            (Goal::AngryBirdTotalScore, AngryBirdRound { score, .. }) => {
                 score.clamp(0, i32::MAX as i64) as i32
             }
             (Goal::OpenMysteryBox, MysteryBox) => 1,
@@ -112,7 +115,7 @@ const fn q(id: &'static str, title: &'static str, goal: Goal, target: i32, coins
 
 use Game::{ConnectFour as CF, TicTacToe as TTT};
 
-pub const POOL: [QuestDef; 21] = [
+pub const POOL: [QuestDef; 22] = [
     q("cf_play_3", "Play 3 Connect Four games vs the AI", Goal::PlayAi(CF), 3, 20, 30),
     q("cf_win_2_medium", "Win 2 Connect Four games vs Medium or harder",
         Goal::WinAi { game: Some(CF), min_level: 2 }, 2, 40, 60),
@@ -124,6 +127,7 @@ pub const POOL: [QuestDef; 21] = [
     q("ttt_series_medium", "Win a Tic-Tac-Toe series vs Medium",
         Goal::WinSeries { game: Some(TTT), min_level: 2, no_undo: false }, 1, 40, 60),
     q("ab_play_3", "Play 3 Angry Bird rounds", Goal::AngryBirdRounds, 3, 20, 30),
+    q("ab_clear_2", "Clear 2 Angry Bird levels (every pig gone)", Goal::AngryBirdClears, 2, 40, 60),
     q("ab_score_5000", "Score 5,000 in one Angry Bird round", Goal::AngryBirdSingleScore(5_000), 1, 40, 60),
     q("ab_total_15000", "Score 15,000 in total in Angry Bird today", Goal::AngryBirdTotalScore, 15_000, 50, 80),
     q("series_no_undo", "Win any series without using undo",
@@ -236,7 +240,7 @@ mod tests {
         assert_eq!(quest("wam_score_5000").progress(&round(4_999, 3)), 0);
         assert_eq!(quest("wam_score_5000").progress(&round(5_000, 0)), 1);
         assert_eq!(quest("wam_golden_5").progress(&round(9_000, 2)), 2);
-        assert_eq!(quest("wam_golden_5").progress(&Event::AngryBirdRound { score: 9_000 }), 0);
+        assert_eq!(quest("wam_golden_5").progress(&Event::AngryBirdRound { score: 9_000, cleared: true }), 0);
         assert_eq!(quest("ab_play_3").progress(&round(100, 0)), 0);
     }
 
@@ -264,11 +268,14 @@ mod tests {
 
     #[test]
     fn angry_bird_quests() {
-        let round = |score| Event::AngryBirdRound { score };
+        let round = |score| Event::AngryBirdRound { score, cleared: false };
         assert_eq!(quest("ab_play_3").progress(&round(0)), 1);
         assert_eq!(quest("ab_score_5000").progress(&round(4_999)), 0);
         assert_eq!(quest("ab_score_5000").progress(&round(5_000)), 1);
         assert_eq!(quest("ab_total_15000").progress(&round(7_250)), 7_250);
         assert_eq!(quest("ab_total_15000").progress(&round(-3)), 0);
+        let clear = |cleared| Event::AngryBirdRound { score: 3_000, cleared };
+        assert_eq!(quest("ab_clear_2").progress(&clear(true)), 1);
+        assert_eq!(quest("ab_clear_2").progress(&clear(false)), 0);
     }
 }

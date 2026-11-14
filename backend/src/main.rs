@@ -1,4 +1,5 @@
 mod achievements;
+mod angry_bird;
 mod auth;
 mod birds;
 mod birds_api;
@@ -126,6 +127,7 @@ async fn main() -> anyhow::Result<()> {
         // Per-game authoritative score submission.
         .route("/api/games/angry-bird/scores", post(scores::submit_angry_bird))
         .route("/api/games/angry-bird/birds", get(birds_api::list))
+        .route("/api/games/angry-bird/levels", get(angry_bird::progress))
         // Connect Four: server-authoritative AI matches + skins.
         .route("/api/games/connect-four/matches", post(cf::create_match))
         .route("/api/games/connect-four/matches/active", get(cf::active_match))

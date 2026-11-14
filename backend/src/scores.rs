@@ -10,6 +10,7 @@ use crate::error::{AppError, AppResult};
 use crate::games::{self, ANGRY_BIRD};
 use crate::physics::engine::{score_shots, ShotInput};
 use crate::physics::level;
+use crate::angry_bird;
 use crate::quests;
 use crate::state::AppState;
 
@@ -30,7 +31,18 @@ pub struct SubmitResponse {
     pub score: i32,
     pub pigs_destroyed: usize,
     pub blocks_destroyed: usize,
+    /// Best score on this level (including this round).
     pub best_score: i32,
+    /// Every pig destroyed.
+    pub cleared: bool,
+    /// Stars earned this round (0–3).
+    pub stars: u8,
+    /// First time this level was cleared (bonus XP).
+    pub first_clear: bool,
+    /// Highest level you can play now.
+    pub unlocked_up_to: i32,
+    /// Best score of every level added up (unlocks birds).
+    pub campaign_score: i64,
     pub newly_unlocked: Vec<String>,
     /// Coins, tokens and XP actually paid for this round.
     pub rewards: Granted,
@@ -51,8 +63,17 @@ pub async fn submit_angry_bird(
         return Err(AppError::Validation("too many shots".into()));
     }
 
-    // Best score BEFORE this run: used for unlock checks and new unlocks.
-    let prev_best = fetch_best_score(&state, ANGRY_BIRD, user.user_id).await?;
+    let lvl_meta = level::meta(req.level).ok_or_else(|| AppError::Validation("unknown level".into()))?;
+    // Campaign BEFORE this run: levels must be cleared in order, and the
+    // campaign score (best of every level added up) unlocks birds.
+    let bests = angry_bird::level_bests(&state.pool, user.user_id).await?;
+    let before = angry_bird::campaign(&bests);
+    if req.level > before.unlocked_up_to {
+        return Err(AppError::Validation("clear the previous level first".into()));
+    }
+    let prev_best = before.score.clamp(0, i32::MAX as i64) as i32;
+    let level_best_before = bests.iter().find(|b| b.level == req.level).map_or(0, |b| b.best);
+    let cleared_before = bests.iter().any(|b| b.level == req.level && b.cleared);
 
     for s in &req.shots {
         if !s.power.is_finite() || !s.angle.is_finite() {
@@ -72,32 +93,43 @@ pub async fn submit_angry_bird(
         }
     }
 
-    let lvl = level::by_id(req.level)
-        .ok_or_else(|| AppError::Validation("unknown level".into()))?;
+    let lvl = level::by_id(req.level).ok_or_else(|| AppError::Validation("unknown level".into()))?;
 
     // Authoritative simulation.
     let result = score_shots(lvl, &req.shots);
     let primary_bird = req.shots[0].bird.clone();
+    let cleared = result.pigs_destroyed == lvl_meta.pigs;
+    let first_clear = cleared && !cleared_before;
 
     let mut tx = state.pool.begin().await?;
     sqlx::query(
-        r#"INSERT INTO scores (user_id, game_id, score, level, bird_variant, gained)
-           VALUES ($1, $2, $3, $4, $5, $3)"#,
+        r#"INSERT INTO scores (user_id, game_id, score, level, bird_variant, gained, detail)
+           VALUES ($1, $2, $3, $4, $5, $3, $6)"#,
     )
     .bind(user.user_id)
     .bind(ANGRY_BIRD)
     .bind(result.score)
     .bind(req.level)
     .bind(&primary_bird)
+    .bind(cleared.then_some(angry_bird::CLEAR))
     .execute(&mut *tx)
     .await?;
-    let reward = score_round_reward(result.score, &mut rand::thread_rng());
-    let round = quests::Event::AngryBirdRound { score: result.score as i64 };
+    let mut reward = score_round_reward(result.score, &mut rand::thread_rng());
+    if first_clear {
+        reward.xp += angry_bird::FIRST_CLEAR_XP;
+    }
+    let round = quests::Event::AngryBirdRound { score: result.score as i64, cleared };
     quests::api::record(&mut tx, user.user_id, &[round]).await?;
     let rewards = economy::grant(&mut tx, user.user_id, reward, "angry_bird_round", true).await?;
     tx.commit().await?;
 
-    let new_best = prev_best.max(result.score);
+    let improved = (result.score - level_best_before).max(0);
+    let campaign_score = before.score + i64::from(improved);
+    let new_best = campaign_score.clamp(0, i32::MAX as i64) as i32;
+    let mut cleared_now: Vec<i32> = bests.iter().filter(|b| b.cleared).map(|b| b.level).collect();
+    if cleared {
+        cleared_now.push(req.level);
+    }
     let newly_unlocked: Vec<String> = birds::BIRDS
         .iter()
         .filter(|b| {
@@ -110,7 +142,12 @@ pub async fn submit_angry_bird(
         score: result.score,
         pigs_destroyed: result.pigs_destroyed,
         blocks_destroyed: result.blocks_destroyed,
-        best_score: new_best,
+        best_score: level_best_before.max(result.score),
+        cleared,
+        stars: level::stars_for(lvl_meta, result.score, cleared),
+        first_clear,
+        unlocked_up_to: level::unlocked_up_to(&cleared_now),
+        campaign_score,
         newly_unlocked,
         rewards,
     }))

@@ -59,7 +59,9 @@ async fn resolve_best_score(state: &AppState, headers: &HeaderMap) -> i32 {
     let Ok(claims) = verify_token(token, &state.config.jwt_secret) else {
         return 0;
     };
-    crate::scores::fetch_best_score(state, crate::games::ANGRY_BIRD, claims.sub)
+    // Birds unlock with the campaign score (best of every level added up).
+    crate::angry_bird::level_bests(&state.pool, claims.sub)
         .await
+        .map(|b| crate::angry_bird::campaign(&b).score.clamp(0, i32::MAX as i64) as i32)
         .unwrap_or(0)
 }
