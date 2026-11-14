@@ -123,8 +123,10 @@ mod tests {
     #[test]
     fn shared_catalog_loads() {
         let it = items();
-        assert_eq!(it.hammers.len(), 6);
-        assert_eq!(it.themes.len(), 5);
+        assert_eq!(it.hammers.len(), 9);
+        assert_eq!(it.themes.len(), 8);
+        assert_eq!(it.hammers.iter().filter(|h| h.price.is_none()).count(), 4);
+        assert_eq!(it.themes.iter().filter(|t| t.price.is_none()).count(), 4);
         assert_eq!(it.default_id(Kind::Hammer), "mallet");
         assert_eq!(it.default_id(Kind::Theme), "garden");
     }

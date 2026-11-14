@@ -3,10 +3,11 @@ import { RECIPES } from "../../platform/sound";
 import { HAMMERS, THEMES, findHammer, findTheme, hammerCursor, itemName, themeStyle } from "./items";
 
 describe("whack-a-mole items", () => {
-  it("catalog has unique ids and one free item per list", () => {
+  it("catalog has unique ids and four free items per list (the first is the default)", () => {
     for (const list of [HAMMERS, THEMES]) {
       expect(new Set(list.map((i) => i.id)).size).toBe(list.length);
-      expect(list.filter((i) => i.price === null)).toHaveLength(1);
+      expect(list.filter((i) => i.price === null)).toHaveLength(4);
+      expect(list[0].price).toBeNull();
     }
   });
 

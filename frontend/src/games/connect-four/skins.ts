@@ -23,6 +23,10 @@ export const SKINS: SkinMeta[] = [
   { id: "bomb-bird", name: "Bomb Bird", rarity: "epic", free: false, color: "#2b2d42", rim: "#0d0e16" },
   { id: "egg", name: "Golden Egg", rarity: "epic", free: false, color: "#fff1b8", rim: "#d9a400" },
   { id: "tnt", name: "TNT Crate", rarity: "epic", free: false, color: "#c8873a", rim: "#7a4a14" },
+  { id: "ocean", name: "Ocean Teal", rarity: "common", free: true, color: "#2ec4b6", rim: "#16857b" },
+  { id: "sunset", name: "Sunset Orange", rarity: "common", free: true, color: "#fb8500", rim: "#b35f00" },
+  { id: "mint", name: "Mint", rarity: "common", free: true, color: "#8ee3c8", rim: "#3fa184" },
+  { id: "night", name: "Night Sky", rarity: "common", free: true, color: "#3d348b", rim: "#221c55" },
 ];
 
 export const RARITY_LABEL: Record<Rarity, string> = {

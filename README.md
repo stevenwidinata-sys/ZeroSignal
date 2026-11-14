@@ -11,7 +11,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 | Game         | Status      | Notes |
 |--------------|-------------|-------|
 | Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
-| Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 10 chip skins + spin wheel |
+| Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 14 chip skins (6 free) + spin wheel |
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
 | Whack-a-Mole | Live        | 4 modes, 6 kinds of moles, combos and FEVER; the server replays every tap |
 | Minefield    | Live        | No-guess boards in 3 sizes + a Daily; the server keeps the mines |
@@ -170,7 +170,7 @@ The `/achievements` page lists 38 one-time achievements with progress bars; lock
 | Win a Connect Four series vs Hard or harder | 80 | Grid Breaker |
 | Win a Connect Four series vs Impossible | 300 | The Impossible |
 | Win a best-of-5 Connect Four series 3–0 | 100 | Flawless |
-| Own all 10 Connect Four skins | 200 | Collector |
+| Own every Connect Four skin | 200 | Collector |
 | Win your first Tic-Tac-Toe series | 30 | X Marks It |
 | Draw a whole Hard Tic-Tac-Toe series | 100 | Unbreakable |
 | Own every Tic-Tac-Toe board and face | 200 | Board Baron |
@@ -217,7 +217,7 @@ Titles show in the wardrobe, on public profiles and next to names on leaderboard
 
 ## Character, shop and profiles
 
-Every player has a pixel-art character with **23 slots** and **196 items**, drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
+Every player has a pixel-art character with **23 slots** and **216 items** (67 free starters), drawn in code (no image files). The catalog lives in `shared/character_items.json`, and both the backend and the frontend read that same file, so prices and unlock rules can't drift apart.
 
 | Group | Slots |
 |-------|-------|

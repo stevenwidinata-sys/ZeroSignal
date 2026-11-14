@@ -89,6 +89,9 @@
     { "id": "hat-viking", "slot": "hat", "name": "Viking Helmet", "rarity": "epic", "unlock": { "kind": "level", "level": 20 }, "art": { "shape": "viking", "color": "#9aa0a6", "accent": "#f6e7c8" } },
     { "id": "hat-halo", "slot": "hat", "name": "Halo", "rarity": "epic", "unlock": { "kind": "wheel" }, "art": { "shape": "halo", "color": "#ffe66d", "accent": "#fff6c2" } },
     { "id": "hat-crown", "slot": "hat", "name": "Royal Crown", "rarity": "legendary", "unlock": { "kind": "wheel" }, "art": { "shape": "crown", "color": "#ffd23f", "accent": "#e63946" } },
+    { "id": "hat-beanie-gray", "slot": "hat", "name": "Gray Beanie", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "beanie", "color": "#6c757d", "accent": "#3d4148" } },
+    { "id": "hat-cap-black", "slot": "hat", "name": "Black Cap", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "cap", "color": "#22223b", "accent": "#ffffff" } },
+    { "id": "hat-cap-teal", "slot": "hat", "name": "Teal Cap", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "cap", "color": "#2a9d8f", "accent": "#ffffff" } },
 
     { "id": "glasses-round", "slot": "glasses", "name": "Round Specs", "rarity": "common", "unlock": { "kind": "level", "level": 2 }, "art": { "shape": "round", "color": "#1b1b2f" } },
     { "id": "glasses-square", "slot": "glasses", "name": "Square Specs", "rarity": "common", "unlock": { "kind": "coins", "price": 120 }, "art": { "shape": "square", "color": "#6b3e1f" } },
@@ -120,6 +123,11 @@
     { "id": "shirt-jersey", "slot": "shirt", "name": "Team Jersey", "rarity": "rare", "unlock": { "kind": "level", "level": 10 }, "art": { "shape": "jersey", "color": "#3a86ff", "accent": "#ffffff", "text": "10" } },
     { "id": "shirt-tux", "slot": "shirt", "name": "Tuxedo", "rarity": "epic", "unlock": { "kind": "coins", "price": 900 }, "art": { "shape": "tux", "color": "#1b1b2f", "accent": "#f5f5f5" } },
     { "id": "shirt-jersey-gold", "slot": "shirt", "name": "Golden Jersey", "rarity": "legendary", "unlock": { "kind": "wheel" }, "art": { "shape": "jersey", "color": "#ffd23f", "accent": "#1b1b2f", "text": "1" } },
+    { "id": "shirt-tee-blue", "slot": "shirt", "name": "Blue Tee", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "tee", "color": "#3a86ff" } },
+    { "id": "shirt-tee-yellow", "slot": "shirt", "name": "Yellow Tee", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "tee", "color": "#ffd23f" } },
+    { "id": "shirt-tee-black", "slot": "shirt", "name": "Black Tee", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "tee", "color": "#22223b" } },
+    { "id": "shirt-tee-purple", "slot": "shirt", "name": "Purple Tee", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "tee", "color": "#9b5de5" } },
+    { "id": "shirt-tee-orange", "slot": "shirt", "name": "Orange Tee", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "tee", "color": "#fb8500" } },
 
     { "id": "jacket-puffer", "slot": "jacket", "name": "Orange Puffer", "rarity": "common", "unlock": { "kind": "coins", "price": 250 }, "art": { "shape": "puffer", "color": "#fb8500" } },
     { "id": "jacket-denim", "slot": "jacket", "name": "Denim Jacket", "rarity": "rare", "unlock": { "kind": "coins", "price": 300 }, "art": { "shape": "open", "color": "#457b9d" } },
@@ -136,6 +144,10 @@
     { "id": "pants-skirt", "slot": "pants", "name": "Pink Skirt", "rarity": "common", "unlock": { "kind": "coins", "price": 150 }, "art": { "shape": "skirt", "color": "#ff70a6" } },
     { "id": "pants-plaid", "slot": "pants", "name": "Plaid Trousers", "rarity": "rare", "unlock": { "kind": "coins", "price": 350 }, "art": { "shape": "plaid", "color": "#9d0208", "accent": "#1b1b2f" } },
     { "id": "pants-gold", "slot": "pants", "name": "Golden Pants", "rarity": "epic", "unlock": { "kind": "wheel" }, "art": { "shape": "long", "color": "#ffd23f" } },
+    { "id": "pants-long-black", "slot": "pants", "name": "Black Pants", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "long", "color": "#22223b" } },
+    { "id": "pants-long-gray", "slot": "pants", "name": "Gray Pants", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "long", "color": "#6c757d" } },
+    { "id": "pants-long-olive", "slot": "pants", "name": "Olive Pants", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "long", "color": "#606c38" } },
+    { "id": "pants-shorts-blue", "slot": "pants", "name": "Blue Shorts", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "shorts", "color": "#457b9d" } },
 
     { "id": "shoes-sneakers-white", "slot": "shoes", "name": "White Sneakers", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "sneakers", "color": "#f5f5f5", "accent": "#e63946" } },
     { "id": "shoes-sandals", "slot": "shoes", "name": "Flip-Flops", "rarity": "common", "unlock": { "kind": "coins", "price": 100 }, "art": { "shape": "sandals", "color": "#2ec4b6" } },
@@ -144,6 +156,9 @@
     { "id": "shoes-hightops", "slot": "shoes", "name": "Blue High-Tops", "rarity": "rare", "unlock": { "kind": "level", "level": 6 }, "art": { "shape": "hightops", "color": "#3a86ff", "accent": "#f5f5f5" } },
     { "id": "shoes-gold", "slot": "shoes", "name": "Gold Kicks", "rarity": "legendary", "unlock": { "kind": "level", "level": 25 }, "art": { "shape": "sneakers", "color": "#ffd23f", "accent": "#ffffff" } },
     { "id": "shoes-rocket", "slot": "shoes", "name": "Rocket Boots", "rarity": "epic", "unlock": { "kind": "wheel" }, "art": { "shape": "rocket", "color": "#adb5bd", "accent": "#fb8500" } },
+    { "id": "shoes-sneakers-black", "slot": "shoes", "name": "Black Sneakers", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "sneakers", "color": "#22223b", "accent": "#f5f5f5" } },
+    { "id": "shoes-sneakers-blue", "slot": "shoes", "name": "Blue Sneakers", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "sneakers", "color": "#3a86ff", "accent": "#f5f5f5" } },
+    { "id": "shoes-sneakers-teal", "slot": "shoes", "name": "Teal Sneakers", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "sneakers", "color": "#2a9d8f", "accent": "#ffd23f" } },
 
     { "id": "gloves-white", "slot": "gloves", "name": "White Gloves", "rarity": "common", "unlock": { "kind": "coins", "price": 120 }, "art": { "shape": "basic", "color": "#f5f5f5" } },
     { "id": "gloves-fingerless", "slot": "gloves", "name": "Fingerless", "rarity": "common", "unlock": { "kind": "coins", "price": 200 }, "art": { "shape": "basic", "color": "#2b2d42" } },
@@ -187,6 +202,9 @@
     { "id": "bg-candy", "slot": "background", "name": "Candy Land", "rarity": "common", "unlock": { "kind": "coins", "price": 250 }, "art": { "shape": "gradient", "color": "#ffafcc", "accent": "#bde0fe" } },
     { "id": "bg-space", "slot": "background", "name": "Deep Space", "rarity": "rare", "unlock": { "kind": "level", "level": 16 }, "art": { "shape": "stars", "color": "#240046", "accent": "#e0aaff" } },
     { "id": "bg-gold", "slot": "background", "name": "Golden Hour", "rarity": "legendary", "unlock": { "kind": "wheel" }, "art": { "shape": "rays", "color": "#ffb703", "accent": "#fff3b0" } },
+    { "id": "bg-mint", "slot": "background", "name": "Mint Breeze", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "gradient", "color": "#b7e4c7", "accent": "#e9f5db" } },
+    { "id": "bg-peach", "slot": "background", "name": "Peach", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "gradient", "color": "#ffcdb2", "accent": "#ffe5d9" } },
+    { "id": "bg-lavender", "slot": "background", "name": "Lavender", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "gradient", "color": "#cdb4db", "accent": "#f1e6ff" } },
 
     { "id": "frame-basic", "slot": "frame", "name": "Basic", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "solid", "color": "#03040c" } },
     { "id": "frame-blue", "slot": "frame", "name": "Blue Border", "rarity": "common", "unlock": { "kind": "coins", "price": 120 }, "art": { "shape": "solid", "color": "#3a86ff" } },
@@ -194,6 +212,8 @@
     { "id": "frame-double", "slot": "frame", "name": "Double Line", "rarity": "rare", "unlock": { "kind": "coins", "price": 350 }, "art": { "shape": "double", "color": "#9b5de5" } },
     { "id": "frame-glow", "slot": "frame", "name": "Neon Glow", "rarity": "epic", "unlock": { "kind": "wheel" }, "art": { "shape": "glow", "color": "#00f5d4" } },
     { "id": "frame-gold", "slot": "frame", "name": "Golden Frame", "rarity": "legendary", "unlock": { "kind": "level", "level": 30 }, "art": { "shape": "double", "color": "#ffd23f" } },
+    { "id": "frame-white", "slot": "frame", "name": "White Border", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "solid", "color": "#f5f5f5" } },
+    { "id": "frame-red", "slot": "frame", "name": "Red Border", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "shape": "solid", "color": "#e63946" } },
 
     { "id": "title-rookie", "slot": "title", "name": "Rookie", "rarity": "common", "unlock": { "kind": "starter" }, "art": { "text": "Rookie", "tier": "bronze", "color": "#c08a5b" } },
     { "id": "title-bird-brain", "slot": "title", "name": "Bird Brain", "rarity": "common", "unlock": { "kind": "level", "level": 2 }, "art": { "text": "Bird Brain", "tier": "bronze", "color": "#ff6b6b" } },

@@ -176,12 +176,14 @@ mod tests {
     #[test]
     fn shipped_items_are_valid() {
         let it = items();
-        assert_eq!(it.boards.len(), 6);
-        assert!(it.faces.len() >= 10);
-        for id in ["x", "o", "photo", "avatar"] {
+        assert_eq!(it.boards.len(), 10);
+        assert!(it.faces.len() >= 18);
+        for id in ["x", "o", "photo", "avatar", "star", "heart", "strawberry", "watermelon", "panda", "frog"] {
             assert!(it.find(Kind::Face, id).unwrap().free(), "{id} should be free");
         }
-        assert!(it.find(Kind::Board, "classic").unwrap().free());
+        for id in ["classic", "notebook", "ocean", "sunny", "mint"] {
+            assert!(it.find(Kind::Board, id).unwrap().free(), "{id} should be free");
+        }
         assert_eq!(it.find_key("face:pig").unwrap().name, "Piggy");
         assert_eq!(it.find_key("board:neon").unwrap().kind, Some(Kind::Board));
         assert!(it.find_key("hat:pig").is_none());

@@ -15,9 +15,9 @@ function backendSkins(): [string, string, boolean][] {
 }
 
 describe("connect four skins", () => {
-  it("has 10 unique skins matching the backend catalog", () => {
-    expect(SKINS).toHaveLength(10);
-    expect(new Set(SKINS.map((s) => s.id)).size).toBe(10);
+  it("has 14 unique skins matching the backend catalog", () => {
+    expect(SKINS).toHaveLength(14);
+    expect(new Set(SKINS.map((s) => s.id)).size).toBe(14);
     expect(SKINS.map((s) => [s.id, s.rarity, s.free])).toEqual(backendSkins());
   });
 

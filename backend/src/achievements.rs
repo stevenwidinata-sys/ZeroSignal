@@ -102,7 +102,7 @@ pub static ACHIEVEMENTS: [Achievement; 38] = [
     ach!("cf_hard", "Hard Hitter", "Win a Connect Four series vs Hard or harder", 80, "title-grid-breaker", 1, |s| s.cf_wins_hard),
     ach!("cf_impossible", "Beat Impossible", "Win a Connect Four series vs Impossible", 300, "title-the-impossible", 1, |s| s.cf_wins_impossible),
     ach!("cf_sweep", "Clean Sweep", "Win a best-of-5 Connect Four series 3–0", 100, "title-flawless", 1, |s| s.cf_sweeps),
-    ach!("cf_all_skins", "Skin Collector", "Own all 10 Connect Four skins", 200, "title-collector", 1,
+    ach!("cf_all_skins", "Skin Collector", "Own every Connect Four skin", 200, "title-collector", 1,
         |s| i64::from(s.cf_skins_total > 0 && s.cf_skins_owned >= s.cf_skins_total)),
     ach!("ttt_first_win", "Three in a Row", "Win your first Tic-Tac-Toe series", 30, "title-x-marks-it", 1, |s| s.ttt_wins),
     ach!("ttt_survive_hard", "Survive Hard", "Draw a whole Hard Tic-Tac-Toe series", 100, "title-unbreakable", 1, |s| s.ttt_hard_draws),

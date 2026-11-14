@@ -40,6 +40,10 @@ pub const SKINS: &[Skin] = &[
     skin("bomb-bird", "Bomb Bird", Rarity::Epic, false),
     skin("egg", "Golden Egg", Rarity::Epic, false),
     skin("tnt", "TNT Crate", Rarity::Epic, false),
+    skin("ocean", "Ocean Teal", Rarity::Common, true),
+    skin("sunset", "Sunset Orange", Rarity::Common, true),
+    skin("mint", "Mint", Rarity::Common, true),
+    skin("night", "Night Sky", Rarity::Common, true),
 ];
 
 pub fn find(id: &str) -> Option<&'static Skin> {
@@ -134,13 +138,13 @@ mod tests {
         [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard, Difficulty::Impossible];
 
     #[test]
-    fn catalog_has_ten_unique_skins_two_free() {
-        assert_eq!(SKINS.len(), 10);
+    fn catalog_has_fourteen_unique_skins_six_free() {
+        assert_eq!(SKINS.len(), 14);
         for (i, s) in SKINS.iter().enumerate() {
             assert!(SKINS[i + 1..].iter().all(|o| o.id != s.id));
         }
         let free: Vec<_> = SKINS.iter().filter(|s| s.free).map(|s| s.id).collect();
-        assert_eq!(free, vec!["red", "blue"]);
+        assert_eq!(free, vec!["red", "blue", "ocean", "sunset", "mint", "night"]);
         assert_eq!(find("golden").unwrap().rarity, Rarity::Legendary);
         assert!(find("nope").is_none());
     }

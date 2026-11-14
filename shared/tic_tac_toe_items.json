@@ -5,7 +5,11 @@
     { "id": "neon", "name": "Neon Night", "rarity": "rare", "price": 300, "art": { "bg": "#0b0e1f", "cell": "#121735", "line": "#00f5d4", "glow": "#00f5d4" } },
     { "id": "wood", "name": "Wooden Crate", "rarity": "rare", "price": 300, "art": { "bg": "#a0632b", "cell": "#c8873a", "line": "#5a3412", "glow": null } },
     { "id": "candy", "name": "Candy Land", "rarity": "epic", "price": 600, "art": { "bg": "#ffafcc", "cell": "#ffe5ec", "line": "#9b5de5", "glow": "#ffffff" } },
-    { "id": "space", "name": "Deep Space", "rarity": "legendary", "price": 1500, "art": { "bg": "#240046", "cell": "#3c096c", "line": "#ffd23f", "glow": "#e0aaff" } }
+    { "id": "space", "name": "Deep Space", "rarity": "legendary", "price": 1500, "art": { "bg": "#240046", "cell": "#3c096c", "line": "#ffd23f", "glow": "#e0aaff" } },
+    { "id": "notebook", "name": "Notebook", "rarity": "common", "price": null, "art": { "bg": "#fdfcf5", "cell": "#f4f1e3", "line": "#4a6fa5", "glow": null } },
+    { "id": "ocean", "name": "Ocean", "rarity": "common", "price": null, "art": { "bg": "#0e4d64", "cell": "#13627f", "line": "#9be7ff", "glow": null } },
+    { "id": "sunny", "name": "Sunny Day", "rarity": "common", "price": null, "art": { "bg": "#ffe8a3", "cell": "#fff3c9", "line": "#e07a00", "glow": null } },
+    { "id": "mint", "name": "Mint Garden", "rarity": "common", "price": null, "art": { "bg": "#d8f3dc", "cell": "#eafaee", "line": "#2d6a4f", "glow": null } }
   ],
   "faces": [
     { "id": "x", "name": "Classic X", "rarity": "common", "price": null, "art": { "kind": "x", "color": "#e63946" } },
@@ -19,6 +23,12 @@
     { "id": "robot", "name": "Robot", "rarity": "rare", "price": 250, "art": { "kind": "emoji", "value": "🤖" } },
     { "id": "red-bird", "name": "Red Bird", "rarity": "epic", "price": 600, "art": { "kind": "chip", "value": "red-bird" } },
     { "id": "pig", "name": "Piggy", "rarity": "epic", "price": 600, "art": { "kind": "chip", "value": "pig" } },
-    { "id": "crown", "name": "Royal Crown", "rarity": "legendary", "price": 1500, "art": { "kind": "emoji", "value": "👑" } }
+    { "id": "crown", "name": "Royal Crown", "rarity": "legendary", "price": 1500, "art": { "kind": "emoji", "value": "👑" } },
+    { "id": "star", "name": "Star", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "⭐" } },
+    { "id": "heart", "name": "Heart", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "❤️" } },
+    { "id": "strawberry", "name": "Strawberry", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "🍓" } },
+    { "id": "watermelon", "name": "Watermelon", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "🍉" } },
+    { "id": "panda", "name": "Panda", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "🐼" } },
+    { "id": "frog", "name": "Froggy", "rarity": "common", "price": null, "art": { "kind": "emoji", "value": "🐸" } }
   ]
 }

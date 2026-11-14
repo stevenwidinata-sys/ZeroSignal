@@ -47,8 +47,10 @@ describe("boards and faces", () => {
   it("match the backend's shared catalog", () => {
     const json = JSON.parse(readFileSync(resolve(__dirname, "../../../../shared/tic_tac_toe_items.json"), "utf8"));
     expect(BOARDS.map((b) => b.id)).toEqual(json.boards.map((b: { id: string }) => b.id));
-    expect(FACES.length).toBeGreaterThanOrEqual(10);
-    expect(FACES.filter((f) => f.price === null).map((f) => f.id)).toEqual(["x", "o", "photo", "avatar"]);
+    expect(FACES.length).toBeGreaterThanOrEqual(18);
+    expect(FACES.filter((f) => f.price === null).map((f) => f.id)).toEqual([
+      "x", "o", "photo", "avatar", "star", "heart", "strawberry", "watermelon", "panda", "frog",
+    ]);
   });
 
   it("resolves spin keys and never gives both sides the same face", () => {
