@@ -1,4 +1,5 @@
 import type { Dir, StepResult } from "./engine";
+import { actionFor, type KeyOverrides } from "../../platform/keymap";
 
 /**
  * Tiles on screen. The engine only knows cell values; for animations every
@@ -38,31 +39,12 @@ export function tilesAfter(prev: Tile[], res: StepResult, cells: number[]): Tile
   return out;
 }
 
-/** Keyboard: arrows and WASD slide, Z undoes. */
-export function keyToMove(key: string): Dir | "Z" | null {
-  switch (key) {
-    case "ArrowUp":
-    case "w":
-    case "W":
-      return "U";
-    case "ArrowDown":
-    case "s":
-    case "S":
-      return "D";
-    case "ArrowLeft":
-    case "a":
-    case "A":
-      return "L";
-    case "ArrowRight":
-    case "d":
-    case "D":
-      return "R";
-    case "z":
-    case "Z":
-      return "Z";
-    default:
-      return null;
-  }
+const MOVES: Record<string, Dir | "Z"> = { up: "U", down: "D", left: "L", right: "R", undo: "Z" };
+
+/** Keyboard (Settings → Controls; default arrows / WASD slide, Z undoes). */
+export function keyToMove(code: string, overrides: KeyOverrides = {}): Dir | "Z" | null {
+  const id = actionFor("2048", code, overrides);
+  return id ? (MOVES[id] ?? null) : null;
 }
 
 /** A swipe of at least `min` px, in its main direction. */

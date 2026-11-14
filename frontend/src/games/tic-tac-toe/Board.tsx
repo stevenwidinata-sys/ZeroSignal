@@ -1,4 +1,6 @@
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
+import { isTyping } from "../../platform/display";
+import { currentAction } from "../../platform/keymap";
 import { findBoard } from "./items";
 import type { Cells } from "./logic";
 import Piece from "./Piece";
@@ -19,6 +21,21 @@ const POS = ["top left", "top middle", "top right", "middle left", "center", "mi
 
 export default function Board({ cells, board, faces, interactive, line, lastMove, names, onPlay }: Props) {
   const art = findBoard(board).art;
+
+  // Keyboard (Settings → Controls): numpad layout, 7 8 9 = top row.
+  useEffect(() => {
+    if (!interactive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
+      const m = /^cell(\d)$/.exec(currentAction("tic-tac-toe", e.code) ?? "");
+      if (!m) return;
+      const i = Number(m[1]) - 1;
+      e.preventDefault();
+      if (cells[i] === 0) onPlay(i);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [interactive, cells, onPlay]);
   const style = {
     "--ttt-bg": art.bg,
     "--ttt-cell": art.cell,

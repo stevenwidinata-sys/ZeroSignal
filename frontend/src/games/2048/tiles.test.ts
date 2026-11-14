@@ -39,10 +39,13 @@ describe("2048 tiles", () => {
 
   it("keys and swipes map to moves", () => {
     expect(keyToMove("ArrowUp")).toBe("U");
-    expect(keyToMove("a")).toBe("L");
-    expect(keyToMove("D")).toBe("R");
-    expect(keyToMove("z")).toBe("Z");
+    expect(keyToMove("KeyA")).toBe("L");
+    expect(keyToMove("KeyD")).toBe("R");
+    expect(keyToMove("KeyZ")).toBe("Z");
     expect(keyToMove("Enter")).toBeNull();
+    // A changed key replaces the default.
+    expect(keyToMove("KeyI", { "2048.up": ["KeyI"] })).toBe("U");
+    expect(keyToMove("KeyW", { "2048.up": ["KeyI"] })).toBeNull();
     expect(swipeDir(40, 5)).toBe("R");
     expect(swipeDir(-3, -60)).toBe("U");
     expect(swipeDir(10, 10)).toBeNull();

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { minefield } from "../../api/client";
 import type { MfGame } from "../../api/types";
 import { useGuardWhile } from "../../platform/leaveGuard";
+import { currentAction } from "../../platform/keymap";
 import { playSfx } from "../../platform/sound";
 import { vibrate } from "../../store/settings";
 import { SaveScorePrompt } from "../../components/Guest";
@@ -23,6 +24,8 @@ import {
 } from "./logic";
 
 const LONG_PRESS_MS = 420;
+/** Keymap move actions → the cursor directions `moveCursor` understands. */
+const ARROW: Record<string, string> = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
 export const DIFF_NAME: Record<MfGame["difficulty"], string> = {
   beginner: "Beginner",
   intermediate: "Intermediate",
@@ -132,20 +135,22 @@ export default function Field({ initial, onNew, onMenu }: Props) {
 
   const primary = (i: number) => (flagMode && cells[i] === HIDDEN ? toggleMark(i) : open(i));
 
-  // Keyboard: arrows move, Space/Enter open or chord, F flag.
+  // Keyboard (Settings → Controls): arrows move, Space/Enter open or chord, F flag, D chord.
   function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key.startsWith("Arrow")) {
+    const action = currentAction("minefield", e.code);
+    const arrow = action && ARROW[action];
+    if (arrow) {
       e.preventDefault();
-      const next = moveCursor(cursor, e.key, rows, cols);
+      const next = moveCursor(cursor, arrow, rows, cols);
       setCursor(next);
       gridRef.current?.querySelector<HTMLButtonElement>(`[data-cell="${next}"]`)?.focus();
-    } else if (e.key === " " || e.key === "Enter") {
+    } else if (action === "open") {
       e.preventDefault();
       open(cursor);
-    } else if (e.key === "f" || e.key === "F") {
+    } else if (action === "flag") {
       e.preventDefault();
       toggleMark(cursor);
-    } else if (e.key === "d" || e.key === "D") {
+    } else if (action === "chord") {
       e.preventDefault();
       if (cells[cursor] !== HIDDEN) open(cursor);
     }

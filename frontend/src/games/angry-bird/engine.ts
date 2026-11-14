@@ -2,6 +2,7 @@ import Matter from "matter-js";
 import type { Bird } from "../../api/types";
 import { hasActiveAbility } from "./birds";
 import type { Level } from "./levels";
+import { currentAction } from "../../platform/keymap";
 import {
   PHYS,
   type Vec,
@@ -351,7 +352,7 @@ export class GameEngine {
       if (this.phase === "aiming" && e.pointerId === this.pointerId) this.cancelAim();
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && this.phase === "aiming") this.cancelAim();
+      if (this.phase === "aiming" && currentAction("angry-bird", e.code) === "cancel") this.cancelAim();
     };
 
     c.addEventListener("pointerdown", onDown);

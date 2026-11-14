@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { currentAction } from "../../platform/keymap";
+import { isTyping } from "../../platform/display";
 import Chip from "./Chip";
 import { COLS, ROWS, canPlay, type Cells } from "./logic";
 
@@ -29,6 +31,21 @@ export default function Board({
 }: Props) {
   const [hover, setHover] = useState<number | null>(null);
   const isWin = (c: number, r: number) => winningCells.some(([x, y]) => x === c && y === r);
+
+  // Keyboard (Settings → Controls): 1–7 drop a chip in that column.
+  useEffect(() => {
+    if (!interactive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
+      const m = /^col(\d)$/.exec(currentAction("connect-four", e.code) ?? "");
+      if (!m) return;
+      const c = Number(m[1]) - 1;
+      e.preventDefault();
+      if (canPlay(cells, c)) onPlay(c);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [interactive, cells, onPlay]);
 
   return (
     <div className={`c4-board${winningCells.length ? " has-win" : ""}`}>

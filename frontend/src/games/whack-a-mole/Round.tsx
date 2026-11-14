@@ -7,7 +7,7 @@ import { useCharacter } from "../../store/character";
 import { useSettings, vibrate } from "../../store/settings";
 import { BOSS_HP, SURVIVAL_LIVES, comboTenths, type Game, type Kind } from "./engine";
 import { findHammer, findTheme, hammerCursor, hammerSfx, themeStyle } from "./items";
-import { holeForKey, keyLabel } from "./keys";
+import { holeForKey, isPauseKey, keyLabel } from "./keys";
 import Mole, { KIND_LABEL } from "./Mole";
 
 interface Pop {
@@ -35,6 +35,7 @@ const COUNTDOWN = ["3", "2", "1", "GO!"];
 
 /** One live round: countdown, game clock, taps, HUD. */
 export default function Round({ game, showKeys, hammer, theme, onDone, onQuit }: Props) {
+  const keyOverrides = useSettings((s) => s.keys);
   const grid = game.grid as 3 | 4;
   const hammerArt = findHammer(hammer).art;
   const themeArt = findTheme(theme).art;
@@ -233,12 +234,14 @@ export default function Round({ game, showKeys, hammer, theme, onDone, onQuit }:
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.code === "Escape" || e.code === "KeyP") {
+      const keys = useSettings.getState().keys;
+      if (isPauseKey(e.code, keys)) {
+        e.preventDefault();
         if (paused) resume();
         else pause();
         return;
       }
-      const hole = holeForKey(e.code, grid);
+      const hole = holeForKey(e.code, grid, keys);
       if (hole === null) return;
       e.preventDefault();
       whack(hole);
@@ -366,7 +369,7 @@ export default function Round({ game, showKeys, hammer, theme, onDone, onQuit }:
                 )}
                 {showKeys && (
                   <kbd className="wam-key" aria-hidden="true">
-                    {keyLabel(hole, grid)}
+                    {keyLabel(hole, grid, keyOverrides)}
                   </kbd>
                 )}
                 {pops

@@ -127,7 +127,7 @@ export default function Round({ run, game, onDone, onMenu }: Props) {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT")) return;
-      const m = keyToMove(e.key);
+      const m = keyToMove(e.code, useSettings.getState().keys);
       if (!m) return;
       e.preventDefault();
       act(m);
