@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /app/backend/target/release/backend /usr/local/bin/zerosignal-api
 USER app
 ENV RUST_LOG=info
-# Render (and most hosts) set PORT; the server listens on it.
-EXPOSE 8080
+# The server listens on $PORT. Vercel routes to port 80 by default; Render
+# and others set PORT themselves, which overrides this.
+ENV PORT=80
+EXPOSE 80
 CMD ["zerosignal-api"]
