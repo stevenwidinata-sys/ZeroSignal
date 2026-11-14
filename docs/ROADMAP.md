@@ -272,7 +272,7 @@ Commits go to `main` step by step (each step live once tested); owner is the onl
   (Neon Arcade, Daylight, Sunset Chill, Ocean Calm, Forest, Candy Pop,
   Midnight Focus, Game Boy Green, Sakura, Cyberpunk) in Settings → Display,
   synced to the account.
-- **B. More free items** (`feat/free-items`): +4 Connect Four skins, +4
+- **B. More free items** (`feat/free-items`, done): +4 Connect Four skins, +4
   Tic-Tac-Toe boards, +6 faces, +3 hammers, +3 Whack-a-Mole themes, 4 free
   2048 tile styles, +20 starter character items. Paid items unchanged.
 - **C. Angry Bird levels** (`feat/angry-bird-levels`): 12 levels in 3 worlds

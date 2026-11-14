@@ -99,6 +99,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - **Saved as you play:** moves go to the server every 10 moves and when you leave the tab. One unfinished game per player, kept for 24 hours after your last move; continue it on any device, or end it early and get it scored.
 - **Anti-cheat:** the server picks the seed, and the browser and server drop tiles with the same random number generator (shared test vectors keep the Rust and TypeScript copies identical). The client sends only the move string (`U D L R`, `Z` = undo); the server replays it to get the score and the biggest tile. Saves must extend the saved moves, a move that changes nothing is rejected, and at most 25 moves per second are accepted.
 - **Rewards:** same as Angry Bird for the points (1 coin per 1,000, 10–100 XP, token 3% → 15%), plus **+30 coins for a 2048 tile** and **+80 more and a 50% token chance for 4096**. Games shorter than 20 moves pay nothing and don't count for quests.
+- **4 free tile styles** (Classic, Pastel, Neon, Mono), picked on the setup screen; colorblind mode still wins.
 - Slide and merge animations (off with Light graphics), merge sounds, colorblind tile colors (numbers are always shown), and a results screen with points, biggest tile, moves, undos and time.
 
 ## Coins, tokens and levels
