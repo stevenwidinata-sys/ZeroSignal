@@ -9,6 +9,7 @@ import { ABILITY_LABEL, FALLBACK_BIRDS } from "./birds";
 import { GameEngine, MAX_SHOTS, type ShotRecord } from "./engine";
 import { LEVEL_ONE } from "./levels";
 import { SaveScorePrompt } from "../../components/Guest";
+import BackButton from "../../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -118,9 +119,7 @@ export default function Game() {
     <>
       <div className="page-head">
         <div>
-          <Link to="/" className="back-link">
-            ← Arcade
-          </Link>
+          <BackButton />
           <h1 style={{ marginTop: 12 }}>
             Angry Bird <span className="tag tag-yellow">Level 1</span>
           </h1>

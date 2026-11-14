@@ -939,14 +939,54 @@ input:focus {
 }
 
 /* ---------- Platform: shared bits ---------- */
-.back-link {
+/* The back button on every page: big, yellow, clearly labelled. */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 16px 8px 10px;
   font-family: var(--font-pixel);
-  font-size: 0.6rem;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-decoration: none;
-  color: var(--muted);
+  color: var(--on-yellow);
+  background: var(--yellow);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-off) var(--shadow-off) 0 var(--line);
+  transition:
+    transform 0.08s var(--ease),
+    box-shadow 0.08s var(--ease);
 }
-.back-link:hover {
-  color: var(--blue);
+.back-btn-arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--on-yellow);
+  color: var(--yellow);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.back-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: calc(var(--shadow-off) + 1px) calc(var(--shadow-off) + 1px) 0 var(--line);
+}
+.back-btn:hover .back-btn-arrow {
+  transform: translateX(-2px);
+}
+.back-btn:active {
+  transform: translate(var(--shadow-off), var(--shadow-off));
+  box-shadow: 0 0 0 var(--line);
+}
+.back-btn:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
 }
 
 .page-head h1 .tag {

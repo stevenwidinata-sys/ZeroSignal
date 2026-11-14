@@ -5,6 +5,7 @@ import type { StatsSeries, StatsView } from "../api/types";
 import { formatTime } from "../games/minefield/logic";
 import { findGame } from "../platform/registry";
 import { DIFFICULTY_NAME, MF_LEVEL, boardLabel, sumBoards, winRate } from "./statsLogic";
+import BackButton from "../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -91,9 +92,7 @@ export default function Stats() {
   const head = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>📊 Your stats</h1>
         <p>Every number comes from results the server checked itself.</p>
       </div>

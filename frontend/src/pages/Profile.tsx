@@ -20,6 +20,7 @@ import TitleBadge from "../components/TitleBadge";
 import { playSfx } from "../platform/sound";
 import { useAuth } from "../store/auth";
 import { useCharacter } from "../store/character";
+import BackButton from "../components/BackButton";
 
 /** Body and head items are easier to see as a face close-up. */
 const HEAD_GROUPS: SlotGroup[] = ["body", "head"];
@@ -160,9 +161,7 @@ export default function Profile() {
     <div className="ward">
       <div className="page-head">
         <div>
-          <Link to="/" className="back-link">
-            ← Arcade
-          </Link>
+          <BackButton />
           <h1 style={{ marginTop: 12 }}>🧍 My character</h1>
           <p>
             Unlock items by leveling up, buy them with coins, or win exclusives on the token wheel.

@@ -10,6 +10,7 @@ import type { Kind } from "./engine";
 import Mole from "./Mole";
 import Results from "./Results";
 import Round from "./Round";
+import BackButton from "../../components/BackButton";
 
 type Screen =
   | { kind: "setup" }
@@ -206,9 +207,7 @@ export default function Play() {
   const header = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>
           Whack-a-Mole{" "}
           {screen.kind === "round" && (

@@ -20,6 +20,7 @@ import {
 import { playSfx } from "../platform/sound";
 import { useCharacter } from "../store/character";
 import { useSettings } from "../store/settings";
+import BackButton from "../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 const HEAD_GROUPS: SlotGroup[] = ["body", "head"];
@@ -134,9 +135,7 @@ export default function Shop() {
     <div className="shop">
       <div className="page-head">
         <div>
-          <Link to="/profile" className="back-link">
-            ← My character
-          </Link>
+          <BackButton to="/profile" label="Back to my character" />
           <h1 style={{ marginTop: 12 }}>🛒 Shop</h1>
           <p>Spend coins on gear, gamble on a mystery box, or use lucky tokens for exclusives.</p>
         </div>

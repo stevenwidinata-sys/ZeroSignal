@@ -4,6 +4,7 @@ import { minefield } from "../../api/client";
 import type { MfDifficulty, MfGame } from "../../api/types";
 import { playSfx } from "../../platform/sound";
 import Field, { DIFF_NAME } from "./Field";
+import BackButton from "../../components/BackButton";
 
 const SIZES: { id: MfDifficulty; size: string; blurb: string }[] = [
   { id: "beginner", size: "9×9 · 10 mines", blurb: "Learn the ropes. Pays 5 coins." },
@@ -51,9 +52,7 @@ export default function Play() {
   const header = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>
           Minefield {game && <span className="tag">{DIFF_NAME[game.difficulty]}</span>}
         </h1>

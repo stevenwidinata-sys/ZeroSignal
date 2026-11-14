@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import TitleBadge from "../components/TitleBadge";
+import BackButton from "../components/BackButton";
 import {
   type AchievementFilter,
   filterAchievements,
@@ -31,9 +32,7 @@ export default function Achievements() {
     <div className="ach-page">
       <div className="page-head">
         <div>
-          <Link to="/" className="back-link">
-            ← Arcade
-          </Link>
+          <BackButton />
           <h1 style={{ marginTop: 12 }}>🏅 Achievements</h1>
           <p>
             {view.claimed}/{view.achievements.length} claimed. Each one pays coins + XP once and unlocks a title

@@ -8,6 +8,7 @@ import { Game, replay } from "./engine";
 import { MODE_INFO, clearPlayTime, loadMode, loadPlayTime, saveMode } from "./modes";
 import Results from "./Results";
 import Round from "./Round";
+import BackButton from "../../components/BackButton";
 
 type Screen =
   | { kind: "setup" }
@@ -91,9 +92,7 @@ export default function Play() {
   const header = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>
           2048{" "}
           {screen.kind === "round" && (

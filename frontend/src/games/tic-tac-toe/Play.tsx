@@ -11,6 +11,7 @@ import { BOARDS, FACES, opponentFace } from "./items";
 import LocalGame from "./LocalGame";
 import PhotoCapture from "./PhotoCapture";
 import Piece from "./Piece";
+import BackButton from "../../components/BackButton";
 
 type Mode = "ai" | "local";
 type Screen =
@@ -136,9 +137,7 @@ export default function Play() {
   const header = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>
           Tic-Tac-Toe{" "}
           {screen.kind === "ai" && <span className="tag tag-blue">vs AI · {DIFFICULTY_LABEL[screen.match.difficulty]}</span>}

@@ -9,6 +9,7 @@ import { normalizeLoadout } from "../character/catalog";
 import TitleBadge from "../components/TitleBadge";
 import { GAMES, findGame } from "../platform/registry";
 import { useAuth } from "../store/auth";
+import BackButton from "../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -74,9 +75,7 @@ export default function Leaderboard() {
     <div className="board-page">
       <div className="page-head">
         <div>
-          <Link to="/" className="back-link">
-            ← Arcade
-          </Link>
+          <BackButton />
           <h1 style={{ marginTop: 12 }}>🏆 High scores</h1>
           <p>Top 20 per game, all time or per week. Every score is verified by the server.</p>
         </div>

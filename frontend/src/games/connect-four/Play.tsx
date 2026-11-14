@@ -9,6 +9,7 @@ import Chip from "./Chip";
 import LocalGame from "./LocalGame";
 import { RARITY_COLOR, SKINS } from "./skins";
 import SpinWheel from "./SpinWheel";
+import BackButton from "../../components/BackButton";
 
 type Mode = "ai" | "local";
 type Screen =
@@ -114,9 +115,7 @@ export default function Play() {
   const header = (
     <div className="page-head">
       <div>
-        <Link to="/" className="back-link">
-          ← Arcade
-        </Link>
+        <BackButton />
         <h1 style={{ marginTop: 12 }}>
           Connect Four{" "}
           {screen.kind === "ai" && <span className="tag tag-blue">vs AI · {DIFFICULTY_LABEL[screen.match.difficulty]}</span>}

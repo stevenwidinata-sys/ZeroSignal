@@ -7,6 +7,7 @@ import { ITEMS, normalizeLoadout } from "../character/catalog";
 import TitleBadge from "../components/TitleBadge";
 import { findGame } from "../platform/registry";
 import { useAuth } from "../store/auth";
+import BackButton from "../components/BackButton";
 
 const fmt = (n: number) => n.toLocaleString();
 /** Achievement titles are the catalog items only achievements can unlock. */
@@ -52,9 +53,7 @@ export default function PublicProfile() {
   if (p.private) {
     return (
       <div className="pub">
-        <Link to="/leaderboard" className="back-link">
-          ← Leaderboards
-        </Link>
+        <BackButton to="/leaderboard" label="Back to leaderboards" />
         <div className="panel notice">
           <span className="notice-icon" aria-hidden="true">
             🔒
@@ -69,9 +68,7 @@ export default function PublicProfile() {
 
   return (
     <div className="pub">
-      <Link to="/leaderboard" className="back-link">
-        ← Leaderboards
-      </Link>
+      <BackButton to="/leaderboard" label="Back to leaderboards" />
       <div className="panel pub-card">
         <Avatar loadout={loadout} size={200} label={`${p.username}'s character`} />
         <div className="pub-info">
