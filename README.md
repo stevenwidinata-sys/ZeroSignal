@@ -293,27 +293,31 @@ The server checks every outfit: you can only wear items you own, in the slot the
    ```
    App served on `http://localhost:5173`.
 
-## Deploy (free, always reachable)
+## Deploy (free, no card)
 
-| Part | Host | Notes |
-|------|------|-------|
-| Website | **Vercel** (Hobby, free) | project root `frontend`, env `VITE_API_BASE_URL=https://<api address>`; `frontend/vercel.json` sends every path to the app |
-| API | **Hugging Face Space** (Docker, free CPU, no card) | built from the root `Dockerfile`; `.github/workflows/deploy-hf.yml` pushes it on every change to `main` (needs secret `HF_TOKEN` and variable `HF_SPACE`). `render.yaml` is kept as an alternative for Render |
-| Database | **Neon** Postgres (free, 1 GB) | pauses after 5 idle minutes and wakes by itself on the next query |
-| Keep-awake | **cron-job.org** (free) | requests `https://<api>/health` every 10 minutes so the free API never sleeps |
+Both halves run on **Vercel's free Hobby plan**, as two projects from this repository, with the database on **Neon**.
 
-API environment (Space → Settings → Variables and secrets, or the Render dashboard; never commit secrets):
+| Part | Vercel project | Settings |
+|------|----------------|----------|
+| Website | `zerosignal`, Root Directory `frontend` | env `VITE_API_BASE_URL=https://<api project>.vercel.app`; `frontend/vercel.json` sends every path to the app |
+| API | `zerosignal-api`, Root Directory = repo root | Vercel's Container runtime builds the root `Dockerfile`; the root `vercel.json` runs it in Singapore (`sin1`) and calls `/api/internal/cleanup` daily |
+| Database | Neon Postgres (free, 1 GB) | pauses after 5 idle minutes and wakes by itself on the next query |
+
+The API scales to zero when nobody plays and starts again by itself on the next visit (a second or two). Nothing ever needs a manual wake-up.
+
+API environment variables (Vercel → project → Settings → Environment Variables; never commit secrets):
 
 | Variable | Value |
 |----------|-------|
 | `DATABASE_URL` | Neon connection string (with `sslmode=require`) |
+| `JWT_SECRET` | long random string |
+| `CRON_SECRET` | long random string; Vercel Cron sends it to the daily clean-up (unset = clean-up endpoint off) |
 | `CORS_ORIGIN` | the website, e.g. `https://zerosignal.vercel.app` (comma-separate several; `*` = any) |
-| `JWT_SECRET` | long random string (the blueprint generates one) |
-| `TRUST_PROXY` | `true` behind a host's proxy, so the guest limit sees each visitor's real IP |
+| `PORT` | `8080` (the port Vercel routes to; Render and others set it themselves) |
+| `TRUST_PROXY` | `true`, so the guest limit sees each visitor's real IP |
 | `DB_MAX_CONNECTIONS` | `5` |
-| `PORT` | set by Render; the server listens on it (else `SERVER_ADDR`, default `0.0.0.0:8080`, which the Space uses) |
 
-Migrations run automatically when the API starts. Pushing to `main` redeploys both the API and the website (Vercel).
+Migrations run automatically when the API starts. Pushing to `main` redeploys both projects. `render.yaml` is kept as an alternative for Render (which may ask for a card).
 
 ## Tests
 

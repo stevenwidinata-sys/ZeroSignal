@@ -65,6 +65,8 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/health", get(health))
+        // Daily housekeeping, called by the host's cron job with a secret.
+        .route("/api/internal/cleanup", get(auth::guest::cron_cleanup))
         .route("/api/auth/register", post(auth::handlers::register))
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/auth/guest", post(auth::guest::create))

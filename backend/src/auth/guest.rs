@@ -287,23 +287,56 @@ pub async fn cleanup(pool: &sqlx::PgPool) -> AppResult<u64> {
         .rows_affected())
 }
 
-/// Run `cleanup` (and the deleted-account purge) now and then once a day.
+/// Delete old guests and accounts whose grace period is over.
+pub async fn housekeeping(pool: &sqlx::PgPool) -> AppResult<(u64, u64)> {
+    let guests = cleanup(pool).await?;
+    let accounts = super::account::purge_deleted(pool).await?;
+    if guests + accounts > 0 {
+        tracing::info!("housekeeping: deleted {guests} old guests, {accounts} accounts after their grace period");
+    }
+    Ok((guests, accounts))
+}
+
+/// Run `housekeeping` now and then once a day, while the server keeps
+/// running. Hosts that stop idle servers (Vercel) also call
+/// `/api/internal/cleanup` from a daily cron job.
 pub fn spawn_cleanup(pool: sqlx::PgPool) {
     tokio::spawn(async move {
         loop {
-            match cleanup(&pool).await {
-                Ok(0) => {}
-                Ok(n) => tracing::info!("deleted {n} old guest accounts"),
-                Err(e) => tracing::warn!("guest clean-up failed: {e}"),
-            }
-            match super::account::purge_deleted(&pool).await {
-                Ok(0) => {}
-                Ok(n) => tracing::info!("deleted {n} accounts after their 7-day grace period"),
-                Err(e) => tracing::warn!("account purge failed: {e}"),
+            if let Err(e) = housekeeping(&pool).await {
+                tracing::warn!("housekeeping failed: {e}");
             }
             tokio::time::sleep(Duration::from_secs(24 * 3600)).await;
         }
     });
+}
+
+#[derive(Serialize)]
+pub struct CleanupView {
+    pub guests_deleted: u64,
+    pub accounts_deleted: u64,
+}
+
+/// True when the request carries `Authorization: Bearer <secret>`.
+pub fn cron_authorized(header: Option<&str>, secret: Option<&str>) -> bool {
+    match (header, secret) {
+        (Some(h), Some(s)) if !s.is_empty() => h.strip_prefix("Bearer ").is_some_and(|t| t == s),
+        _ => false,
+    }
+}
+
+/// `GET /api/internal/cleanup`: the daily cron job (Vercel sends
+/// `Authorization: Bearer $CRON_SECRET`). Not found without the secret.
+pub async fn cron_cleanup(
+    State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
+) -> AppResult<Json<CleanupView>> {
+    let auth = headers.get(axum::http::header::AUTHORIZATION).and_then(|v| v.to_str().ok());
+    if !cron_authorized(auth, state.config.cron_secret.as_deref()) {
+        return Err(AppError::NotFound);
+    }
+    let (guests_deleted, accounts_deleted) = housekeeping(&state.pool).await?;
+    Ok(Json(CleanupView { guests_deleted, accounts_deleted }))
 }
 
 #[cfg(test)]
@@ -333,6 +366,16 @@ mod tests {
         assert_eq!(client_ip(peer, fwd, false), peer);
         assert_eq!(client_ip(peer, None, true), peer);
         assert_eq!(client_ip(peer, Some("junk"), true), peer);
+    }
+
+    #[test]
+    fn cron_needs_the_exact_secret() {
+        assert!(cron_authorized(Some("Bearer s3cret"), Some("s3cret")));
+        assert!(!cron_authorized(Some("Bearer wrong"), Some("s3cret")));
+        assert!(!cron_authorized(Some("s3cret"), Some("s3cret")));
+        assert!(!cron_authorized(None, Some("s3cret")));
+        assert!(!cron_authorized(Some("Bearer "), Some("")), "no secret set = disabled");
+        assert!(!cron_authorized(Some("Bearer x"), None));
     }
 
     #[test]

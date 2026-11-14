@@ -12,6 +12,9 @@ pub struct Config {
     /// `X-Forwarded-For` instead of the proxy's own address.
     pub trust_proxy: bool,
     pub db_max_connections: u32,
+    /// Secret the daily cron job sends (`Authorization: Bearer ...`);
+    /// unset = the cleanup endpoint is off.
+    pub cron_secret: Option<String>,
 }
 
 impl Config {
@@ -40,6 +43,7 @@ impl Config {
                 .ok()
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(10),
+            cron_secret: std::env::var("CRON_SECRET").ok().filter(|s| !s.is_empty()),
         })
     }
 }
