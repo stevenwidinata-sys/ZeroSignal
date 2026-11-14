@@ -1,6 +1,6 @@
 # Zero Signal API. Build from the repository root (the backend reads
 # ../shared/*.json at compile time):
-#   docker build -f backend/Dockerfile -t zerosignal-api .
+#   docker build -t zerosignal-api .
 
 # ---- build ----
 # Pinned: newer Rust versions cannot build sqlx 0.7 (never-type change).

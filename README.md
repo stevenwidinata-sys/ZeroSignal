@@ -298,7 +298,7 @@ The server checks every outfit: you can only wear items you own, in the slot the
 | Part | Host | Notes |
 |------|------|-------|
 | Website | **Vercel** (Hobby, free) | project root `frontend`, env `VITE_API_BASE_URL=https://<api>.onrender.com`; `frontend/vercel.json` sends every path to the app |
-| API | **Render** web service (free) | `render.yaml` blueprint, built from `backend/Dockerfile` (context = repo root) |
+| API | **Render** web service (free) | `render.yaml` blueprint, built from the `Dockerfile` at the repo root |
 | Database | **Neon** Postgres (free, 1 GB) | pauses after 5 idle minutes and wakes by itself on the next query |
 | Keep-awake | **cron-job.org** (free) | requests `https://<api>.onrender.com/health` every 10 minutes so the free API never sleeps |
 
