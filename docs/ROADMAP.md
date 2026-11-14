@@ -267,7 +267,7 @@ Account · Privacy. Built in this order, one branch each:
 
 ### Ten changes (agreed 2026-11-14, plan approved; built in this order)
 Commits go to `main` step by step (each step live once tested); owner is the only author.
-- **A. Hub polish** (`feat/hub-polish`): 4 game cards per row (6 games = 4 + 2);
+- **A. Hub polish** (`feat/hub-polish`, done): 4 game cards per row (6 games = 4 + 2);
   a big, clearly visible back button on every page; **10 free mood themes**
   (Neon Arcade, Daylight, Sunset Chill, Ocean Calm, Forest, Candy Pop,
   Midnight Focus, Game Boy Green, Sakura, Cyberpunk) in Settings → Display,
