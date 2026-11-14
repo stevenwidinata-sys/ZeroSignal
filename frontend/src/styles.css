@@ -814,10 +814,21 @@ input:focus {
 }
 
 /* Five games fit on one row on a desktop; fewer columns on smaller screens. */
+/* 4 games per row (6 games = 4 + 2), 2 on tablets, 1 on phones. */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+}
+@media (max-width: 960px) {
+  .game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .game-card {
