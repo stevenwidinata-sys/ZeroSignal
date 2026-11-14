@@ -10,7 +10,7 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 
 | Game         | Status      | Notes |
 |--------------|-------------|-------|
-| Angry Bird   | Live        | Full physics; the server re-simulates every shot with `rapier2d` |
+| Angry Bird   | Live        | 12 levels in 3 worlds with stars; full physics; the server re-simulates every shot with `rapier2d` |
 | Connect Four | Live        | vs AI (4 levels) or vs a friend; best of 3/5; 14 chip skins (6 free) + spin wheel |
 | Tic-Tac-Toe  | Live        | vs AI (Easy, Medium, unbeatable Hard) or vs a friend; boards, faces, your photo as a face |
 | Whack-a-Mole | Live        | 4 modes, 6 kinds of moles, combos and FEVER; the server replays every tap |
@@ -90,6 +90,14 @@ A hub of fun browser games with a retro arcade UI and real, **server-verified le
 - **Results:** time, 3BV (fewest clicks that clear the board), 3BV/s, click efficiency, hints. A loss shows every mine and crosses out wrong flags.
 - **Rewards:** win Beginner 5 / Intermediate 20 / Expert 60 / Daily 25 coins; XP 20 × (1 / 2 / 4 / 2); token 2% / 8% / 25% / 10%. A loss gives 5 XP.
 
+## Angry Bird levels
+
+- **12 levels in 3 worlds:** Meadow (wood), Desert (stone and wood) and Ice Castle (ice, stone and wood), with each world's own daytime sky. Blocks are colored by material, and stone takes much more damage than ice.
+- **Stars:** destroy every pig to clear a level (1 ★); score enough block points for 2 ★ and 3 ★. Levels unlock in order: clear one to open the next. The first clear of a level gives +50 XP.
+- **Campaign score** = your best score on every level added up. It unlocks new birds and counts for the "Big Score" (10,000) and "Pig Slayer" (25,000) achievements, which a single level could never reach.
+- One leaderboard per level plus "All levels". New: the "Clear 2 Angry Bird levels" quest, and the **World Tour** (clear all 12) and **Three-Star General** (3 ★ on 6 levels) achievements with titles.
+- The levels live in `shared/angry_bird_levels.json`, read by both the server physics and the browser. Tests check that every level stands up on its own, and a slow search (`cargo test --release -- --ignored beatable`) proves every level can be cleared with 5 red birds.
+
 ## 2048
 
 - **Play:** arrow keys, WASD or swipe slide every tile. Two equal tiles that touch merge into one (each tile merges once per move), and a new 2 (90%) or 4 (10%) drops on an empty cell. The game ends when no move changes the board; you can keep going past 2048.
@@ -162,7 +170,7 @@ Every day (00:00 WIB) you get 3 different random quests, shown on the Hub and on
 
 ## Achievements
 
-The `/achievements` page lists 38 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
+The `/achievements` page lists 40 one-time achievements with progress bars; locked ones are visible too. The server works out progress from results it already verified (matches, scores, the coin ledger, owned items, login and quest history), so progress made before achievements existed counts as well. Press **Claim** to get the coins, the same amount of XP, and a **title** to wear. Achievement coins don't count toward the daily cap. Claimed achievements show on your public profile.
 
 | Achievement | Coins | Title |
 |-------------|-------|-------|
@@ -344,7 +352,7 @@ zero_signal/
 │       ├── daily.rs            # WIB (UTC+7) day boundary for everything daily
 │       ├── daily_login.rs      # 7-day login streak reward
 │       ├── quests/             # daily quest pool, progress hooks, claim/reroll API
-│       ├── achievements.rs     # 38 achievements, live progress, claim + titles
+│       ├── achievements.rs     # 40 achievements, live progress, claim + titles
 │       ├── character/          # item catalog, outfits, presets, shop, profiles
 │       ├── tic_tac_toe/        # rules, perfect AI, matches, boards/faces, photo
 │       ├── whack_a_mole/       # seeded mole schedule, tap replay scorer, runs API
@@ -383,7 +391,7 @@ zero_signal/
 | GET  | `/api/me/quests` | today's 3 quests, progress, reroll and bonus status (auth) |
 | POST | `/api/me/quests/:slot/claim` | claim a finished quest; the 3rd claim adds the bonus token (auth) |
 | POST | `/api/me/quests/:slot/reroll` | swap one unfinished quest, once per day (auth) |
-| GET  | `/api/me/achievements` | all 38 achievements with live progress (auth) |
+| GET  | `/api/me/achievements` | all 40 achievements with live progress (auth) |
 | POST | `/api/me/achievements/:id/claim` | claim an unlocked achievement: coins + XP + title (auth) |
 | GET  | `/api/me/character` | outfit, owned items, presets, wallet (auth) |
 | PUT  | `/api/me/character/loadout` | wear an outfit (server checks ownership) (auth) |
