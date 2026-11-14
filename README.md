@@ -293,6 +293,30 @@ The server checks every outfit: you can only wear items you own, in the slot the
    ```
    App served on `http://localhost:5173`.
 
+## Deploy (free, no card)
+
+The whole game runs as **one Vercel project** on the free Hobby plan (Vercel *Services*), with the database on **Neon**. The root `vercel.json` defines two services on one address:
+
+| Service | Built from | Public paths |
+|---------|------------|--------------|
+| `backend` | the root `Dockerfile` (container runtime, listens on `PORT`, default 80) | `/api/*`, `/health` |
+| `frontend` | Vite app in `frontend/` (deep links fall back to `index.html`) | everything else |
+
+It also runs in Singapore (`sin1`, next to the Neon database) and calls `/api/internal/cleanup` once a day (Vercel Cron). In production the website calls the API on its own address; set `VITE_API_BASE_URL` only to use an API elsewhere. The API scales to zero when nobody plays and starts again by itself on the next visit, so nothing ever needs a manual wake-up. Neon (free, 1 GB) pauses after 5 idle minutes and wakes by itself too.
+
+Environment variables (Vercel → project → Settings → Environment Variables; never commit secrets):
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Neon connection string (with `sslmode=require`) |
+| `JWT_SECRET` | long random string |
+| `CRON_SECRET` | long random string; Vercel Cron sends it to the daily clean-up (unset = clean-up endpoint off) |
+| `CORS_ORIGIN` | the site, e.g. `https://zerosignal.vercel.app` (comma-separate several; `*` = any) |
+| `TRUST_PROXY` | `true`, so the guest limit sees each visitor's real IP |
+| `DB_MAX_CONNECTIONS` | `5` |
+
+Migrations run automatically when the API starts. Pushing to `main` redeploys. `render.yaml` is kept as an alternative host for the API (Render may ask for a card).
+
 ## Tests
 
 ```bash

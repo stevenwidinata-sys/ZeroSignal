@@ -63,6 +63,19 @@ impl GuestLimiter {
 // Create
 // ---------------------------------------------------------------------------
 
+/// The visitor's IP. Behind a trusted proxy it's the first address in
+/// `X-Forwarded-For` (the proxy adds the real client there); otherwise the
+/// connection's own address, so the header can't be faked.
+pub fn client_ip(peer: IpAddr, forwarded: Option<&str>, trust_proxy: bool) -> IpAddr {
+    if !trust_proxy {
+        return peer;
+    }
+    forwarded
+        .and_then(|f| f.split(',').next())
+        .and_then(|first| first.trim().parse().ok())
+        .unwrap_or(peer)
+}
+
 /// Usernames starting with this are reserved for guests.
 pub const GUEST_PREFIX: &str = "guest";
 
@@ -74,8 +87,11 @@ pub fn is_reserved_name(name: &str) -> bool {
 pub async fn create(
     State(state): State<AppState>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    headers: axum::http::HeaderMap,
 ) -> AppResult<Json<AuthResponse>> {
-    if !state.guests.allow(addr.ip(), Instant::now(), GUESTS_PER_HOUR, Duration::from_secs(3600)) {
+    let forwarded = headers.get("x-forwarded-for").and_then(|v| v.to_str().ok());
+    let ip = client_ip(addr.ip(), forwarded, state.config.trust_proxy);
+    if !state.guests.allow(ip, Instant::now(), GUESTS_PER_HOUR, Duration::from_secs(3600)) {
         return Err(AppError::Validation("too many guest sessions from your network. Try again later or register.".into()));
     }
     let id = Uuid::new_v4();
@@ -271,23 +287,56 @@ pub async fn cleanup(pool: &sqlx::PgPool) -> AppResult<u64> {
         .rows_affected())
 }
 
-/// Run `cleanup` (and the deleted-account purge) now and then once a day.
+/// Delete old guests and accounts whose grace period is over.
+pub async fn housekeeping(pool: &sqlx::PgPool) -> AppResult<(u64, u64)> {
+    let guests = cleanup(pool).await?;
+    let accounts = super::account::purge_deleted(pool).await?;
+    if guests + accounts > 0 {
+        tracing::info!("housekeeping: deleted {guests} old guests, {accounts} accounts after their grace period");
+    }
+    Ok((guests, accounts))
+}
+
+/// Run `housekeeping` now and then once a day, while the server keeps
+/// running. Hosts that stop idle servers (Vercel) also call
+/// `/api/internal/cleanup` from a daily cron job.
 pub fn spawn_cleanup(pool: sqlx::PgPool) {
     tokio::spawn(async move {
         loop {
-            match cleanup(&pool).await {
-                Ok(0) => {}
-                Ok(n) => tracing::info!("deleted {n} old guest accounts"),
-                Err(e) => tracing::warn!("guest clean-up failed: {e}"),
-            }
-            match super::account::purge_deleted(&pool).await {
-                Ok(0) => {}
-                Ok(n) => tracing::info!("deleted {n} accounts after their 7-day grace period"),
-                Err(e) => tracing::warn!("account purge failed: {e}"),
+            if let Err(e) = housekeeping(&pool).await {
+                tracing::warn!("housekeeping failed: {e}");
             }
             tokio::time::sleep(Duration::from_secs(24 * 3600)).await;
         }
     });
+}
+
+#[derive(Serialize)]
+pub struct CleanupView {
+    pub guests_deleted: u64,
+    pub accounts_deleted: u64,
+}
+
+/// True when the request carries `Authorization: Bearer <secret>`.
+pub fn cron_authorized(header: Option<&str>, secret: Option<&str>) -> bool {
+    match (header, secret) {
+        (Some(h), Some(s)) if !s.is_empty() => h.strip_prefix("Bearer ").is_some_and(|t| t == s),
+        _ => false,
+    }
+}
+
+/// `GET /api/internal/cleanup`: the daily cron job (Vercel sends
+/// `Authorization: Bearer $CRON_SECRET`). Not found without the secret.
+pub async fn cron_cleanup(
+    State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
+) -> AppResult<Json<CleanupView>> {
+    let auth = headers.get(axum::http::header::AUTHORIZATION).and_then(|v| v.to_str().ok());
+    if !cron_authorized(auth, state.config.cron_secret.as_deref()) {
+        return Err(AppError::NotFound);
+    }
+    let (guests_deleted, accounts_deleted) = housekeeping(&state.pool).await?;
+    Ok(Json(CleanupView { guests_deleted, accounts_deleted }))
 }
 
 #[cfg(test)]
@@ -307,6 +356,26 @@ mod tests {
         assert!(!l.allow(a, t0, 3, hour));
         assert!(l.allow(b, t0, 3, hour), "other IPs are not affected");
         assert!(l.allow(a, t0 + hour, 3, hour), "the window slides");
+    }
+
+    #[test]
+    fn client_ip_trusts_the_proxy_header_only_when_told() {
+        let peer: IpAddr = "10.0.0.9".parse().unwrap();
+        let fwd = Some("203.0.113.7, 10.0.0.1");
+        assert_eq!(client_ip(peer, fwd, true), "203.0.113.7".parse::<IpAddr>().unwrap());
+        assert_eq!(client_ip(peer, fwd, false), peer);
+        assert_eq!(client_ip(peer, None, true), peer);
+        assert_eq!(client_ip(peer, Some("junk"), true), peer);
+    }
+
+    #[test]
+    fn cron_needs_the_exact_secret() {
+        assert!(cron_authorized(Some("Bearer s3cret"), Some("s3cret")));
+        assert!(!cron_authorized(Some("Bearer wrong"), Some("s3cret")));
+        assert!(!cron_authorized(Some("s3cret"), Some("s3cret")));
+        assert!(!cron_authorized(None, Some("s3cret")));
+        assert!(!cron_authorized(Some("Bearer "), Some("")), "no secret set = disabled");
+        assert!(!cron_authorized(Some("Bearer x"), None));
     }
 
     #[test]

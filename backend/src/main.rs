@@ -45,12 +45,12 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let config = Config::from_env()?;
-    let pool = db::connect(&config.database_url).await?;
+    let pool = db::connect(&config.database_url, config.db_max_connections).await?;
     db::run_migrations(&pool).await?;
     tracing::info!("migrations applied");
 
     let cors = CorsLayer::new()
-        .allow_origin(Any)
+        .allow_origin(config::cors_origins(&config.cors_origin))
         .allow_methods(Any)
         .allow_headers(Any);
 
@@ -65,6 +65,8 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/health", get(health))
+        // Daily housekeeping, called by the host's cron job with a secret.
+        .route("/api/internal/cleanup", get(auth::guest::cron_cleanup))
         .route("/api/auth/register", post(auth::handlers::register))
         .route("/api/auth/login", post(auth::handlers::login))
         .route("/api/auth/guest", post(auth::guest::create))

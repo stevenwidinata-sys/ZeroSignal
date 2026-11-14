@@ -46,8 +46,17 @@ import type {
   WamTap,
 } from "./types";
 
-const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string) ?? "http://localhost:8080";
+/**
+ * Where the API lives. Set VITE_API_BASE_URL to call another address; when
+ * it's unset, a production build calls the same address it's served from
+ * (Vercel routes /api/* to the backend) and local dev calls localhost:8080.
+ */
+export function apiBase(env: string | undefined, prod: boolean): string {
+  if (env !== undefined && env.trim() !== "") return env.trim().replace(/\/+$/, "");
+  return prod ? "" : "http://localhost:8080";
+}
+
+const BASE_URL = apiBase(import.meta.env.VITE_API_BASE_URL as string | undefined, import.meta.env.PROD);
 
 const TOKEN_KEY = "pixelplay_token";
 const LEGACY_TOKEN_KEY = "angrybird_token";
