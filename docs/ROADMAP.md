@@ -259,7 +259,7 @@ Account · Privacy. Built in this order, one branch each:
    readable font (replaces the pixel font), FPS counter, fullscreen switch,
    shortcut keys (M mute, F fullscreen, Esc pause/close), a list of every
    game's keys.
-4. **Rebind keys** (`feat/settings-keys`): 2048, Whack-a-Mole, Minefield,
+4. **Rebind keys** (`feat/settings-keys`, done): 2048, Whack-a-Mole, Minefield,
    Connect Four, Tic-Tac-Toe; conflict warning; reset keys.
 5. **Language** (`feat/i18n`): English / Bahasa Indonesia for the whole
    site, games and server errors. New visitors get their browser's
