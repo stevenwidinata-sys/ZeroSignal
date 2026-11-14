@@ -265,6 +265,39 @@ Account · Privacy. Built in this order, one branch each:
    site, games and server errors. New visitors get their browser's
    language. Claude translates; the owner reviews the Indonesian.
 
+### Ten changes (agreed 2026-11-14, plan approved; built in this order)
+Commits go to `main` step by step (each step live once tested); owner is the only author.
+- **A. Hub polish** (`feat/hub-polish`): 4 game cards per row (6 games = 4 + 2);
+  a big, clearly visible back button on every page; **10 free mood themes**
+  (Neon Arcade, Daylight, Sunset Chill, Ocean Calm, Forest, Candy Pop,
+  Midnight Focus, Game Boy Green, Sakura, Cyberpunk) in Settings → Display,
+  synced to the account.
+- **B. More free items** (`feat/free-items`): +4 Connect Four skins, +4
+  Tic-Tac-Toe boards, +6 faces, +3 hammers, +3 Whack-a-Mole themes, 4 free
+  2048 tile styles, +20 starter character items. Paid items unchanged.
+- **C. Angry Bird levels** (`feat/angry-bird-levels`): 12 levels in 3 worlds
+  from `shared/angry_bird_levels.json` (read by Rust and TS), level select
+  with 1–3 stars, unlock by clearing, per-level leaderboards, quest + 2
+  achievements.
+- **D. Living characters** (`feat/living-characters`): animated 2D pixel
+  character (idle, wave, cheer, sad, think) + emotes; shown on the Hub,
+  results, leaderboard top 3, and both sides of Connect Four / Tic-Tac-Toe
+  (AI = "Zero-Bot").
+- **E. Online play** (`feat/online-play`): turn-based Connect Four and
+  Tic-Tac-Toe between two devices via room code/link; server checks every
+  move; polling/long-poll (Vercel has no sockets); forfeit after 2 min away;
+  XP only (no coins); "Online" leaderboard by wins.
+- **F. Game Kit** (`feat/game-kit`): `docs/GAME_KIT.md` rules so every game
+  feels the same; shared ModeSelect / ResultsPanel / GameHeader used by all
+  games; "Coming soon" cards and a /roadmap page.
+- **Planned games:** Snake Signal, Brick Breaker, Signal Flap, Memory Match,
+  Pixel Picross, Block Drop, Sudoku, Pong Online, Sonar (Battleship-style),
+  Checkers. All follow the Game Kit.
+- **Ideas (build when the owner picks):** Live Arcade Lobby, Community Boss
+  Raid, Ghost races, Pet that grows, Glitch Hour, Free seasons, Crews, Share
+  cards, Chiptune Jukebox, Weekend tournaments.
+- Then: language (English / Bahasa Indonesia).
+
 ## Phase 3b (planned)
 
 - Weekly leaderboards (reset each week, all-time board stays) — done.
